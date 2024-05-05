@@ -25,7 +25,6 @@ class Synchronizer {
         notifyAll();
     }
 
-    @SuppressWarnings("WaitNotInLoop")
     void pass() {
         done();
         try {

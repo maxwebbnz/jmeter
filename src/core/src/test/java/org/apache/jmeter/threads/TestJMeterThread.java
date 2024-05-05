@@ -17,11 +17,10 @@
 
 package org.apache.jmeter.threads;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import java.time.Instant;
+import java.util.Date;
 
 import org.apache.jmeter.control.LoopController;
 import org.apache.jmeter.samplers.AbstractSampler;
@@ -31,9 +30,10 @@ import org.apache.jmeter.testelement.AbstractTestElement;
 import org.apache.jmeter.testelement.ThreadListener;
 import org.apache.jmeter.timers.Timer;
 import org.apache.jorphan.collections.HashTree;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class TestJMeterThread {
+public class TestJMeterThread {
 
     private static final class DummySampler extends AbstractSampler {
         private static final long serialVersionUID = 1L;
@@ -65,7 +65,7 @@ class TestJMeterThread {
             if (!super.equals(obj)) {
                 return false;
             }
-            if (!getClass().equals(obj.getClass())) {
+            if (getClass() != obj.getClass()) {
                 return false;
             }
             DummySampler other = (DummySampler) obj;
@@ -75,7 +75,6 @@ class TestJMeterThread {
     }
 
     private static class DummyTimer extends AbstractTestElement implements Timer {
-        private static final long serialVersionUID = 5641410390783919241L;
         private long delay;
 
         void setDelay(long delay) {
@@ -115,18 +114,18 @@ class TestJMeterThread {
     }
 
     @Test
-    void testBug61661OnError() {
+    public void testBug61661OnError() {
         HashTree hashTree = new HashTree();
         hashTree.add("Test", new ThrowingThreadListener(true));
         JMeterThread.ThreadListenerTraverser traverser =
                 new JMeterThread.ThreadListenerTraverser(true);
-        assertThrows(
+        Assertions.assertThrows(
                 NoClassDefFoundError.class,
                 () -> hashTree.traverse(traverser));
     }
 
     @Test
-    void testBug61661OnException() {
+    public void testBug61661OnException() {
         HashTree hashTree = new HashTree();
         hashTree.add("Test", new ThrowingThreadListener(false));
         JMeterThread.ThreadListenerTraverser traverser =
@@ -135,7 +134,7 @@ class TestJMeterThread {
     }
 
     @Test
-    void testBug63490EndTestWhenDelayIsTooLongForScheduler() {
+    public void testBug63490EndTestWhenDelayIsTooLongForScheduler() {
         JMeterContextService.getContext().setVariables(new JMeterVariables());
 
         HashTree testTree = new HashTree();
@@ -157,15 +156,15 @@ class TestJMeterThread {
         jMeterThread.setScheduled(true);
         jMeterThread.setEndTime(System.currentTimeMillis() + maxDuration);
         jMeterThread.setThreadGroup(threadGroup);
-        Instant startTime = Instant.now();
+        long startTime = new Date().getTime();
         jMeterThread.run();
-        long duration = Instant.now().toEpochMilli() - startTime.toEpochMilli();
+        long duration = new Date().getTime() - startTime;
 
-        assertFalse(dummySampler.isCalled(), "Sampler should not be called");
+        assertFalse("Sampler should not be called", dummySampler.isCalled());
 
         // the duration of this test plan should currently be around zero seconds,
         // but it is allowed to take up to maxDuration amount of time
-        assertTrue(duration <= maxDuration, "Test plan should not run for longer than duration");
+        assertTrue("Test plan should not run for longer than duration", duration <= maxDuration);
     }
 
     private LoopController createLoopController() {

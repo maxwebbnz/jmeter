@@ -27,8 +27,9 @@ import java.util.Map;
 import org.apache.jmeter.NewDriver;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.services.FileServer;
+import org.apache.jmeter.testelement.property.BooleanProperty;
 import org.apache.jmeter.testelement.property.JMeterProperty;
-import org.apache.jmeter.testelement.schema.PropertiesAccessor;
+import org.apache.jmeter.testelement.property.TestElementProperty;
 import org.apache.jmeter.threads.AbstractThreadGroup;
 import org.apache.jorphan.util.JOrphanUtils;
 import org.slf4j.Logger;
@@ -38,6 +39,19 @@ public class TestPlan extends AbstractTestElement implements Serializable, TestS
     private static final long serialVersionUID = 234L;
 
     private static final Logger log = LoggerFactory.getLogger(TestPlan.class);
+
+    //+ JMX field names - do not change values
+    private static final String FUNCTIONAL_MODE = "TestPlan.functional_mode"; //$NON-NLS-1$
+
+    private static final String USER_DEFINED_VARIABLES = "TestPlan.user_defined_variables"; //$NON-NLS-1$
+
+    private static final String SERIALIZE_THREADGROUPS = "TestPlan.serialize_threadgroups"; //$NON-NLS-1$
+
+    private static final String CLASSPATHS = "TestPlan.user_define_classpath"; //$NON-NLS-1$
+
+    private static final String TEARDOWN_ON_SHUTDOWN = "TestPlan.tearDown_on_shutdown"; //$NON-NLS-1$
+
+    //- JMX field names
 
     private static final String CLASSPATH_SEPARATOR = ","; //$NON-NLS-1$
 
@@ -54,16 +68,6 @@ public class TestPlan extends AbstractTestElement implements Serializable, TestS
 
     public TestPlan(String name) {
         setName(name);
-    }
-
-    @Override
-    public TestPlanSchema getSchema() {
-        return TestPlanSchema.INSTANCE;
-    }
-
-    @Override
-    public PropertiesAccessor<? extends TestPlan, ? extends TestPlanSchema> getProps() {
-        return new PropertiesAccessor<>(this, getSchema());
     }
 
     // create transient item
@@ -83,15 +87,15 @@ public class TestPlan extends AbstractTestElement implements Serializable, TestS
      * @return functional mode
      */
     public boolean isFunctionalMode() {
-        return get(getSchema().getFunctionalMode());
+        return getPropertyAsBoolean(FUNCTIONAL_MODE);
     }
 
     public void setUserDefinedVariables(Arguments vars) {
-        set(getSchema().getUserDefinedVariables(), vars);
+        setProperty(new TestElementProperty(USER_DEFINED_VARIABLES, vars));
     }
 
     public JMeterProperty getUserDefinedVariablesAsProperty() {
-        return getProperty(getSchema().getUserDefinedVariables().getName());
+        return getProperty(USER_DEFINED_VARIABLES);
     }
 
     public String getBasedir() {
@@ -113,11 +117,16 @@ public class TestPlan extends AbstractTestElement implements Serializable, TestS
     }
 
     private Arguments getVariables() {
-        return getSchema().getUserDefinedVariables().getOrCreate(this, Arguments::new);
+        Arguments args = (Arguments) getProperty(USER_DEFINED_VARIABLES).getObjectValue();
+        if (args == null) {
+            args = new Arguments();
+            setUserDefinedVariables(args);
+        }
+        return args;
     }
 
     public void setFunctionalMode(boolean funcMode) {
-        set(getSchema().getFunctionalMode(), funcMode);
+        setProperty(new BooleanProperty(FUNCTIONAL_MODE, funcMode));
         setGlobalFunctionalMode(funcMode);
     }
 
@@ -139,15 +148,15 @@ public class TestPlan extends AbstractTestElement implements Serializable, TestS
     }
 
     public void setSerialized(boolean serializeTGs) {
-        set(getSchema().getSerializeThreadgroups(), serializeTGs);
+        setProperty(new BooleanProperty(SERIALIZE_THREADGROUPS, serializeTGs));
     }
 
     public void setTearDownOnShutdown(boolean tearDown) {
-        set(getSchema().getTearDownOnShutdown(), tearDown);
+        setProperty(TEARDOWN_ON_SHUTDOWN, tearDown, false);
     }
 
     public boolean isTearDownOnShutdown() {
-        return get(getSchema().getTearDownOnShutdown());
+        return getPropertyAsBoolean(TEARDOWN_ON_SHUTDOWN, false);
     }
 
     /**
@@ -159,7 +168,7 @@ public class TestPlan extends AbstractTestElement implements Serializable, TestS
      *            the classpath to be set
      */
     public void setTestPlanClasspath(String text) {
-        set(getSchema().getTestPlanClasspath(), text);
+        setProperty(CLASSPATHS,text);
     }
 
     public void setTestPlanClasspathArray(String[] text) {
@@ -182,7 +191,7 @@ public class TestPlan extends AbstractTestElement implements Serializable, TestS
      * @return classpath
      */
     public String getTestPlanClasspath() {
-        return get(getSchema().getTestPlanClasspath());
+        return getPropertyAsString(CLASSPATHS);
     }
 
     /**
@@ -191,7 +200,7 @@ public class TestPlan extends AbstractTestElement implements Serializable, TestS
      * @return serialized setting
      */
     public boolean isSerialized() {
-        return get(getSchema().getSerializeThreadgroups());
+        return getPropertyAsBoolean(SERIALIZE_THREADGROUPS);
     }
 
     public void addParameter(String name, String value) {

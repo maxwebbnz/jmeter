@@ -18,9 +18,11 @@
 package org.apache.jmeter.visualizers;
 
 import java.awt.BorderLayout;
+import java.io.IOException;
 import java.util.ArrayDeque;
+import java.util.Collections;
 import java.util.Deque;
-import java.util.ServiceLoader;
+import java.util.List;
 
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -28,7 +30,6 @@ import javax.swing.SwingConstants;
 
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.util.JMeterUtils;
-import org.apache.jorphan.reflect.LogAndIgnoreServiceLoadExceptionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,23 +52,37 @@ public class RequestPanel {
      */
     public RequestPanel() {
         listRequestView = new ArrayDeque<>();
+        List<String> classesToAdd = Collections.<String> emptyList();
+        try {
+            classesToAdd = JMeterUtils.findClassesThatExtend(RequestView.class);
+        } catch (IOException e1) {
+            // ignored
+        }
         String rawTab = JMeterUtils.getResString(RequestViewRaw.KEY_LABEL); // $NON-NLS-1$
-        RequestView rawObject = null;
-        for (RequestView requestView : JMeterUtils.loadServicesAndScanJars(
-                RequestView.class,
-                ServiceLoader.load(RequestView.class),
-                Thread.currentThread().getContextClassLoader(),
-                new LogAndIgnoreServiceLoadExceptionHandler(log)
-        )) {
-            if (rawTab.equals(requestView.getLabel())) {
-                rawObject = requestView; // use later
-            } else {
-                listRequestView.add(requestView);
+        Object rawObject = null;
+        for (String clazz : classesToAdd) {
+            try {
+                // Instantiate requestview classes
+                final RequestView requestView = Class.forName(clazz)
+                        .asSubclass(RequestView.class)
+                        .getDeclaredConstructor().newInstance();
+                if (rawTab.equals(requestView.getLabel())) {
+                    rawObject = requestView; // use later
+                } else {
+                    listRequestView.add(requestView);
+                }
+            }
+            catch (NoClassDefFoundError e) {
+                log.error("Exception registering implementation: [{}] of interface: [{}], a dependency used by the plugin class is missing",
+                        clazz, RequestView.class, e);
+            } catch (Exception e) {
+                log.error("Exception registering implementation: [{}] of interface: [{}], a jar is probably missing",
+                        clazz, RequestView.class, e);
             }
         }
         // place raw tab in first position (first tab)
         if (rawObject != null) {
-            listRequestView.addFirst(rawObject);
+            listRequestView.addFirst((RequestView) rawObject);
         }
 
         // Prepare the Request tabbed pane

@@ -29,7 +29,6 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.function.Function;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -63,10 +62,10 @@ import org.apache.jorphan.reflect.Functor;
 @TestElementMetadata(labelResource = "user_defined_variables")
 public class ArgumentsPanel extends AbstractConfigGui implements ActionListener {
 
-    private static final long serialVersionUID = 241L;
+    private static final long serialVersionUID = 240L;
 
     /** The title label for this component. */
-    private final JLabel tableLabel;
+    private JLabel tableLabel;
 
     /** The table containing the list of arguments. */
     private transient JTable table;
@@ -85,7 +84,7 @@ public class ArgumentsPanel extends AbstractConfigGui implements ActionListener 
     /**
      * Added background support for reporting tool
      */
-    private final Color background;
+    private Color background;
 
     /**
      * Boolean indicating whether this component is a standalone component or it
@@ -107,8 +106,6 @@ public class ArgumentsPanel extends AbstractConfigGui implements ActionListener 
 
     /** Disable buttons :Detail, Add, Add from Clipboard, Delete, Up and Down*/
     private final boolean disableButtons;
-
-    private final Function<String[], ? extends Argument> argCreator;
 
     /** Command for adding a row to the table. */
     private static final String ADD = "add"; // $NON-NLS-1$
@@ -178,7 +175,7 @@ public class ArgumentsPanel extends AbstractConfigGui implements ActionListener 
      * @param label the title for the component.
      */
     public ArgumentsPanel(boolean disableButtons, String label) {
-        this(label, null, false, false, null, disableButtons, null);
+        this(label, null, false, false, null, disableButtons);
     }
 
     /**
@@ -198,7 +195,7 @@ public class ArgumentsPanel extends AbstractConfigGui implements ActionListener 
      * @param standalone is standalone
      */
     public ArgumentsPanel(String label, Color bkg, boolean enableUpDown, boolean standalone) {
-        this(label, bkg, enableUpDown, standalone, null, false, null);
+        this(label, bkg, enableUpDown, standalone, null, false);
     }
 
     /**
@@ -210,20 +207,7 @@ public class ArgumentsPanel extends AbstractConfigGui implements ActionListener 
      * @param model the table model to use
      */
     public ArgumentsPanel(String label, Color bkg, boolean enableUpDown, boolean standalone, ObjectTableModel model) {
-        this(label, bkg, enableUpDown, standalone, model, null);
-    }
-
-    /**
-     * Create a new ArgumentsPanel with a border and color background
-     * @param label text for label
-     * @param bkg background colour
-     * @param enableUpDown Add up/down buttons
-     * @param standalone is standalone
-     * @param model the table model to use
-     * @param argCreator function to create {@link Argument}s from Strings taken from clipboard
-     */
-    public ArgumentsPanel(String label, Color bkg, boolean enableUpDown, boolean standalone, ObjectTableModel model, Function<String[], Argument> argCreator) {
-        this(label, bkg, enableUpDown, standalone, model, false, argCreator);
+        this(label, bkg, enableUpDown, standalone, model, false);
     }
 
     /**
@@ -236,28 +220,12 @@ public class ArgumentsPanel extends AbstractConfigGui implements ActionListener 
      * @param disableButtons Remove all buttons
      */
     public ArgumentsPanel(String label, Color bkg, boolean enableUpDown, boolean standalone, ObjectTableModel model, boolean disableButtons) {
-        this(label, bkg, enableUpDown, standalone, model, disableButtons, null);
-    }
-
-    /**
-     * Create a new ArgumentsPanel with a border and color background
-     * @param label text for label
-     * @param bkg background colour
-     * @param enableUpDown Add up/down buttons
-     * @param standalone is standalone
-     * @param model the table model to use
-     * @param disableButtons Remove all buttons
-     * @param argCreator function to create {@link Argument}s from Strings taken from clipboard
-     */
-    public ArgumentsPanel(String label, Color bkg, boolean enableUpDown, boolean standalone, ObjectTableModel model,
-            boolean disableButtons, Function<String[], ? extends Argument> argCreator) {
         tableLabel = new JLabel(label);
         this.enableUpDown = enableUpDown;
         this.disableButtons = disableButtons;
         this.background = bkg;
         this.standalone = standalone;
         this.tableModel = model;
-        this.argCreator = argCreator;
         init();
     }
 
@@ -616,9 +584,6 @@ public class ArgumentsPanel extends AbstractConfigGui implements ActionListener 
     }
 
     protected Argument createArgumentFromClipboard(String[] clipboardCols) {
-        if (argCreator != null) {
-            return argCreator.apply(clipboardCols);
-        }
         Argument argument = makeNewArgument();
         argument.setName(clipboardCols[0]);
         if (clipboardCols.length > 1) {

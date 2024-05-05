@@ -193,7 +193,7 @@ public class ModuleController extends GenericController implements ReplaceableCo
     }
 
     @SuppressWarnings("JdkObsolete")
-    private static void createSubTree(HashTree tree, JMeterTreeNode node) {
+    private void createSubTree(HashTree tree, JMeterTreeNode node) {
         Enumeration<?> e = node.children();
         while (e.hasMoreElements()) {
             JMeterTreeNode subNode = (JMeterTreeNode)e.nextElement();

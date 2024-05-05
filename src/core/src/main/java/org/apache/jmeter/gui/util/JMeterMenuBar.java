@@ -19,13 +19,14 @@ package org.apache.jmeter.gui.util;
 
 import java.awt.Component;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.ServiceLoader;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
@@ -53,7 +54,7 @@ import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jmeter.util.LocaleChangeEvent;
 import org.apache.jmeter.util.LocaleChangeListener;
 import org.apache.jmeter.util.SSLManager;
-import org.apache.jorphan.reflect.LogAndIgnoreServiceLoadExceptionHandler;
+import org.apache.jorphan.reflect.ClassFinder;
 import org.apache.jorphan.util.JOrphanUtils;
 import org.apache.logging.log4j.Level;
 import org.slf4j.Logger;
@@ -77,27 +78,21 @@ public class JMeterMenuBar extends JMenuBar implements LocaleChangeListener {
     private JMenuItem runStart;
     private JMenuItem runStartNoTimers;
     private JMenu remoteStart;
-    private final Collection<JMenuItem> remoteEngineStart;
+    private Collection<JMenuItem> remoteEngineStart;
     private JMenuItem runStop;
     private JMenuItem runShut;
     private JMenu remoteStop;
     private JMenu remoteShut;
-    private final Collection<JMenuItem> remoteEngineStop;
-    private final Collection<JMenuItem> remoteEngineShut;
+    private Collection<JMenuItem> remoteEngineStop;
+    private Collection<JMenuItem> remoteEngineShut;
     private JMenu optionsMenu;
     private JMenu helpMenu;
     private JMenu toolsMenu;
     private String[] remoteHosts;
     private JMenu remoteExit;
-    private final Collection<JMenuItem> remoteEngineExit;
+    private Collection<JMenuItem> remoteEngineExit;
     private JMenu searchMenu;
-    private final Collection<MenuCreator> menuCreators =
-            JMeterUtils.loadServicesAndScanJars(
-                    MenuCreator.class,
-                    ServiceLoader.load(MenuCreator.class),
-                    Thread.currentThread().getContextClassLoader(),
-                    new LogAndIgnoreServiceLoadExceptionHandler(log)
-            );
+    private List<MenuCreator> menuCreators;
 
     public static final String SYSTEM_LAF = "System"; // $NON-NLS-1$
     public static final String CROSS_PLATFORM_LAF = "CrossPlatform"; // $NON-NLS-1$
@@ -197,6 +192,9 @@ public class JMeterMenuBar extends JMenuBar implements LocaleChangeListener {
      * should be defined in a file somewhere, but that is for later.
      */
     public void createMenuBar() {
+
+        this.menuCreators = findMenuCreators();
+
         makeFileMenu();
         makeEditMenu();
         makeRunMenu();
@@ -217,6 +215,35 @@ public class JMeterMenuBar extends JMenuBar implements LocaleChangeListener {
                 .forEachOrdered(this::add);
 
         this.add(helpMenu);
+    }
+
+    private List<MenuCreator> findMenuCreators() {
+        List<MenuCreator> creators = new ArrayList<>();
+        try {
+            List<String> listClasses = ClassFinder.findClassesThatExtend(
+                    JMeterUtils.getSearchPaths(),
+                    new Class[] {MenuCreator.class });
+            for (String strClassName : listClasses) {
+                try {
+                    log.debug("Loading menu creator class: {}", strClassName);
+                    Class<?> commandClass = Class.forName(strClassName);
+                    if (!Modifier.isAbstract(commandClass.getModifiers())) {
+                        log.debug("Instantiating: {}", commandClass);
+                        MenuCreator creator = (MenuCreator) commandClass.getDeclaredConstructor().newInstance();
+                        creators.add(creator);
+                    }
+                } catch (NoClassDefFoundError e) {
+                    log.error("Exception registering implementation: [{}] of interface: [{}], a dependency used by the plugin class is missing",
+                            strClassName, MenuCreator.class, e);
+                } catch (Exception e) {
+                    log.error("Exception registering implementation: [{}] of interface: [{}], a jar is probably missing",
+                            strClassName, MenuCreator.class, e);
+                }
+            }
+        } catch (IOException e) {
+            log.error("Exception finding implementations of {}", MenuCreator.class, e);
+        }
+        return creators;
     }
 
     private void makeHelpMenu() {
@@ -315,7 +342,7 @@ public class JMeterMenuBar extends JMenuBar implements LocaleChangeListener {
         addPluginsMenuItems(optionsMenu, menuCreators, MENU_LOCATION.OPTIONS);
     }
 
-    private static JMenu createLaFMenu() {
+    private JMenu createLaFMenu() {
         JMenu lafMenu = makeMenuRes("appearance", 'L');
         ButtonGroup lafGroup = new ButtonGroup();
         String currentLafCommand = LookAndFeelCommand.getPreferredLafCommand();
@@ -421,7 +448,7 @@ public class JMeterMenuBar extends JMenuBar implements LocaleChangeListener {
 
         runStart = makeMenuItemRes("start", 'S', ActionNames.ACTION_START, KeyStrokes.ACTION_START); //$NON-NLS-1$
 
-        runStartNoTimers = makeMenuItemRes("start_no_timers", 'N', ActionNames.ACTION_START_NO_TIMERS, KeyStrokes.ACTION_START_NO_PAUSE); //$NON-NLS-1$
+        runStartNoTimers = makeMenuItemRes("start_no_timers", 'N', ActionNames.ACTION_START_NO_TIMERS); //$NON-NLS-1$
 
         runStop = makeMenuItemRes("stop", 'T', ActionNames.ACTION_STOP, KeyStrokes.ACTION_STOP); //$NON-NLS-1$
         runStop.setEnabled(false);
@@ -548,7 +575,7 @@ public class JMeterMenuBar extends JMenuBar implements LocaleChangeListener {
         searchMenu.add(search);
         search.setEnabled(true);
 
-        JMenuItem searchReset = makeMenuItemRes("menu_search_reset", 'R', ActionNames.SEARCH_RESET, KeyStrokes.RESET_SEARCH_TREE); //$NON-NLS-1$
+        JMenuItem searchReset = makeMenuItemRes("menu_search_reset", 'R', ActionNames.SEARCH_RESET); //$NON-NLS-1$
         searchMenu.add(searchReset);
         searchReset.setEnabled(true);
 
@@ -563,7 +590,7 @@ public class JMeterMenuBar extends JMenuBar implements LocaleChangeListener {
      * @param menuCreators
      * @param location
      */
-    private static void addPluginsMenuItems(JMenu menu, Collection<? extends MenuCreator> menuCreators, MENU_LOCATION location) {
+    private void addPluginsMenuItems(JMenu menu, List<MenuCreator> menuCreators, MENU_LOCATION location) {
         for (MenuCreator menuCreator : menuCreators) {
             JMenuItem[] menuItems = menuCreator.getMenuItemsAtLocation(location);
             if (menuItems.length != 0) {

@@ -20,41 +20,34 @@ import com.github.vlsi.gradle.crlf.LineEndings
 import com.github.vlsi.gradle.git.FindGitAttributes
 import com.github.vlsi.gradle.git.dsl.gitignore
 import com.github.vlsi.gradle.properties.dsl.props
-import org.gradle.api.internal.TaskOutputsInternal
 import kotlin.math.absoluteValue
+import org.gradle.api.internal.TaskOutputsInternal
 
 plugins {
-    id("build-logic.build-params")
     id("com.github.vlsi.crlf")
     id("com.github.vlsi.stage-vote-release")
-    id("build-logic.jvm-library")
 }
 
 var jars = arrayOf(
-    ":src:bshclient",
-    ":src:launcher",
-    ":src:components",
-    ":src:core",
-    // ":src:examples",
-    ":src:functions",
-    ":src:jorphan",
-    ":src:protocol:bolt",
-    ":src:protocol:ftp",
-    ":src:protocol:http",
-    ":src:protocol:java",
-    ":src:protocol:jdbc",
-    ":src:protocol:jms",
-    ":src:protocol:junit",
-    ":src:protocol:ldap",
-    ":src:protocol:mail",
-    ":src:protocol:mongodb",
-    ":src:protocol:native",
-    ":src:protocol:tcp"
-)
-
-// https://github.com/gradle/gradle/pull/16627
-inline fun <reified T : Named> AttributeContainer.attribute(attr: Attribute<T>, value: String) =
-    attribute(attr, objects.named<T>(value))
+        ":src:bshclient",
+        ":src:launcher",
+        ":src:components",
+        ":src:core",
+        // ":src:examples",
+        ":src:functions",
+        ":src:jorphan",
+        ":src:protocol:bolt",
+        ":src:protocol:ftp",
+        ":src:protocol:http",
+        ":src:protocol:java",
+        ":src:protocol:jdbc",
+        ":src:protocol:jms",
+        ":src:protocol:junit",
+        ":src:protocol:ldap",
+        ":src:protocol:mail",
+        ":src:protocol:mongodb",
+        ":src:protocol:native",
+        ":src:protocol:tcp")
 
 // isCanBeConsumed = false ==> other modules must not use the configuration as a dependency
 val buildDocs by configurations.creating {
@@ -65,13 +58,6 @@ val generatorJar by configurations.creating {
 }
 val junitSampleJar by configurations.creating {
     isCanBeConsumed = false
-    isTransitive = false
-    attributes {
-        attribute(Category.CATEGORY_ATTRIBUTE, Category.LIBRARY)
-        attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, LibraryElements.JAR)
-        attribute(Usage.USAGE_ATTRIBUTE, Usage.JAVA_RUNTIME)
-        attribute(Bundling.BUNDLING_ATTRIBUTE, Bundling.EXTERNAL)
-    }
 }
 val binLicense by configurations.creating {
     isCanBeConsumed = false
@@ -80,32 +66,39 @@ val srcLicense by configurations.creating {
     isCanBeConsumed = false
 }
 
+val allTestClasses by configurations.creating {
+    isCanBeConsumed = true
+    isCanBeResolved = false
+}
+
 // Note: you can inspect final classpath (list of jars in the binary distribution)  via
 // gw dependencies --configuration runtimeClasspath
 dependencies {
     for (p in jars) {
         api(project(p))
+        allTestClasses(project(p, "testClasses"))
     }
 
     binLicense(project(":src:licenses", "binLicense"))
     srcLicense(project(":src:licenses", "srcLicense"))
     generatorJar(project(":src:generator", "archives"))
-    junitSampleJar(project(":src:protocol:junit-sample"))
+    junitSampleJar(project(":src:protocol:junit-sample", "archives"))
 
-    buildDocs(platform(projects.src.bomThirdparty))
+    buildDocs(platform(project(":src:bom")))
     buildDocs("org.apache.velocity:velocity")
     buildDocs("commons-lang:commons-lang")
     buildDocs("org.apache.commons:commons-collections4")
     buildDocs("org.jdom:jdom")
 }
 
-tasks.clean {
-    // copyLibs uses Sync task, so it can't predict all the possible output files (e.g. from previous executions)
-    // So we register patterns to remove explicitly
-    delete(fileTree("$rootDir/bin") { include("ApacheJMeter.jar") })
-    delete(fileTree("$rootDir/lib") { include("*.jar") })
-    delete(fileTree("$rootDir/lib/ext") { include("ApacheJMeter*.jar") })
-    delete(fileTree("$rootDir/lib/junit") { include("test.jar") })
+tasks.named(BasePlugin.CLEAN_TASK_NAME).configure {
+    doLast {
+        // createDist can't yet remove outdated jars (e.g. when dependency is updated to a newer version)
+        // so we enhance "clean" task to kill the jars
+        delete(fileTree("$rootDir/bin") { include("ApacheJMeter.jar") })
+        delete(fileTree("$rootDir/lib") { include("*.jar") })
+        delete(fileTree("$rootDir/lib/ext") { include("ApacheJMeter*.jar") })
+    }
 }
 
 // Libs are populated dynamically since we can't get the full set of dependencies
@@ -128,9 +121,9 @@ val populateLibs by tasks.registering {
     doLast {
         val deps = configurations.runtimeClasspath.get().resolvedConfiguration.resolvedArtifacts
         // This ensures project exists, if project is renamed, names should be corrected here as wells
-        val launcherProject = projects.src.launcher.dependencyProject.path
-        val bshclientProject = projects.src.bshclient.dependencyProject.path
-        val jorphanProject = projects.src.jorphan.dependencyProject.path
+        val launcherProject = project(":src:launcher").path
+        val bshclientProject = project(":src:bshclient").path
+        val jorphanProject = project(":src:jorphan").path
         listOf(libs, libsExt, binLibs).forEach {
             it.fileMode = "644".toInt(8)
             it.dirMode = "755".toInt(8)
@@ -165,16 +158,8 @@ val verifyReleaseDependencies by tasks.registering {
     dependsOn(configurations.runtimeClasspath)
     val expectedLibs = file("src/dist/expected_release_jars.csv")
     inputs.file(expectedLibs)
-    inputs.property("updateExpectedJars", updateExpectedJars)
-    val actualLibs = layout.buildDirectory.file("dist/expected_release_jars.csv")
+    val actualLibs = File(buildDir, "dist/expected_release_jars.csv")
     outputs.file(actualLibs)
-    val ignoreJarsMismatch = version.toString().endsWith("-SNAPSHOT")
-    if (ignoreJarsMismatch || updateExpectedJars) {
-        // The task does not fail in case of -SNAPSHOT version, so we make the task never UP-TO-DATE
-        // in that case. Otherwise, the task never executes on the second request, even if the user runs with
-        // -PupdateExpectedJars
-        outputs.upToDateWhen { false }
-    }
     doLast {
         val caseInsensitive: Comparator<String> = compareBy(String.CASE_INSENSITIVE_ORDER, { it })
 
@@ -201,7 +186,7 @@ val verifyReleaseDependencies by tasks.registering {
         }
 
         val sb = StringBuilder()
-        sb.append("External dependencies differ (you could update ${expectedLibs.relativeTo(rootDir)} if you run $path -PupdateExpectedJars):")
+        sb.append("External dependencies differ (you could update ${expectedLibs.relativeTo(rootDir)} if you add -PupdateExpectedJars):")
 
         val sizeBefore = expected.values.sum()
         val sizeAfter = libs.values.sum()
@@ -217,7 +202,7 @@ val verifyReleaseDependencies by tasks.registering {
             sb.append("\n  ${expected.size} => ${libs.size} files")
             sb.append(" (${if (libs.size > expected.size) "+" else "-"}${(libs.size - expected.size).absoluteValue})")
         }
-        sb.appendLine()
+        sb.appendln()
         for (dep in (libs.keys + expected.keys).sortedWith(caseInsensitive)) {
             val old = expected[dep]
             val new = libs[dep]
@@ -233,17 +218,12 @@ val verifyReleaseDependencies by tasks.registering {
             sb.append(" ").append(dep)
         }
         val newline = System.getProperty("line.separator")
-        val actualLibsFile = actualLibs.get().asFile
-        actualLibsFile.writeText(
+        actualLibs.writeText(
             libs.map { "${it.value},${it.key}" }.joinToString(newline, postfix = newline)
         )
         if (updateExpectedJars) {
             println("Updating ${expectedLibs.relativeTo(rootDir)}")
-            actualLibsFile.copyTo(expectedLibs, overwrite = true)
-        } else if (ignoreJarsMismatch) {
-            // Renovate requires self-hosted runner for executing postUpgradeTasks,
-            // so we can't make Renovate to update expected_release_jars.csv at the moment
-            logger.lifecycle(sb.toString())
+            actualLibs.copyTo(expectedLibs, overwrite = true)
         } else {
             throw GradleException(sb.toString())
         }
@@ -290,9 +270,6 @@ val copyBinLibs by tasks.registering(Copy::class) {
     // Can't use $rootDir since Gradle somehow reports .gradle/caches/ as "always modified"
     rootSpec.into("$rootDir/bin")
     with(binLibs)
-    // :src:config:jar conflicts with copyBinLibs on bin, bin/templates, bin/report-template folders
-    // so we add explicit ordering
-    mustRunAfter(":src:config:jar")
 }
 
 val createDist by tasks.registering {
@@ -316,13 +293,13 @@ fun createAnakiaTask(
     excludes: Array<String>,
     includes: Array<String>
 ): TaskProvider<Task> {
-    val outputDir = layout.buildDirectory.dir("docs/$taskName").get().asFile
+    val outputDir = "$buildDir/docs/$taskName"
 
     val prepareProps = tasks.register("prepareProperties$taskName") {
         // AnakiaTask can't use relative paths, and it forbids ../, so we create a dedicated
         // velocity.properties file that contains absolute path
         inputs.file(velocityProperties)
-        val outputProps = layout.buildDirectory.file("docProps/$taskName/velocity.properties").get().asFile
+        val outputProps = "$buildDir/docProps/$taskName/velocity.properties"
         outputs.file(outputProps)
         doLast {
             // Unfortunately, Velocity does not use Java properties format.
@@ -343,9 +320,9 @@ fun createAnakiaTask(
                 parentFile.run { isDirectory || mkdirs() } || throw IllegalStateException("Unable to create directory $parentFile")
 
                 writer().use {
-                    it.appendLine("# Auto-generated from $velocityProperties to pass absolute path to Velocity")
+                    it.appendln("# Auto-generated from $velocityProperties to pass absolute path to Velocity")
                     for (line in lines) {
-                        it.appendLine(line)
+                        it.appendln(line)
                     }
                 }
             }
@@ -353,37 +330,30 @@ fun createAnakiaTask(
     }
 
     return tasks.register(taskName) {
-        inputs.file("$baseDir/$style").withPathSensitivity(PathSensitivity.RELATIVE).withPropertyName("styleDir")
-        inputs.file("$baseDir/$projectFile").withPathSensitivity(PathSensitivity.RELATIVE).withPropertyName("projectDir")
-        inputs.files(
-            fileTree(baseDir) {
-                include(*includes)
-                exclude(*excludes)
-            }
-        ).withPathSensitivity(PathSensitivity.RELATIVE).withPropertyName("baseDir")
+        inputs.file("$baseDir/$style")
+        inputs.file("$baseDir/$projectFile")
+        inputs.files(fileTree(baseDir) {
+            include(*includes)
+            exclude(*excludes)
+        })
         inputs.property("extension", extension)
         outputs.dir(outputDir)
-        outputs.cacheIf { true }
         dependsOn(prepareProps)
 
         doLast {
             ant.withGroovyBuilder {
-                "taskdef"(
-                    "name" to "anakia",
-                    "classname" to "org.apache.velocity.anakia.AnakiaTask",
-                    "classpath" to buildDocs.asPath
-                )
-                "anakia"(
-                    "basedir" to baseDir,
-                    "destdir" to outputDir,
-                    "extension" to extension,
-                    "style" to style,
-                    "projectFile" to projectFile,
-                    "excludes" to excludes.joinToString(" "),
-                    "includes" to includes.joinToString(" "),
-                    "lastModifiedCheck" to "true",
-                    "velocityPropertiesFile" to prepareProps.get().outputs.files.singleFile
-                )
+                "taskdef"("name" to "anakia",
+                        "classname" to "org.apache.velocity.anakia.AnakiaTask",
+                        "classpath" to buildDocs.asPath)
+                "anakia"("basedir" to baseDir,
+                        "destdir" to outputDir,
+                        "extension" to extension,
+                        "style" to style,
+                        "projectFile" to projectFile,
+                        "excludes" to excludes.joinToString(" "),
+                        "includes" to includes.joinToString(" "),
+                        "lastModifiedCheck" to "true",
+                        "velocityPropertiesFile" to prepareProps.get().outputs.files.singleFile)
             }
         }
     }
@@ -417,19 +387,17 @@ fun CopySpec.printableDocumentation() {
     }
 }
 
-val buildPrintableDoc = createAnakiaTask(
-    "buildPrintableDoc", baseDir = xdocs,
-    style = "stylesheets/site_printable.vsl",
-    velocityProperties = "$xdocs/velocity.properties",
-    projectFile = "stylesheets/printable_project.xml",
-    excludes = arrayOf("**/stylesheets/**", "extending.xml", "extending/*.xml"),
-    includes = arrayOf("**/*.xml")
-)
+val buildPrintableDoc = createAnakiaTask("buildPrintableDoc", baseDir = xdocs,
+        style = "stylesheets/site_printable.vsl",
+        velocityProperties = "$xdocs/velocity.properties",
+        projectFile = "stylesheets/printable_project.xml",
+        excludes = arrayOf("**/stylesheets/**", "extending.xml", "extending/*.xml"),
+        includes = arrayOf("**/*.xml"))
 
 val previewPrintableDocs by tasks.registering(Copy::class) {
     group = JavaBasePlugin.DOCUMENTATION_GROUP
     description = "Creates preview of a printable documentation to build/docs/printable_preview"
-    into(layout.buildDirectory.dir("docs/printable_preview"))
+    into("$buildDir/docs/printable_preview")
     CrLfSpec().run {
         gitattributes(gitProps)
         printableDocumentation()
@@ -447,8 +415,7 @@ fun xslt(
 
     val relativePath = if (subdir.isEmpty()) "." else ".."
     ant.withGroovyBuilder {
-        "xslt"(
-            "style" to "$xdocs/stylesheets/website-style.xsl",
+        "xslt"("style" to "$xdocs/stylesheets/website-style.xsl",
             "basedir" to "$xdocs/$subdir",
             "destdir" to "$outputDir/$subdir",
             "excludes" to excludes.joinToString(" "),
@@ -462,18 +429,17 @@ fun xslt(
 }
 
 val processSiteXslt by tasks.registering {
-    val outputDir = layout.buildDirectory.dir("siteXslt").get().asFile
-    inputs.files(xdocs).withPathSensitivity(PathSensitivity.RELATIVE).withPropertyName("xdocs")
+    val outputDir = "$buildDir/siteXslt"
+    inputs.files(xdocs)
     inputs.property("year", lastEditYear)
     outputs.dir(outputDir)
-    outputs.cacheIf { true }
 
     doLast {
         for (f in (outputs as TaskOutputsInternal).previousOutputFiles) {
             f.delete()
         }
         for (i in arrayOf("", "usermanual", "localising")) {
-            xslt(i, outputDir.absolutePath)
+            xslt(i, outputDir)
         }
     }
 }
@@ -490,7 +456,7 @@ fun CopySpec.siteLayout() {
 }
 
 // See https://github.com/gradle/gradle/issues/10960
-val previewSiteDir = layout.buildDirectory.dir("site")
+val previewSiteDir = buildDir.resolve("site")
 val previewSite by tasks.registering(Sync::class) {
     group = JavaBasePlugin.DOCUMENTATION_GROUP
     description = "Creates preview of a site to build/docs/site"
@@ -498,9 +464,6 @@ val previewSite by tasks.registering(Sync::class) {
     CrLfSpec().run {
         gitattributes(gitProps)
         siteLayout()
-    }
-    doLast {
-        println("Site preview synchronized to ${previewSiteDir.get().file("index.html")}")
     }
 }
 
@@ -577,17 +540,19 @@ val javadocAggregate by tasks.registering(Javadoc::class) {
     // Aggregate javadoc needs to include generated JMeterVersion class
     // So we use delay computation of source files
     setSource(sourceSets.map { set -> set.map { it.allJava } })
-    setDestinationDir(layout.buildDirectory.dir("docs/javadocAggregate").get().asFile)
+    setDestinationDir(file("$buildDir/docs/javadocAggregate"))
 }
+
+val skipDist: Boolean by rootProject.extra
 
 // Generates distZip, distTar, distZipSource, and distTarSource tasks
 // The archives and checksums are put to build/distributions
 for (type in listOf("binary", "source")) {
-    if (buildParameters.skipDist) {
+    if (skipDist) {
         break
     }
     for (archive in listOf(Zip::class, Tar::class)) {
-        val taskName = "dist${archive.simpleName}${type.replace("binary", "").replaceFirstChar { it.titlecaseChar() }}"
+        val taskName = "dist${archive.simpleName}${type.replace("binary", "").capitalize()}"
         val archiveTask = tasks.register(taskName, archive) {
             val eol = if (archive == Tar::class) LineEndings.LF else LineEndings.CRLF
             group = distributionGroup
@@ -595,11 +560,6 @@ for (type in listOf("binary", "source")) {
             if (this is Tar) {
                 compression = Compression.GZIP
             }
-            // dist task excludes jar files from bin/, and lib/ however Gradle does not see that
-            // So we add an artificial dependency
-            mustRunAfter(copyBinLibs)
-            mustRunAfter(copyLibs)
-            mustRunAfter(":src:dist-check:copyExtraTestLibs")
             // Gradle does not track "filters" as archive/copy task dependencies,
             // So a mere change of a file attribute won't trigger re-execution of a task
             // So we add a custom property to re-execute the task in case attributes change
@@ -633,12 +593,9 @@ val runGui by tasks.registering(JavaExec::class) {
     group = "Development"
     description = "Builds and starts JMeter GUI"
     dependsOn(createDist)
-    buildParameters.testJdk?.let {
-        javaLauncher.set(javaToolchains.launcherFor(it))
-    }
 
     workingDir = File(project.rootDir, "bin")
-    mainClass.set("org.apache.jmeter.NewDriver")
+    main = "org.apache.jmeter.NewDriver"
     classpath("$rootDir/bin/ApacheJMeter.jar")
     jvmArgs("-Xss256k")
     jvmArgs("-XX:MaxMetaspaceSize=256m")

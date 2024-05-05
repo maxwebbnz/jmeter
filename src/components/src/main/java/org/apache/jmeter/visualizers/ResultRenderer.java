@@ -22,13 +22,11 @@ import java.awt.Color;
 import javax.swing.JTabbedPane;
 
 import org.apache.jmeter.samplers.SampleResult;
-import org.apache.jorphan.reflect.JMeterService;
 
 
 /**
  * Interface to results render
  */
-@JMeterService
 public interface ResultRenderer {
 
     void clearData();

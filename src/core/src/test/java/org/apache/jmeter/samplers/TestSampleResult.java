@@ -17,18 +17,24 @@
 
 package org.apache.jmeter.samplers;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import org.apache.jmeter.junit.JMeterTestCase;
 import org.apache.jmeter.testelement.TestPlan;
 import org.apache.jmeter.util.Calculator;
 import org.apache.jmeter.util.LogRecordingDelegatingLogger;
 import org.apache.jorphan.test.JMeterSerialTest;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class TestSampleResult implements JMeterSerialTest {
+public class TestSampleResult implements JMeterSerialTest {
 
     @Test
-    void testElapsedTrue() throws Exception {
+    public void testElapsedTrue() throws Exception {
         SampleResult res = new SampleResult(true);
 
         // Check sample increments OK
@@ -37,12 +43,12 @@ class TestSampleResult implements JMeterSerialTest {
         res.sampleEnd();
         long time = res.getTime();
         if (time < 100) {
-            Assertions.fail("Sample time should be >=100, actual " + time);
+            fail("Sample time should be >=100, actual " + time);
         }
     }
 
     @Test
-    void testElapsedFalse() throws Exception {
+    public void testElapsedFalse() throws Exception {
         SampleResult res = new SampleResult(false);
 
         // Check sample increments OK
@@ -51,12 +57,12 @@ class TestSampleResult implements JMeterSerialTest {
         res.sampleEnd();
         long time = res.getTime();
         if (time < 100) {
-            Assertions.fail("Sample time should be >=100, actual " + time);
+            fail("Sample time should be >=100, actual " + time);
         }
     }
 
     @Test
-    void testPauseFalse() throws Exception {
+    public void testPauseFalse() throws Exception {
         SampleResult res = new SampleResult(false);
         // Check sample increments OK
         res.sampleStart();
@@ -70,19 +76,11 @@ class TestSampleResult implements JMeterSerialTest {
         totalSampleTime += sleep(100);
         res.sampleEnd();
         long sampleTime = res.getTime();
-        assertAlmostEquals(totalSampleTime, sampleTime, 50, "Accumulated sample time");
+        assertEquals("Accumulated sample time", totalSampleTime, sampleTime, 50);
     }
 
-    private static void assertAlmostEquals(long expected, long actual, long delta, String message) {
-        long actualDelta = Math.abs(expected - actual);
-        if (actualDelta > delta) {
-            Assertions.fail(() -> message + ", expected " + expected
-                    + " within delta of " + delta + ", but got " + actual
-                    + " which results in actual delta of " + actualDelta);
-        }
-    }
     @Test
-    void testPauseTrue() throws Exception {
+    public void testPauseTrue() throws Exception {
         SampleResult res = new SampleResult(true);
         // Check sample increments OK
         res.sampleStart();
@@ -96,7 +94,7 @@ class TestSampleResult implements JMeterSerialTest {
         totalSampleTime += sleep(100);
         res.sampleEnd();
         long sampleTime = res.getTime();
-        assertAlmostEquals(totalSampleTime, sampleTime, 50, "Accumulated sample time");
+        assertEquals("Accumulated sample time", totalSampleTime, sampleTime, 50);
     }
 
     private LogRecordingDelegatingLogger recordLogger;
@@ -112,76 +110,76 @@ class TestSampleResult implements JMeterSerialTest {
     }
 
     @Test
-    void testPause2True() throws Exception {
+    public void testPause2True() throws Exception {
         divertLog();
         SampleResult res = new SampleResult(true);
         res.sampleStart();
         res.samplePause();
-        Assertions.assertEquals(0, recordLogger.getLogRecordCount());
+        assertEquals(0, recordLogger.getLogRecordCount());
         res.samplePause();
-        Assertions.assertNotEquals(0, recordLogger.getLogRecordCount());
+        assertNotEquals(0, recordLogger.getLogRecordCount());
     }
 
     @Test
-    void testPause2False() throws Exception {
+    public void testPause2False() throws Exception {
         divertLog();
         SampleResult res = new SampleResult(false);
         res.sampleStart();
         res.samplePause();
-        Assertions.assertEquals(0, recordLogger.getLogRecordCount());
+        assertEquals(0, recordLogger.getLogRecordCount());
         res.samplePause();
-        Assertions.assertNotEquals(0, recordLogger.getLogRecordCount());
+        assertNotEquals(0, recordLogger.getLogRecordCount());
     }
 
     @Test
-    void testByteCount() throws Exception {
+    public void testByteCount() throws Exception {
         SampleResult res = new SampleResult();
 
         res.sampleStart();
         res.setBytes(100L);
         res.setSampleLabel("sample of size 100 bytes");
         res.sampleEnd();
-        Assertions.assertEquals(100, res.getBytesAsLong());
-        Assertions.assertEquals("sample of size 100 bytes", res.getSampleLabel());
+        assertEquals(100, res.getBytesAsLong());
+        assertEquals("sample of size 100 bytes", res.getSampleLabel());
     }
 
     @Test
-    void testSubResultsTrue() throws Exception {
+    public void testSubResultsTrue() throws Exception {
         testSubResults(true, 0);
     }
 
     @Test
-    void testSubResultsTrueThread() throws Exception {
+    public void testSubResultsTrueThread() throws Exception {
         testSubResults(true, 500L, 0);
     }
 
     @Test
-    void testSubResultsFalse() throws Exception {
+    public void testSubResultsFalse() throws Exception {
         testSubResults(false, 0);
     }
 
     @Test
-    void testSubResultsFalseThread() throws Exception {
+    public void testSubResultsFalseThread() throws Exception {
         testSubResults(false, 500L, 0);
     }
 
     @Test
-    void testSubResultsTruePause() throws Exception {
+    public void testSubResultsTruePause() throws Exception {
         testSubResults(true, 100);
     }
 
     @Test
-    void testSubResultsTruePauseThread() throws Exception {
+    public void testSubResultsTruePauseThread() throws Exception {
         testSubResults(true, 500L, 100);
     }
 
     @Test
-    void testSubResultsFalsePause() throws Exception {
+    public void testSubResultsFalsePause() throws Exception {
         testSubResults(false, 100);
     }
 
     @Test
-    void testSubResultsFalsePauseThread() throws Exception {
+    public void testSubResultsFalsePauseThread() throws Exception {
         testSubResults(false, 500L, 100);
     }
 
@@ -206,7 +204,7 @@ class TestSampleResult implements JMeterSerialTest {
         SampleResult parent = new SampleResult(nanoTime, nanoThreadSleep);
 
         JMeterTestCase.assertPrimitiveEquals(nanoTime, parent.useNanoTime);
-        Assertions.assertEquals(nanoThreadSleep, parent.nanoThreadSleep);
+        assertEquals(nanoThreadSleep, parent.nanoThreadSleep);
 
         long beginTest = parent.currentTimeInMillis();
 
@@ -228,11 +226,11 @@ class TestSampleResult implements JMeterSerialTest {
         child1.sampleEnd();
         long child1Elapsed = child1.getTime();
 
-        Assertions.assertTrue(child1.isSuccessful());
-        Assertions.assertEquals(100, child1.getBytesAsLong());
-        Assertions.assertEquals("Child1 Sample", child1.getSampleLabel());
-        Assertions.assertEquals(1, child1.getSampleCount());
-        Assertions.assertEquals(0, child1.getSubResults().length);
+        assertTrue(child1.isSuccessful());
+        assertEquals(100, child1.getBytesAsLong());
+        assertEquals("Child1 Sample", child1.getSampleLabel());
+        assertEquals(1, child1.getSampleCount());
+        assertEquals(0, child1.getSubResults().length);
 
         long actualPause = 0;
         if (pause > 0) {
@@ -251,20 +249,20 @@ class TestSampleResult implements JMeterSerialTest {
         child2.sampleEnd();
         long child2Elapsed = child2.getTime();
 
-        Assertions.assertTrue(child2.isSuccessful());
-        Assertions.assertEquals(200, child2.getBytesAsLong());
-        Assertions.assertEquals("Child2 Sample", child2.getSampleLabel());
-        Assertions.assertEquals(1, child2.getSampleCount());
-        Assertions.assertEquals(0, child2.getSubResults().length);
+        assertTrue(child2.isSuccessful());
+        assertEquals(200, child2.getBytesAsLong());
+        assertEquals("Child2 Sample", child2.getSampleLabel());
+        assertEquals(1, child2.getSampleCount());
+        assertEquals(0, child2.getSubResults().length);
 
         // Now add the subsamples to the sample
         parent.addSubResult(child1);
         parent.addSubResult(child2);
-        Assertions.assertTrue(parent.isSuccessful());
-        Assertions.assertEquals(600, parent.getBytesAsLong());
-        Assertions.assertEquals("Parent Sample", parent.getSampleLabel());
-        Assertions.assertEquals(1, parent.getSampleCount());
-        Assertions.assertEquals(2, parent.getSubResults().length);
+        assertTrue(parent.isSuccessful());
+        assertEquals(600, parent.getBytesAsLong());
+        assertEquals("Parent Sample", parent.getSampleLabel());
+        assertEquals(1, parent.getSampleCount());
+        assertEquals(2, parent.getSubResults().length);
         long parentElapsedTotal = parent.getTime();
 
         long overallTime = parent.currentTimeInMillis() - beginTest;
@@ -279,7 +277,7 @@ class TestSampleResult implements JMeterSerialTest {
         long diff = parentElapsedTotal - sumSamplesTimes;
         long maxDiff = nanoTime ? 10 : 16; // TimeMillis has granularity of 10-20
         if (diff < 0 || diff > maxDiff) {
-            Assertions.fail("ParentElapsed: " + parentElapsedTotal + " - " + " sum(samples): " + sumSamplesTimes
+            fail("ParentElapsed: " + parentElapsedTotal + " - " + " sum(samples): " + sumSamplesTimes
                     + " => " + diff + " not in [0," + maxDiff + "]; nanotime=" + nanoTime);
         }
 
@@ -288,53 +286,53 @@ class TestSampleResult implements JMeterSerialTest {
 
         diff = overallTime - parentElapsedTotal;
         if (diff < 0 || diff > maxDiff) {
-            Assertions.fail("TestElapsed: " + overallTime + " - " + " ParentElapsed: " + parentElapsedTotal
+            fail("TestElapsed: " + overallTime + " - " + " ParentElapsed: " + parentElapsedTotal
                     + " => " + diff + " not in [0," + maxDiff + "]; nanotime=" + nanoTime);
         }
 
         // Check that calculator gets the correct statistics from the sample
         Calculator calculator = new Calculator();
         calculator.addSample(parent);
-        Assertions.assertEquals(600, calculator.getTotalBytes());
-        Assertions.assertEquals(1, calculator.getCount());
-        Assertions.assertEquals(1d / (parentElapsedTotal / 1000d), calculator.getRate(), 0.0001d); // Allow for some margin of error
+        assertEquals(600, calculator.getTotalBytes());
+        assertEquals(1, calculator.getCount());
+        assertEquals(1d / (parentElapsedTotal / 1000d), calculator.getRate(), 0.0001d); // Allow for some margin of error
         // Check that the throughput uses the time elapsed for the sub results
-        Assertions.assertFalse(1d / (parentElapsed / 1000d) <= calculator.getRate());
+        assertFalse(1d / (parentElapsed / 1000d) <= calculator.getRate());
     }
 
     // TODO some more invalid sequence tests needed
 
     @Test
-    void testEncodingAndType() throws Exception {
+    public void testEncodingAndType() throws Exception {
         // check default
         SampleResult res = new SampleResult();
-        Assertions.assertEquals(SampleResult.DEFAULT_ENCODING, res.getDataEncodingWithDefault());
-        Assertions.assertEquals("", res.getDataType(), "DataType should be blank");
-        Assertions.assertNull(res.getDataEncodingNoDefault());
+        assertEquals(SampleResult.DEFAULT_ENCODING, res.getDataEncodingWithDefault());
+        assertEquals("DataType should be blank", "", res.getDataType());
+        assertNull(res.getDataEncodingNoDefault());
 
         // check null changes nothing
         res.setEncodingAndType(null);
-        Assertions.assertEquals(SampleResult.DEFAULT_ENCODING, res.getDataEncodingWithDefault());
-        Assertions.assertEquals("", res.getDataType(), "DataType should be blank");
-        Assertions.assertNull(res.getDataEncodingNoDefault());
+        assertEquals(SampleResult.DEFAULT_ENCODING, res.getDataEncodingWithDefault());
+        assertEquals("DataType should be blank", "", res.getDataType());
+        assertNull(res.getDataEncodingNoDefault());
 
         // check no charset
         res.setEncodingAndType("text/html");
-        Assertions.assertEquals(SampleResult.DEFAULT_ENCODING, res.getDataEncodingWithDefault());
-        Assertions.assertEquals("text", res.getDataType());
-        Assertions.assertNull(res.getDataEncodingNoDefault());
+        assertEquals(SampleResult.DEFAULT_ENCODING, res.getDataEncodingWithDefault());
+        assertEquals("text", res.getDataType());
+        assertNull(res.getDataEncodingNoDefault());
 
         // Check unquoted charset
         res.setEncodingAndType("text/html; charset=aBcd");
-        Assertions.assertEquals("aBcd", res.getDataEncodingWithDefault());
-        Assertions.assertEquals("aBcd", res.getDataEncodingNoDefault());
-        Assertions.assertEquals("text", res.getDataType());
+        assertEquals("aBcd", res.getDataEncodingWithDefault());
+        assertEquals("aBcd", res.getDataEncodingNoDefault());
+        assertEquals("text", res.getDataType());
 
         // Check quoted charset
         res.setEncodingAndType("text/html; charset=\"aBCd\"");
-        Assertions.assertEquals("aBCd", res.getDataEncodingWithDefault());
-        Assertions.assertEquals("aBCd", res.getDataEncodingNoDefault());
-        Assertions.assertEquals("text", res.getDataType());
+        assertEquals("aBCd", res.getDataEncodingWithDefault());
+        assertEquals("aBCd", res.getDataEncodingNoDefault());
+        assertEquals("text", res.getDataType());
     }
 
     // sleep and return how long we actually slept
@@ -346,7 +344,7 @@ class TestSampleResult implements JMeterSerialTest {
     }
 
     @Test
-    void testCompareSampleLabels() {
+    public void testCompareSampleLabels() {
         final boolean prevValue = TestPlan.getFunctionalMode();
         TestPlan plan = new TestPlan();
         plan.setFunctionalMode(true);
@@ -360,25 +358,25 @@ class TestSampleResult implements JMeterSerialTest {
             subResult.setSampleLabel("subResult label");
 
             result.addSubResult(subResult);
-            Assertions.assertEquals("subResult label", subResult.getSampleLabel());
+            assertEquals("subResult label", subResult.getSampleLabel());
 
             plan.setFunctionalMode(false);
             subResult.setSampleLabel("parent label");
             result.addRawSubResult(subResult);
-            Assertions.assertEquals("parent label-0", subResult.getSampleLabel());
+            assertEquals("parent label-0", subResult.getSampleLabel());
         } finally {
             plan.setFunctionalMode(prevValue);
         }
     }
 
     @Test
-    void testBug63433() {
+    public void testBug63433() {
         SampleResult firstResult = new SampleResult();
-        Assertions.assertFalse(firstResult.markFile("result.csv"), "Expected false on first call of markFile");
-        Assertions.assertTrue(firstResult.markFile("result.csv"), "Expected true on second call of markFile");
+        assertFalse("Expected false on first call of markFile", firstResult.markFile("result.csv"));
+        assertTrue("Expected true on second call of markFile", firstResult.markFile("result.csv"));
 
         SampleResult secondResult = new SampleResult();
-        Assertions.assertFalse(secondResult.markFile(null), "Expected false on first call of markFile with null");
-        Assertions.assertTrue(secondResult.markFile(null), "Expected true on second call of markFile with null");
+        assertFalse("Expected false on first call of markFile with null", secondResult.markFile(null));
+        assertTrue("Expected true on second call of markFile with null", secondResult.markFile(null));
     }
 }

@@ -17,7 +17,7 @@
 
 package org.apache.jorphan;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assert.assertTrue;
 
 import org.apache.jmeter.config.gui.ArgumentsPanel;
 import org.apache.jmeter.junit.JMeterTestCase;
@@ -35,37 +35,37 @@ public class TestFunctorUsers extends JMeterTestCase {
     @Test
     @SuppressWarnings("deprecation")
     public void testSummaryReport() throws Exception {
-        assertTrue(SummaryReport.testFunctors(), "SummaryReport Functor");
+        assertTrue("SummaryReport Functor", SummaryReport.testFunctors());
     }
 
     @Test
     public void testTableVisualizer() throws Exception {
-        assertTrue(TableVisualizer.testFunctors(), "TableVisualizer Functor");
+        assertTrue("TableVisualizer Functor", TableVisualizer.testFunctors());
     }
 
     @Test
     public void testStatGraphVisualizer() throws Exception {
-        assertTrue(StatGraphVisualizer.testFunctors(), "StatGraphVisualizer Functor");
+        assertTrue("StatGraphVisualizer Functor", StatGraphVisualizer.testFunctors());
     }
 
     @Test
     @SuppressWarnings("deprecation")
     public void testStatVisualizer() throws Exception {
-        assertTrue(StatVisualizer.testFunctors(), "StatVisualizer Functor");
+        assertTrue("StatVisualizer Functor", StatVisualizer.testFunctors());
     }
 
     @Test
     public void testArgumentsPanel() throws Exception {
-        assertTrue(ArgumentsPanel.testFunctors(), "ArgumentsPanel Functor");
+        assertTrue("ArgumentsPanel Functor", ArgumentsPanel.testFunctors());
     }
 
     @Test
     public void testHTTPArgumentsPanel() throws Exception {
-        assertTrue(HTTPArgumentsPanel.testFunctors(), "HTTPArgumentsPanel Functor");
+        assertTrue("HTTPArgumentsPanel Functor", HTTPArgumentsPanel.testFunctors());
     }
 
     @Test
     public void testLDAPArgumentsPanel() throws Exception {
-        assertTrue(LDAPArgumentsPanel.testFunctors(), "LDAPArgumentsPanel Functor");
+        assertTrue("LDAPArgumentsPanel Functor", LDAPArgumentsPanel.testFunctors());
     }
 }

@@ -22,13 +22,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.jmeter.JMeter;
 import org.apache.jmeter.report.config.ExporterConfiguration;
@@ -60,6 +60,9 @@ import freemarker.template.TemplateExceptionHandler;
  */
 public class HtmlTemplateExporter extends AbstractDataExporter {
     private static final String CUSTOM_GRAPH_PREFIX = "custom_";
+
+    /** Format used for non null check of parameters. */
+    private static final String MUST_NOT_BE_NULL = "%s must not be null";
 
     private static final Logger log = LoggerFactory.getLogger(HtmlTemplateExporter.class);
 
@@ -93,7 +96,7 @@ public class HtmlTemplateExporter extends AbstractDataExporter {
      * @param value Value
      * @param context {@link DataContext}
      */
-    private static void addToContext(String key, Object value, DataContext context) {
+    private void addToContext(String key, Object value, DataContext context) {
         if (value instanceof String) {
             value = '"' + (String) value + '"';
         }
@@ -272,7 +275,7 @@ public class HtmlTemplateExporter extends AbstractDataExporter {
         }
     }
 
-    private static boolean htmlReportFileFilter(File file) {
+    private boolean htmlReportFileFilter(File file) {
         String fileName = file.getName();
         boolean isIndexHtmlFile = file.isFile() && fileName.equals("index.html");
         boolean isContentOrAdmin = fileName.equals("content") || fileName.startsWith("sbadmin2-");
@@ -286,9 +289,9 @@ public class HtmlTemplateExporter extends AbstractDataExporter {
     @Override
     public void export(SampleContext context, File file,
             ReportGeneratorConfiguration configuration) throws ExportException {
-        Objects.requireNonNull(context, "context must not be null");
-        Objects.requireNonNull(file, "file must not be null");
-        Objects.requireNonNull(configuration, "configuration must not be null");
+        Validate.notNull(context, MUST_NOT_BE_NULL, "context");
+        Validate.notNull(file, MUST_NOT_BE_NULL, "file");
+        Validate.notNull(configuration, MUST_NOT_BE_NULL, "configuration");
 
         log.debug("Start template processing");
 
@@ -321,7 +324,7 @@ public class HtmlTemplateExporter extends AbstractDataExporter {
             outputDir = new File(globallyDefinedOutputDir);
         }
 
-        JOrphanUtils.canSafelyWriteToFolder(outputDir, HtmlTemplateExporter::htmlReportFileFilter);
+        JOrphanUtils.canSafelyWriteToFolder(outputDir, this::htmlReportFileFilter);
 
         if (log.isInfoEnabled()) {
             log.info("Will generate dashboard in folder: {}", outputDir.getAbsolutePath());
@@ -460,13 +463,13 @@ public class HtmlTemplateExporter extends AbstractDataExporter {
         log.debug("End of template processing");
     }
 
-    private static <T> void addResultToContext(
+    private <T> void addResultToContext(
             String resultKey, Map<String, Object> storage,
             DataContext dataContext, ResultDataVisitor<T> visitor) {
         addResultToContext(resultKey, storage, dataContext, visitor, null, null);
     }
 
-    private static <T> void addResultToContext(
+    private <T> void addResultToContext(
             String resultKey, Map<String, Object> storage, DataContext dataContext,
             ResultDataVisitor<T> visitor, ResultCustomizer customizer, ResultChecker checker) {
         Object data = storage.get(resultKey);
@@ -482,7 +485,7 @@ public class HtmlTemplateExporter extends AbstractDataExporter {
         }
     }
 
-    private static long formatTimestamp(String key, DataContext context) {
+    private long formatTimestamp(String key, DataContext context) {
         // FIXME Why convert to double then long (rounding ?)
         double result = Double.parseDouble((String) context.get(key));
         long timestamp = (long) result;

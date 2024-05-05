@@ -48,7 +48,7 @@ public class HeaderAsPropertyRenderer extends DefaultTableCellRenderer {
      * are moved.
      */
     @Deprecated
-    public HeaderAsPropertyRenderer(Object[][] columnsMsgParameters) {
+    public HeaderAsPropertyRenderer(@Deprecated Object[][] columnsMsgParameters) {
         super();
     }
 

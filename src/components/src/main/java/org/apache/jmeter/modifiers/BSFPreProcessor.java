@@ -52,7 +52,6 @@ public class BSFPreProcessor extends BSFTestElement implements Cloneable, PrePro
     }
 
     @Override
-    @SuppressWarnings("RedundantOverride")
     public Object clone() {
         return super.clone();
     }

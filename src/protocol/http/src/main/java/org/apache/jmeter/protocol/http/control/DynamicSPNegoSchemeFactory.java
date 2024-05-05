@@ -57,7 +57,7 @@ public class DynamicSPNegoSchemeFactory extends SPNegoSchemeFactory {
         return new SPNegoScheme(stripPort, isUseCanonicalHostname());
     }
 
-    private static boolean isEnabled(Object contextAttribute, boolean defaultValue) {
+    private boolean isEnabled(Object contextAttribute, boolean defaultValue) {
         if (contextAttribute instanceof Boolean) {
             return (Boolean) contextAttribute;
         }

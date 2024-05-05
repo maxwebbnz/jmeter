@@ -33,7 +33,6 @@ import org.apache.jmeter.gui.Replaceable;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.testelement.property.CollectionProperty;
 import org.apache.jmeter.testelement.property.JMeterProperty;
-import org.apache.jmeter.testelement.schema.PropertiesAccessor;
 import org.apache.jorphan.util.JOrphanUtils;
 
 /**
@@ -55,29 +54,14 @@ public class HeaderManager extends ConfigTestElement implements Serializable, Re
     private static final int COLUMN_COUNT = COLUMN_RESOURCE_NAMES.length;
 
     public HeaderManager() {
-        set(getSchema().getHeaders(), new ArrayList<>());
-    }
-
-    @Override
-    public HeaderManagerSchema getSchema() {
-        return HeaderManagerSchema.INSTANCE;
-    }
-
-    @Override
-    public PropertiesAccessor<? extends HeaderManager, ? extends HeaderManagerSchema> getProps() {
-        return new PropertiesAccessor<>(this, getSchema());
-    }
-
-    @Override
-    public void recoverRunningVersion() {
-        // The component does not modify fields during the run
+        setProperty(new CollectionProperty(HEADERS, new ArrayList<>()));
     }
 
     /** {@inheritDoc} */
     @Override
     public void clear() {
         super.clear();
-        set(getSchema().getHeaders(), new ArrayList<>());
+        setProperty(new CollectionProperty(HEADERS, new ArrayList<>()));
     }
 
     /**
@@ -86,7 +70,7 @@ public class HeaderManager extends ConfigTestElement implements Serializable, Re
      * @return the header collection property
      */
     public CollectionProperty getHeaders() {
-        return getOrNull(getSchema().getHeaders());
+        return (CollectionProperty) getProperty(HEADERS);
     }
 
     public int getColumnCount() {

@@ -17,8 +17,8 @@
 
 package org.apache.jmeter.protocol.http.config;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.junit.JMeterTestCase;
@@ -27,6 +27,7 @@ import org.apache.jmeter.protocol.http.sampler.HTTPSamplerBase;
 import org.apache.jmeter.protocol.http.util.HTTPConstants;
 import org.apache.jmeter.testelement.property.JMeterProperty;
 import org.apache.jmeter.testelement.property.NullProperty;
+import org.apache.jmeter.testelement.property.TestElementProperty;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -47,7 +48,7 @@ public class UrlConfigTest extends JMeterTestCase {
         config.setProperty(HTTPSamplerBase.DOMAIN, "www.lazer.com");
         config.setProperty(HTTPSamplerBase.PATH, "login.jsp");
         config.setProperty(HTTPSamplerBase.METHOD, HTTPConstants.POST);
-        config.setArguments(args);
+        config.setProperty(new TestElementProperty(HTTPSamplerBase.ARGUMENTS, args));
         defaultConfig = new HTTPNullSampler();
         defaultConfig.setName("default");
         defaultConfig.setProperty(HTTPSamplerBase.DOMAIN, "www.xerox.com");
@@ -66,7 +67,7 @@ public class UrlConfigTest extends JMeterTestCase {
     @Test
     public void testOverRide() {
         JMeterProperty jmp = partialConfig.getProperty(HTTPSamplerBase.DOMAIN);
-        assertInstanceOf(NullProperty.class, jmp);
+        assertTrue(jmp instanceof NullProperty);
         assertEquals(jmp, new NullProperty(HTTPSamplerBase.DOMAIN));
         partialConfig.addTestElement(defaultConfig);
         assertEquals(partialConfig.getPropertyAsString(HTTPSamplerBase.DOMAIN), "www.xerox.com");

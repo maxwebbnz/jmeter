@@ -17,7 +17,8 @@
 
 package org.apache.jmeter.protocol.http.sampler;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.Collections;
@@ -26,12 +27,10 @@ import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.jmeter.protocol.http.control.gui.HttpTestSampleGui;
 import org.apache.jmeter.protocol.http.util.HTTPArgument;
-import org.apache.jmeter.protocol.http.util.HTTPConstants;
 import org.apache.jmeter.protocol.http.util.HTTPFileArg;
 import org.apache.jmeter.threads.JMeterContext;
 import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.threads.JMeterVariables;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
@@ -60,22 +59,7 @@ public class TestHTTPHC4Impl {
         sampler.getArguments().addArgument(argument);
         HTTPHC4Impl hc = new HTTPHC4Impl(sampler);
         String requestData = hc.setupHttpEntityEnclosingRequestData(post);
-        Assertions.assertTrue(requestData.contains("charset=utf-8"));
-    }
-
-    @Test
-    void testParameterWithMultipartAndExplicitHeader() throws Exception {
-        HTTPSamplerBase sampler = (HTTPSamplerBase) new HttpTestSampleGui().createTestElement();
-        sampler.setThreadContext(jmctx);
-        sampler.setDoMultipart(true);
-        sampler.setDoBrowserCompatibleMultipart(true);
-        HttpEntityEnclosingRequestBase post = new HttpPost();
-        post.addHeader(HTTPConstants.HEADER_CONTENT_TYPE, "application/json");
-        sampler.setHTTPFiles(new HTTPFileArg[] {new HTTPFileArg("filename", "file", "application/octect; charset=utf-8")});
-        HTTPHC4Impl hc = new HTTPHC4Impl(sampler);
-        String requestData = hc.setupHttpEntityEnclosingRequestData(post);
-        assertEquals(0, post.getHeaders(HTTPConstants.HEADER_CONTENT_TYPE).length);
-        Assertions.assertTrue(requestData.contains("charset=utf-8"));
+        assertTrue(requestData.contains("charset=utf-8"));
     }
 
     @Test
@@ -94,7 +78,7 @@ public class TestHTTPHC4Impl {
         sampler.setHTTPFiles(Collections.singletonList(fileArg).toArray(new HTTPFileArg[1]));
         HTTPHC4Impl hc = new HTTPHC4Impl(sampler);
         String requestData = hc.setupHttpEntityEnclosingRequestData(post);
-        Assertions.assertTrue(requestData.contains("charset=utf-8"));
+        assertTrue(requestData.contains("charset=utf-8"));
     }
 
     @Test
@@ -105,7 +89,7 @@ public class TestHTTPHC4Impl {
         sampler.setThreadContext(jmctx);
         HTTPHC4Impl hc = new HTTPHC4Impl(sampler);
         hc.notifyFirstSampleAfterLoopRestart();
-        Assertions.assertFalse(HTTPHC4Impl.resetStateOnThreadGroupIteration.get(), "User is the same, the state shouldn't be reset");
+        assertFalse("User is the same, the state shouldn't be reset", HTTPHC4Impl.resetStateOnThreadGroupIteration.get());
     }
 
     @Test
@@ -116,6 +100,6 @@ public class TestHTTPHC4Impl {
         sampler.setThreadContext(jmctx);
         HTTPHC4Impl hc = new HTTPHC4Impl(sampler);
         hc.notifyFirstSampleAfterLoopRestart();
-        Assertions.assertTrue(HTTPHC4Impl.resetStateOnThreadGroupIteration.get(), "Users are different, the state should be reset");
+        assertTrue("Users are different, the state should be reset", HTTPHC4Impl.resetStateOnThreadGroupIteration.get());
     }
 }

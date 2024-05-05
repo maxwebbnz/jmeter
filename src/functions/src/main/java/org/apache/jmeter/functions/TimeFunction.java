@@ -17,31 +17,20 @@
 
 package org.apache.jmeter.functions;
 
-import java.text.MessageFormat;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import org.apache.jmeter.engine.util.CompoundVariable;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.samplers.Sampler;
-import org.apache.jmeter.testelement.TestStateListener;
 import org.apache.jmeter.threads.JMeterVariables;
 import org.apache.jmeter.util.JMeterUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.LoadingCache;
-import com.google.auto.service.AutoService;
 
 // See org.apache.jmeter.functions.TestTimeFunction for unit tests
 
@@ -49,8 +38,7 @@ import com.google.auto.service.AutoService;
  * __time() function - returns the current time in milliseconds
  * @since 2.2
  */
-@AutoService(Function.class)
-public class TimeFunction extends AbstractFunction implements TestStateListener {
+public class TimeFunction extends AbstractFunction {
 
     private static final String KEY = "__time"; // $NON-NLS-1$
 
@@ -60,41 +48,6 @@ public class TimeFunction extends AbstractFunction implements TestStateListener 
 
     // Only modified in class init
     private static final Map<String, String> aliases = new HashMap<>();
-
-    private static final Logger log = LoggerFactory.getLogger(TimeFunction.class);
-
-    private static final LoadingCache<String, Supplier<String>> DATE_TIME_FORMATTER_CACHE =
-            Caffeine.newBuilder()
-                    .maximumSize(1000)
-                    .build((fmt) -> {
-                        if (DIVISOR_PATTERN.matcher(fmt).matches()) {
-                            long div = Long.parseLong(fmt.substring(1)); // should never case NFE
-                            return () -> Long.toString(System.currentTimeMillis() / div);
-                        }
-                        DateTimeFormatter df;
-                        try {
-                            df = DateTimeFormatter
-                                    .ofPattern(fmt)
-                                    .withZone(ZoneId.systemDefault());
-                        } catch (IllegalArgumentException e) {
-                            throw new IllegalArgumentException("Unable to parse date format " + fmt, e);
-                        }
-                        if (isPossibleUsageOfUInFormat(df, fmt)) {
-                            log.warn(
-                                    MessageFormat.format(
-                                            JMeterUtils.getResString("time_format_changed"),
-                                            fmt));
-                        }
-                        return () -> df.format(Instant.now());
-                    });
-
-    private static boolean isPossibleUsageOfUInFormat(DateTimeFormatter df, String fmt) {
-        ZoneId mst = ZoneId.of("-07:00");
-        return fmt.contains("u") &&
-                df.withZone(mst)
-                        .format(ZonedDateTime.of(2006, 1, 2, 15, 4, 5, 6, mst))
-                        .contains("2006");
-    }
 
     static {
         desc.add(JMeterUtils.getResString("time_format")); //$NON-NLS-1$
@@ -124,9 +77,10 @@ public class TimeFunction extends AbstractFunction implements TestStateListener 
 
     /** {@inheritDoc} */
     @Override
+    @SuppressWarnings("JdkObsolete")
     public String execute(SampleResult previousResult, Sampler currentSampler) throws InvalidVariableException {
         String datetime;
-        if (format.isEmpty()) {// Default to milliseconds
+        if (format.length() == 0){// Default to milliseconds
             datetime = Long.toString(System.currentTimeMillis());
         } else {
             // Resolve any aliases
@@ -134,10 +88,16 @@ public class TimeFunction extends AbstractFunction implements TestStateListener 
             if (fmt == null) {
                 fmt = format;// Not found
             }
-            datetime = DATE_TIME_FORMATTER_CACHE.get(fmt).get();
+            if (DIVISOR_PATTERN.matcher(fmt).matches()) { // divisor is a positive number
+                long div = Long.parseLong(fmt.substring(1)); // should never case NFE
+                datetime = Long.toString(System.currentTimeMillis() / div);
+            } else {
+                SimpleDateFormat df = new SimpleDateFormat(fmt);// Not synchronised, so can't be shared
+                datetime = df.format(new Date());
+            }
         }
 
-        if (!variable.isEmpty()) {
+        if (variable.length() > 0) {
             JMeterVariables vars = getVariables();
             if (vars != null){// vars will be null on TestPlan
                 vars.put(variable, datetime);
@@ -175,27 +135,5 @@ public class TimeFunction extends AbstractFunction implements TestStateListener 
     @Override
     public List<String> getArgumentDesc() {
         return desc;
-    }
-
-    @Override
-    public void testStarted() {
-        // We invalidate the cache so it will parse the formats again and will raise a warning if there are
-        // %u usages.
-        DATE_TIME_FORMATTER_CACHE.invalidateAll();
-    }
-
-    @Override
-    public void testStarted(String host) {
-        testStarted();
-    }
-
-    @Override
-    public void testEnded() {
-        DATE_TIME_FORMATTER_CACHE.invalidateAll();
-    }
-
-    @Override
-    public void testEnded(String host) {
-        testEnded();
     }
 }

@@ -30,7 +30,7 @@ public class AbstractSampleProcessor implements SampleProcessor {
 
     private SampleContext sampleContext;
 
-    private final ArrayList<ChannelContext> channelContexts = new ArrayList<>();
+    private ArrayList<ChannelContext> channelContexts = new ArrayList<>();
 
     /*
      * (non-Javadoc)

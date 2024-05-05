@@ -43,7 +43,6 @@ public class MongoDB {
         mongo = new MongoClient(serverAddresses, mongoOptions);
     }
 
-    @SuppressWarnings("deprecation")
     public DB getDB(String database, String username, String password) {
 
         if(log.isDebugEnabled()) {

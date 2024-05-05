@@ -29,9 +29,6 @@ import javax.swing.JOptionPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.auto.service.AutoService;
-
-@AutoService(Command.class)
 public class OpenLinkAction extends AbstractAction {
 
     private static final Logger log = LoggerFactory.getLogger(OpenLinkAction.class);
@@ -93,7 +90,7 @@ public class OpenLinkAction extends AbstractAction {
         return commands;
     }
 
-    private static void showBrowserWarning(String url) {
+    private void showBrowserWarning(String url) {
         String problemSolver;
         if (url.startsWith(LINK_MAP.get(ActionNames.LINK_COMP_REF))
                 || url.startsWith(LINK_MAP.get(ActionNames.LINK_FUNC_REF))) {

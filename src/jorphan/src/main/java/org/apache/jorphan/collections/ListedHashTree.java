@@ -76,11 +76,6 @@ public class ListedHashTree extends HashTree implements Serializable, Cloneable 
         return newTree;
     }
 
-    @Override
-    public ListedHashTree getTree(Object key) {
-        return (ListedHashTree) super.getTree(key);
-    }
-
     /** {@inheritDoc} */
     @Override
     public void set(Object key, Object value) {
@@ -143,27 +138,27 @@ public class ListedHashTree extends HashTree implements Serializable, Cloneable 
 
     /** {@inheritDoc} */
     @Override
-    public ListedHashTree createNewTree() {
+    public HashTree createNewTree() {
         return new ListedHashTree();
     }
 
     /** {@inheritDoc} */
     @Override
-    public ListedHashTree createNewTree(Object key) {
+    public HashTree createNewTree(Object key) {
         return new ListedHashTree(key);
     }
 
     /** {@inheritDoc} */
     @Override
-    public ListedHashTree createNewTree(Collection<?> values) {
+    public HashTree createNewTree(Collection<?> values) {
         return new ListedHashTree(values);
     }
 
     /** {@inheritDoc} */
     @Override
-    public ListedHashTree add(Object key) {
+    public HashTree add(Object key) {
         if (!data.containsKey(key)) {
-            ListedHashTree newTree = createNewTree();
+            HashTree newTree = createNewTree();
             data.put(key, newTree);
             order.add(key);
             return newTree;
@@ -180,9 +175,7 @@ public class ListedHashTree extends HashTree implements Serializable, Cloneable 
     /** {@inheritDoc} */
     @Override
     public HashTree remove(Object key) {
-        if (data.containsKey(key)) {
-            order.removeIf(x -> x == key);
-        }
+        order.remove(key);
         return data.remove(key);
     }
 
@@ -197,9 +190,7 @@ public class ListedHashTree extends HashTree implements Serializable, Cloneable 
     @Override
     public int hashCode() {
         int hc = 17;
-        for (Object o : order) {
-            hc = hc * 37 + System.identityHashCode(o);
-        }
+        hc = hc * 37 + (order == null ? 0 : order.hashCode());
         hc = hc * 37 + super.hashCode();
         return hc;
     }
@@ -211,15 +202,7 @@ public class ListedHashTree extends HashTree implements Serializable, Cloneable 
             return false;
         }
         ListedHashTree lht = (ListedHashTree) o;
-        if (!super.equals(lht)) {
-            return false;
-        }
-        for (int i = 0; i < order.size(); i++) {
-            if (order.get(i) != lht.order.get(i)) {
-                return false;
-            }
-        }
-        return true;
+        return super.equals(lht) && order.equals(lht.order);
     }
 
 

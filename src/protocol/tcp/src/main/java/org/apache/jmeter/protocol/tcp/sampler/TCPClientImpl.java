@@ -21,7 +21,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
 import org.apache.commons.lang3.StringUtils;
@@ -116,25 +115,15 @@ public class TCPClientImpl extends AbstractTCPClient {
 
             // do we need to close byte array (or flush it?)
             if(log.isDebugEnabled()) {
-                log.debug("Read: {}\n{}", w.size(), w.toString(CHARSET));
+                log.debug("Read: {}\n{}", w.size(), w.toString());
             }
             return w.toString(CHARSET);
-        } catch (UnsupportedEncodingException e) {
-            throw new ReadException("Error decoding bytes from server with " + CHARSET + ", bytes read: " + w.size(),
-                    e, "<Read bytes with bad encoding>");
         } catch (IOException e) {
-            String decodedBytes;
-            try {
-                decodedBytes = w.toString(CHARSET);
-            } catch (UnsupportedEncodingException uee) {
-                // we should never get here, as it would have crashed earlier
-                decodedBytes = "<Read bytes with bad encoding>";
-            }
-            throw new ReadException("Error reading from server, bytes read: " + w.size(), e, decodedBytes);
+            throw new ReadException("Error reading from server, bytes read: " + w.size(), e, w.toString());
         }
     }
 
-    private static String showEOL(final String input) {
+    private String showEOL(final String input) {
         StringBuilder sb = new StringBuilder(input.length()*2);
         for(int i=0; i < input.length(); i++) {
             char ch = input.charAt(i);

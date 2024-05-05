@@ -25,17 +25,23 @@ import org.apache.commons.lang3.StringUtils;
  * Searcher implementation that searches text as is
  */
 public class RawTextSearcher implements Searcher {
-    private final boolean caseSensitive;
-    private final String textToSearch;
+    private boolean caseSensitive;
+    private String textToSearch;
+
 
     /**
      * Constructor
-     * @param caseSensitive is search case-sensitive
+     * @param caseSensitive is search case sensitive
      * @param textToSearch Text to search
      */
     public RawTextSearcher(boolean caseSensitive, String textToSearch) {
+        super();
         this.caseSensitive = caseSensitive;
-        this.textToSearch = textToSearch;
+        if (caseSensitive) {
+            this.textToSearch = textToSearch;
+        } else {
+            this.textToSearch = textToSearch.toLowerCase();
+        }
     }
 
     /**
@@ -44,8 +50,9 @@ public class RawTextSearcher implements Searcher {
     @Override
     public boolean search(List<String> textTokens) {
         return textTokens.stream()
-                .filter(StringUtils::isNotEmpty)
-                .anyMatch(token -> caseSensitive ? token.contains(textToSearch) : StringUtils.containsAnyIgnoreCase(token, textToSearch));
+                .filter(token -> !StringUtils.isEmpty(token))
+                .map(token -> caseSensitive ? token : token.toLowerCase())
+                .anyMatch(token -> token.contains(textToSearch));
     }
 
     @Override

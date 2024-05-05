@@ -49,7 +49,6 @@ public class BSFPostProcessor extends BSFTestElement implements Cloneable, PostP
     }
 
     @Override
-    @SuppressWarnings("RedundantOverride")
     public Object clone() {
         return super.clone();
     }

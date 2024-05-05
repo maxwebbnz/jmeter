@@ -238,7 +238,7 @@ public class CookiePanel extends AbstractConfigGui implements ActionListener {
         saveButton.setEnabled(hasRows);
     }
 
-    private static Cookie createCookie(Object[] rowData) {
+    private Cookie createCookie(Object[] rowData) {
         Cookie cookie = new Cookie(
                 (String) rowData[0],
                 (String) rowData[1],

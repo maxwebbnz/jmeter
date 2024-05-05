@@ -33,7 +33,6 @@ public class GroupData {
      *
      * @return the series data map
      */
-    @SuppressWarnings("NonApiType")
     public final HashMap<String, SeriesData> getSeriesInfo() {
         return seriesData;
     }

@@ -30,8 +30,6 @@ import javax.swing.SwingUtilities;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.util.JMeterUtils;
 
-import com.google.auto.service.AutoService;
-
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -45,7 +43,6 @@ import javafx.scene.web.WebView;
  * {@link ResultRenderer} implementation that uses JAVAFX WebEngine to render as browser do
  * @since 3.2
  */
-@AutoService(ResultRenderer.class)
 public class RenderInBrowser extends SamplerResultTab implements ResultRenderer {
 
     private JFXPanel jfxPanel;

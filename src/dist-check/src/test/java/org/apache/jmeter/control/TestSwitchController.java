@@ -17,8 +17,8 @@
 
 package org.apache.jmeter.control;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -124,11 +124,11 @@ public class TestSwitchController extends JMeterTestCase {
         controller.initialize();
 
         for (int i = 1; i <= 3; i++) {
-            assertEquals("before", nextName(controller), "Loop " + i);
+            assertEquals("Loop " + i, "before", nextName(controller));
             if (exp != null) {
-                assertEquals(exp, nextName(controller), "Loop " + i);
+                assertEquals("Loop " + i, exp, nextName(controller));
             }
-            assertEquals("after", nextName(controller), "Loop " + i);
+            assertEquals("Loop " + i, "after", nextName(controller));
             assertNull(nextName(controller));
         }
     }
@@ -171,12 +171,12 @@ public class TestSwitchController extends JMeterTestCase {
         controller.addTestElement(new TestSampler("after"));
         controller.initialize();
         for (int i = 1; i <= 3; i++) {
-            assertEquals("before", nextName(controller), "Loop=" + i);
+            assertEquals("Loop=" + i, "before", nextName(controller));
             if (exp != null) {
-                assertEquals(exp, nextName(controller), "Loop=" + i);
+                assertEquals("Loop=" + i, exp, nextName(controller));
             }
-            assertEquals("after", nextName(controller), "Loop=" + i);
-            assertNull(nextName(controller), "Loop=" + i);
+            assertEquals("Loop=" + i, "after", nextName(controller));
+            assertNull("Loop=" + i, nextName(controller));
         }
     }
 
@@ -243,13 +243,13 @@ public class TestSwitchController extends JMeterTestCase {
         switch_cont.setRunningVersion(true);
         controller.initialize();
         for (int i = 1; i <= 3; i++) {
-            assertEquals("before", nextName(controller), "Loop:" + i);
+            assertEquals("Loop:" + i, "before", nextName(controller));
             for (String anExp : exp) {
-                assertEquals(anExp, nextName(controller), "Loop:" + i);
+                assertEquals("Loop:" + i, anExp, nextName(controller));
             }
-            assertEquals("after", nextName(controller), "Loop:" + i);
+            assertEquals("Loop:" + i, "after", nextName(controller));
         }
-        assertNull(nextName(controller), "Loops:" + loops);
+        assertNull("Loops:" + loops, nextName(controller));
     }
 
     /*
@@ -288,17 +288,17 @@ public class TestSwitchController extends JMeterTestCase {
         assertEquals("100", jmvars.get("VAR"));
 
         for (int i = 1; i <= 3; i++) {
-            assertEquals("before", nextName(controller), "Loop " + i);
-            assertEquals("" + i, nextName(controller), "Loop " + i);
-            assertEquals("" + i, jmvars.get("VAR"), "Loop " + i);
-            assertEquals("after", nextName(controller), "Loop " + i);
+            assertEquals("Loop " + i, "before", nextName(controller));
+            assertEquals("Loop " + i, "" + i, nextName(controller));
+            assertEquals("Loop " + i, "" + i, jmvars.get("VAR"));
+            assertEquals("Loop " + i, "after", nextName(controller));
             assertNull(nextName(controller));
         }
         int i = 4;
-        assertEquals("before", nextName(controller), "Loop " + i);
-        assertEquals("0", nextName(controller), "Loop " + i);
-        assertEquals("" + i, jmvars.get("VAR"), "Loop " + i);
-        assertEquals("after", nextName(controller), "Loop " + i);
+        assertEquals("Loop " + i, "before", nextName(controller));
+        assertEquals("Loop " + i, "0", nextName(controller));
+        assertEquals("Loop " + i, "" + i, jmvars.get("VAR"));
+        assertEquals("Loop " + i, "after", nextName(controller));
         assertNull(nextName(controller));
         assertEquals("4", jmvars.get("VAR"));
     }

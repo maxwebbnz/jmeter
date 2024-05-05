@@ -38,9 +38,6 @@ public class ErrorsSummaryConsumerTest {
         sample = new Sample(0, metadata, new String[] { "false", "200", "", "FailureMessage" });
         assertEquals("FailureMessage", ErrorsSummaryConsumer.getErrorKey(sample));
 
-        sample = new Sample(0, metadata, new String[] { "false", "200", "", "" });
-        assertEquals(MetricUtils.ASSERTION_FAILED, ErrorsSummaryConsumer.getErrorKey(sample));
-
         sample = new Sample(0, metadata, new String[] { "false", "200", "",
                 "Test failed: text expected to contain /<title>Some html text</title>/" });
         assertEquals("Test failed: text expected to contain /&lt;title&gt;Some html text&lt;/title&gt;/",
@@ -52,12 +49,9 @@ public class ErrorsSummaryConsumerTest {
                 ErrorsSummaryConsumer.getErrorKey(sample));
 
         sample = new Sample(0, metadata, new String[] { "true", "200", "", "" });
-        assertEquals("", ErrorsSummaryConsumer.getErrorKey(sample));
+        assertEquals(MetricUtils.ASSERTION_FAILED, ErrorsSummaryConsumer.getErrorKey(sample));
 
-        sample = new Sample(0, metadata, new String[] { "false", "403", "", "" });
-        assertEquals("403", ErrorsSummaryConsumer.getErrorKey(sample));
-
-        sample = new Sample(0, metadata, new String[] { "false", "500", "Server Error", "" });
+        sample = new Sample(0, metadata, new String[] { "false", "500", "Server Error", "FailureMessage" });
         assertEquals("500/Server Error", ErrorsSummaryConsumer.getErrorKey(sample));
     }
 

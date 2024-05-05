@@ -25,8 +25,8 @@ import java.util.List;
 
 import org.apache.jmeter.config.Argument;
 import org.apache.jmeter.config.Arguments;
+import org.apache.jmeter.testelement.property.BooleanProperty;
 import org.apache.jmeter.testelement.property.JMeterProperty;
-import org.apache.jmeter.testelement.schema.PropertiesAccessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,9 +37,17 @@ import org.slf4j.LoggerFactory;
  * Represents an Argument for HTTP requests.
  */
 public class HTTPArgument extends Argument implements Serializable {
+    private static final String DEFAULT_CONTENT_TYPE = "text/plain";
+
     private static final Logger log = LoggerFactory.getLogger(HTTPArgument.class);
 
     private static final long serialVersionUID = 241L;
+
+    private static final String ALWAYS_ENCODE = "HTTPArgument.always_encode";
+
+    private static final String USE_EQUALS = "HTTPArgument.use_equals";
+
+    private static final String CONTENT_TYPE = "HTTPArgument.content_type";
 
     private static final EncoderCache cache = new EncoderCache(1000);
 
@@ -60,27 +68,17 @@ public class HTTPArgument extends Argument implements Serializable {
         this.setMetaData(metadata);
     }
 
-    @Override
-    public HTTPArgumentSchema getSchema() {
-        return HTTPArgumentSchema.INSTANCE;
-    }
-
-    @Override
-    public PropertiesAccessor<? extends HTTPArgument, ? extends HTTPArgumentSchema> getProps() {
-        return new PropertiesAccessor<>(this, getSchema());
-    }
-
     public void setUseEquals(boolean ue) {
         if (ue) {
             setMetaData("=");
         } else {
             setMetaData("");
         }
-        set(getSchema().getUseEquals(), ue);
+        setProperty(new BooleanProperty(USE_EQUALS, ue));
     }
 
     public boolean isUseEquals() {
-        boolean eq = get(getSchema().getUseEquals());
+        boolean eq = getPropertyAsBoolean(USE_EQUALS);
         if (getMetaData().equals("=") || (getValue() != null && getValue().length() > 0)) {
             setUseEquals(true);
             return true;
@@ -90,19 +88,19 @@ public class HTTPArgument extends Argument implements Serializable {
     }
 
     public void setContentType(String ct) {
-        set(getSchema().getContentType(), ct);
+        setProperty(CONTENT_TYPE, ct, HTTPArgument.DEFAULT_CONTENT_TYPE);
     }
 
     public String getContentType() {
-        return get(getSchema().getContentType());
+        return getPropertyAsString(CONTENT_TYPE, HTTPArgument.DEFAULT_CONTENT_TYPE);
     }
 
     public void setAlwaysEncoded(boolean ae) {
-        set(getSchema().getAlwaysEncode(), ae);
+        setProperty(new BooleanProperty(ALWAYS_ENCODE, ae));
     }
 
     public boolean isAlwaysEncoded() {
-        return get(getSchema().getAlwaysEncode());
+        return getPropertyAsBoolean(ALWAYS_ENCODE);
     }
 
     /**

@@ -25,32 +25,41 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.stream.Stream;
+import java.util.Arrays;
+import java.util.Collection;
 
 import org.apache.jmeter.junit.JMeterTestCase;
 import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jorphan.test.JMeterSerialTest;
 import org.hamcrest.CoreMatchers;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameter;
+import org.junit.runners.Parameterized.Parameters;
 
-class TestDataStrippingSampleSender extends JMeterTestCase implements JMeterSerialTest {
+@RunWith(Parameterized.class)
+public class TestDataStrippingSampleSender extends JMeterTestCase implements JMeterSerialTest {
 
     private static final String TEST_CONTENT = "Something important";
 
-    private static Stream<Arguments> parameters() {
-        return Stream.of(
-            Arguments.of(TRUE, "", TRUE),
-            Arguments.of(TRUE, "", FALSE),
-            Arguments.of(FALSE, "", TRUE),
-            Arguments.of(FALSE, TEST_CONTENT, FALSE)
+    @Parameters(name = "is successful sample: {0}, expected content after stripping: {1}, stripOnFailure: {2}")
+    public static Collection<Object[]> parameters() {
+        return Arrays.asList(
+            new Object[] {TRUE,  "", TRUE},
+            new Object[] {TRUE,  "", FALSE},
+            new Object[] {FALSE, "", TRUE},
+            new Object[] {FALSE, TEST_CONTENT, FALSE}
         );
     }
 
-    @ParameterizedTest(name = "{index}: is successful sample: {0}, expected content after stripping: {1}, stripOnFailure: {2}")
-    @MethodSource("parameters")
-    void testSampleOccurred(boolean successfulParent, String content, Boolean stripOnError) throws IOException {
+    @Parameter(0) public Boolean successfulParent;
+    @Parameter(1) public String content;
+    @Parameter(2) public Boolean stripOnError;
+
+
+    @Test
+    public void testSampleOccurred() throws IOException {
         Path props = Files.createTempFile("mydummy", ".properties");
         JMeterUtils.loadJMeterProperties(props.toString());
         JMeterUtils.getJMeterProperties().setProperty("sample_sender_strip_also_on_error", stripOnError.toString());
@@ -92,7 +101,7 @@ class TestDataStrippingSampleSender extends JMeterTestCase implements JMeterSeri
         return result;
     }
 
-    private static class SimpleSender implements SampleSender {
+    private class SimpleSender implements SampleSender {
 
         private SampleResult result;
 

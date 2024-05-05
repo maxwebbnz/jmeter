@@ -29,14 +29,11 @@ import org.apache.jmeter.testelement.ThreadListener;
 import org.apache.jmeter.threads.JMeterVariables;
 import org.apache.jmeter.util.JMeterUtils;
 
-import com.google.auto.service.AutoService;
-
 /**
  * Counter that can be referenced anywhere in the Thread Group. It can be configured per User (Thread Local)
  * or globally.
  * @since 1.X
  */
-@AutoService(Function.class)
 public class IterationCounter extends AbstractFunction implements ThreadListener {
 
     private static final List<String> desc = new ArrayList<>();
@@ -45,9 +42,9 @@ public class IterationCounter extends AbstractFunction implements ThreadListener
 
     private Object[] variables;
 
-    private final AtomicInteger globalCounter = new AtomicInteger();
+    private AtomicInteger globalCounter = new AtomicInteger();
 
-    private final ThreadLocal<AtomicInteger> perThreadInt = ThreadLocal.withInitial(AtomicInteger::new);
+    private ThreadLocal<AtomicInteger> perThreadInt = ThreadLocal.withInitial(AtomicInteger::new);
 
     static {
         desc.add(JMeterUtils.getResString("iteration_counter_arg_1")); //$NON-NLS-1$

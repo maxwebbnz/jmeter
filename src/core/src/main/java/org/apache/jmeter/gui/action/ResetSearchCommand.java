@@ -26,12 +26,9 @@ import org.apache.jmeter.gui.GuiPackage;
 import org.apache.jmeter.gui.Searchable;
 import org.apache.jmeter.gui.tree.JMeterTreeNode;
 
-import com.google.auto.service.AutoService;
-
 /**
  * Reset Search
  */
-@AutoService(Command.class)
 public class ResetSearchCommand extends AbstractAction {
 
     private static final Set<String> commands = new HashSet<>();

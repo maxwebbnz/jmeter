@@ -19,8 +19,9 @@ package org.apache.jorphan.collections;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.IdentityHashMap;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Useful for finding all nodes in the tree that represent objects of a
@@ -53,7 +54,7 @@ import java.util.List;
 public class SearchByClass<T> implements HashTreeTraverser {
     private final List<T> objectsOfClass = new ArrayList<>();
 
-    private final IdentityHashMap<Object, ListedHashTree> subTrees = new IdentityHashMap<>();
+    private final Map<Object, ListedHashTree> subTrees = new HashMap<>();
 
     private final Class<T> searchClass;
 

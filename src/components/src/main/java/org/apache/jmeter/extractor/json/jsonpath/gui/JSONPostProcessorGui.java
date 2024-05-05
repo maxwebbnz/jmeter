@@ -152,7 +152,7 @@ public class JSONPostProcessorGui extends AbstractPostProcessorGui {
         return panel;
     }
 
-    private static void addField(JPanel panel, JLabeledTextField field, GridBagConstraints gbc) {
+    private void addField(JPanel panel, JLabeledTextField field, GridBagConstraints gbc) {
         List<JComponent> item = field.getComponentList();
         panel.add(item.get(0), gbc.clone());
         gbc.gridx++;
@@ -161,7 +161,7 @@ public class JSONPostProcessorGui extends AbstractPostProcessorGui {
         panel.add(item.get(1), gbc.clone());
     }
 
-    private static void addField(JPanel panel, JLabel label, JCheckBox checkBox, GridBagConstraints gbc) {
+    private void addField(JPanel panel, JLabel label, JCheckBox checkBox, GridBagConstraints gbc) {
         panel.add(label, gbc.clone());
         gbc.gridx++;
         gbc.weightx = 1;
@@ -169,14 +169,14 @@ public class JSONPostProcessorGui extends AbstractPostProcessorGui {
         panel.add(checkBox, gbc.clone());
     }
 
-    private static void nextLine(GridBagConstraints gbc) {
+    private void nextLine(GridBagConstraints gbc) {
         gbc.gridx = 0;
         gbc.gridy++;
         gbc.weightx = 0;
         gbc.fill = GridBagConstraints.NONE;
     }
 
-    private static void initConstraints(GridBagConstraints gbc) {
+    private void initConstraints(GridBagConstraints gbc) {
         gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.fill = GridBagConstraints.NONE;
         gbc.gridheight = 1;

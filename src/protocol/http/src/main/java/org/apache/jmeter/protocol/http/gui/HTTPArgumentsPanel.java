@@ -104,10 +104,10 @@ public class HTTPArgumentsPanel extends ArgumentsPanel {
     }
 
     @Override
-    public Arguments createTestElement() {
+    public TestElement createTestElement() {
         Arguments args = getUnclonedParameters();
-        assignDefaultValues(args);
-        return (Arguments) args.clone();
+        super.configureTestElement(args);
+        return (TestElement) args.clone();
     }
 
     /**

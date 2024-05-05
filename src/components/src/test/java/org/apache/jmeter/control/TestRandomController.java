@@ -17,10 +17,9 @@
 
 package org.apache.jmeter.control;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,7 +46,7 @@ public class TestRandomController extends JMeterTestCase {
         while ((sampler = roc.next()) != null) {
             String samplerName = sampler.getName();
             if (usedSamplers.contains(samplerName)) {
-                fail("Duplicate sampler returned from next()");
+                assertTrue("Duplicate sampler returned from next()", false);
             }
             usedSamplers.add(samplerName);
         }
@@ -72,7 +71,7 @@ public class TestRandomController extends JMeterTestCase {
         while ((sampler = roc.next()) != null) {
             String samplerName = sampler.getName();
             if (usedSamplers.contains(samplerName)) {
-                fail("Duplicate sampler returned from next()");
+                assertTrue("Duplicate sampler returned from next()", false);
             }
             usedSamplers.add(samplerName);
         }

@@ -26,12 +26,9 @@ import org.apache.jmeter.gui.tree.JMeterTreeNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.auto.service.AutoService;
-
 /**
  * Implements the Enable menu item.
  */
-@AutoService(Command.class)
 public class EnableComponent extends AbstractAction {
     private static final Logger log = LoggerFactory.getLogger(EnableComponent.class);
 
@@ -62,7 +59,7 @@ public class EnableComponent extends AbstractAction {
         }
     }
 
-    private static void enableComponents(JMeterTreeNode[] nodes, boolean enable) {
+    private void enableComponents(JMeterTreeNode[] nodes, boolean enable) {
         GuiPackage pack = GuiPackage.getInstance();
         for (JMeterTreeNode node : nodes) {
             node.setEnabled(enable);
@@ -70,7 +67,7 @@ public class EnableComponent extends AbstractAction {
         }
     }
 
-    private static void toggleComponents(JMeterTreeNode[] nodes) {
+    private void toggleComponents(JMeterTreeNode[] nodes) {
         GuiPackage pack = GuiPackage.getInstance();
         for (JMeterTreeNode node : nodes) {
             boolean enable = !node.isEnabled();

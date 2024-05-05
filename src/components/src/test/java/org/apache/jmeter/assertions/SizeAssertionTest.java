@@ -17,11 +17,10 @@
 
 package org.apache.jmeter.assertions;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import org.apache.jmeter.junit.JMeterTestCase;
 import org.apache.jmeter.samplers.SampleResult;
@@ -163,14 +162,14 @@ public class SizeAssertionTest extends JMeterTestCase {
     // TODO - need a lot more tests
 
     private void assertPassed() throws Exception {
-        assertNull(result.getFailureMessage(), "Failure message should be null");
+        assertNull("Failure message should be null", result.getFailureMessage());
         assertFalse(result.isError());
         assertFalse(result.isFailure());
     }
 
     private void assertFailed() throws Exception {
-        assertNotNull(result.getFailureMessage(), "Failure message should not be null");
-        assertNotEquals("Response was null", result.getFailureMessage(), "Should not be: Response was null");
+        assertNotNull("Failure message should not be null", result.getFailureMessage());
+        assertFalse("Should not be: Response was null", "Response was null".equals(result.getFailureMessage()));
         assertFalse(result.isError());
         assertTrue(result.isFailure());
     }

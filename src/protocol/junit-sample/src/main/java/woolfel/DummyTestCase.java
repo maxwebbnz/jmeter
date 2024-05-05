@@ -49,17 +49,16 @@ public class DummyTestCase extends TestCase {
     public void testMethodPass() {
         try {
             TimeUnit.MILLISECONDS.sleep(100);
-            assertEquals(10,5 + 5);
+            assertEquals(10,10);
         } catch (InterruptedException e) {
             LOGGER.warn("Exception on sleep", e);
         }
     }
 
-    @SuppressWarnings("TruthSelfEquals")
     public void testMethodPass2() {
         try {
             TimeUnit.MILLISECONDS.sleep(100);
-            assertEquals("one", "one");
+            assertEquals("one","one");
         } catch (InterruptedException e) {
             LOGGER.warn("Exception on sleep", e);
         }

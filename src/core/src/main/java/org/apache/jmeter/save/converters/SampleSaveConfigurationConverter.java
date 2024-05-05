@@ -145,7 +145,7 @@ public class SampleSaveConfigurationConverter  extends ReflectionConverter {
     }
 
     // Helper method to simplify marshall routine. Save if and only if true.
-    private static void createNode(HierarchicalStreamWriter writer, boolean save, String node) {
+    private void createNode(HierarchicalStreamWriter writer, boolean save, String node) {
         if (!save) {
             return;
         }

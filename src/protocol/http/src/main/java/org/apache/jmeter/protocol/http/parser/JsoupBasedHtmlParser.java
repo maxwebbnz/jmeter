@@ -20,7 +20,6 @@ package org.apache.jmeter.protocol.http.parser;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
-import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.protocol.http.util.ConversionUtils;
@@ -50,8 +49,8 @@ public class JsoupBasedHtmlParser extends HTMLParser {
 
     private static final class JMeterNodeVisitor implements NodeVisitor {
 
-        private final URLCollection urls;
-        private final URLPointer baseUrl;
+        private URLCollection urls;
+        private URLPointer baseUrl;
 
         /**
          * @param baseUrl base url to extract possibly missing information from urls found in <code>urls</code>
@@ -76,7 +75,7 @@ public class JsoupBasedHtmlParser extends HTMLParser {
                 return;
             }
             Element tag = (Element) node;
-            String tagName = tag.tagName().toLowerCase(Locale.ROOT);
+            String tagName = tag.tagName().toLowerCase();
             if (tagName.equals(TAG_BODY)) {
                 extractAttribute(tag, ATT_BACKGROUND);
             } else if (tagName.equals(TAG_SCRIPT)) {
@@ -127,10 +126,8 @@ public class JsoupBasedHtmlParser extends HTMLParser {
             } else if (tagName.equals(TAG_LINK)) {
                 String relAttr = tag.attr(ATT_REL);
                 // Putting the string first means it works even if the attribute is null
-                if (STYLESHEET.equalsIgnoreCase(relAttr)
-                        || ICON.equalsIgnoreCase(relAttr)
-                        || SHORTCUT_ICON.equalsIgnoreCase(relAttr)
-                        || PRELOAD.equalsIgnoreCase(relAttr)) {
+                if (STYLESHEET.equalsIgnoreCase(relAttr) || ICON.equalsIgnoreCase(relAttr)
+                        || SHORTCUT_ICON.equalsIgnoreCase(relAttr)) {
                     extractAttribute(tag, ATT_HREF);
                 }
             } else {

@@ -72,7 +72,7 @@ public class AssertionVisualizer extends AbstractVisualizer implements Clearable
         textArea.setText(""); // $NON-NLS-1$
     }
 
-    private static String getAssertionResult(SampleResult res) {
+    private String getAssertionResult(SampleResult res) {
         if (res != null) {
             StringBuilder display = new StringBuilder();
             AssertionResult[] assertionResults = res.getAssertionResults();

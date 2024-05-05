@@ -145,7 +145,6 @@ public class KeyToolUtils {
         final SystemCommand nativeCommand = new SystemCommand(workingDir, null);
         final List<String> arguments = new ArrayList<>();
         arguments.add(getKeyToolPath());
-        arguments.add("-J-Xmx128m");
         arguments.add("-genkeypair"); // $NON-NLS-1$
         arguments.add("-alias"); // $NON-NLS-1$
         arguments.add(alias);
@@ -351,7 +350,6 @@ public class KeyToolUtils {
         final SystemCommand nativeCommand = new SystemCommand(workingDir, null);
         final List<String> arguments = new ArrayList<>();
         arguments.add(getKeyToolPath());
-        arguments.add("-J-Xmx128m");
         arguments.add("-list"); // $NON-NLS-1$
         arguments.add("-v"); // $NON-NLS-1$
 
@@ -423,14 +421,10 @@ public class KeyToolUtils {
             InputStream input, OutputStream output, String ... parameters)
             throws IOException {
         final File workingDir = keystore.getParentFile();
-        ByteArrayOutputStream stdErr = new ByteArrayOutputStream();
-        // If we omit stderr, then SystemCommand redirects stderr to stdout, and it might break keytool output
-        // with message like "Picked up _JAVA_OPTIONS: ..."
         final SystemCommand nativeCommand =
-                new SystemCommand(workingDir, 0L, 0, null, input, output, stdErr);
+                new SystemCommand(workingDir, 0L, 0, null, input, output, null);
         final List<String> arguments = new ArrayList<>();
         arguments.add(getKeyToolPath());
-        arguments.add("-J-Xmx128m");
         arguments.add(command);
         arguments.add("-keystore"); // $NON-NLS-1$
         arguments.add(keystore.getName());
@@ -442,14 +436,7 @@ public class KeyToolUtils {
         arguments.add(alias);
         Collections.addAll(arguments, parameters);
 
-        try {
-            runNativeCommand(nativeCommand, arguments);
-        } catch (IOException e) {
-            if (stdErr.size() > 0) {
-                e.addSuppressed(new IOException("standard error (stderr) was: " + stdErr));
-            }
-            throw e;
-        }
+        runNativeCommand(nativeCommand, arguments);
     }
 
     /**
@@ -482,7 +469,6 @@ public class KeyToolUtils {
         final SystemCommand nativeCommand = new SystemCommand(null, null);
         final List<String> arguments = new ArrayList<>();
         arguments.add(keytoolPath);
-        arguments.add("-J-Xmx128m");
         arguments.add("-help"); // $NON-NLS-1$
         try {
             int status = nativeCommand.run(arguments);

@@ -58,8 +58,7 @@ public class ClientJMeterEngine implements JMeterEngine {
         final String name = RemoteJMeterEngineImpl.JMETER_ENGINE_RMI_NAME; // $NON-NLS-1$ $NON-NLS-2$
         String host = hostAndPort;
         int port = RmiUtils.DEFAULT_RMI_PORT;
-        int closingBracket = hostAndPort.indexOf(']');
-        int indexOfSeparator = hostAndPort.indexOf(':', closingBracket);
+        int indexOfSeparator = hostAndPort.indexOf(':');
         if (indexOfSeparator >= 0) {
             host = hostAndPort.substring(0, indexOfSeparator);
             String portAsString = hostAndPort.substring(indexOfSeparator+1);
@@ -177,8 +176,7 @@ public class ClientJMeterEngine implements JMeterEngine {
         }
     }
 
-    @SuppressWarnings("NonApiType")
-    private static HashMap<String, String> toHashMapOfString(Properties properties) {
+    private static final HashMap<String, String> toHashMapOfString(Properties properties) {
         return new HashMap<>(
                 properties.entrySet().stream().collect(Collectors.toMap(
                         e -> e.getKey().toString(),

@@ -42,7 +42,6 @@ import org.apache.jorphan.collections.HashTree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.auto.service.AutoService;
 import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.io.StreamException;
 
@@ -50,7 +49,6 @@ import com.thoughtworks.xstream.io.StreamException;
  * Handles the Open (load a new file) and Merge commands.
  *
  */
-@AutoService(Command.class)
 public class Load extends AbstractActionWithNoRunningTest {
     private static final Logger log = LoggerFactory.getLogger(Load.class);
 

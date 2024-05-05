@@ -40,13 +40,10 @@ import org.mozilla.javascript.Scriptable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.auto.service.AutoService;
-
 /**
  * javaScript function implementation that executes a piece of JavaScript (not Java!) code and returns its value
  * @since 1.9
  */
-@AutoService(Function.class)
 public class JavaScript extends AbstractFunction {
     private static final String NASHORN_ENGINE_NAME = "nashorn"; //$NON-NLS-1$
 
@@ -121,7 +118,7 @@ public class JavaScript extends AbstractFunction {
      * @return result as String
      * @throws InvalidVariableException
      */
-    private static String executeWithNashorn(SampleResult previousResult,
+    private String executeWithNashorn(SampleResult previousResult,
             Sampler currentSampler, JMeterContext jmctx, JMeterVariables vars,
             String script, String varName)
             throws InvalidVariableException {
@@ -163,7 +160,7 @@ public class JavaScript extends AbstractFunction {
      * @return result as String
      * @throws InvalidVariableException
      */
-    private static String executeWithRhino(SampleResult previousResult,
+    private String executeWithRhino(SampleResult previousResult,
             Sampler currentSampler, JMeterContext jmctx, JMeterVariables vars,
             String script, String varName)
             throws InvalidVariableException {

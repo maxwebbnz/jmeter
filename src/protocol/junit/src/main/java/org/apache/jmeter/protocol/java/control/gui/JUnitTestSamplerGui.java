@@ -93,36 +93,36 @@ implements ChangeListener, ActionListener, ItemListener
         SPATHS = paths;
     }
 
-    private final JTextField constructorLabel =
+    private JTextField constructorLabel =
         new JTextField();
 
-    private final JTextField successMsg =
+    private JTextField successMsg =
         new JTextField();
 
-    private final JTextField failureMsg =
+    private JTextField failureMsg =
         new JTextField();
 
-    private final JTextField errorMsg =
+    private JTextField errorMsg =
         new JTextField();
 
-    private final JTextField successCode =
+    private JTextField successCode =
         new JTextField();
 
-    private final JTextField failureCode =
+    private JTextField failureCode =
         new JTextField();
 
-    private final JTextField errorCode =
+    private JTextField errorCode =
         new JTextField();
 
-    private final JLabeledTextField filterpkg =
+    private JLabeledTextField filterpkg =
         new JLabeledTextField(
             JMeterUtils.getResString("junit_pkg_filter"), 50); //$NON-NLS-1$
 
-    private final JCheckBox doSetup = new JCheckBox(JMeterUtils.getResString("junit_do_setup_teardown")); //$NON-NLS-1$
-    private final JCheckBox appendError = new JCheckBox(JMeterUtils.getResString("junit_append_error")); //$NON-NLS-1$
-    private final JCheckBox appendExc = new JCheckBox(JMeterUtils.getResString("junit_append_exception")); //$NON-NLS-1$
-    private final JCheckBox junit4 = new JCheckBox(JMeterUtils.getResString("junit_junit4")); //$NON-NLS-1$
-    private final JCheckBox createInstancePerSample = new JCheckBox(JMeterUtils.getResString("junit_create_instance_per_sample")); //$NON-NLS-1$
+    private JCheckBox doSetup = new JCheckBox(JMeterUtils.getResString("junit_do_setup_teardown")); //$NON-NLS-1$
+    private JCheckBox appendError = new JCheckBox(JMeterUtils.getResString("junit_append_error")); //$NON-NLS-1$
+    private JCheckBox appendExc = new JCheckBox(JMeterUtils.getResString("junit_append_exception")); //$NON-NLS-1$
+    private JCheckBox junit4 = new JCheckBox(JMeterUtils.getResString("junit_junit4")); //$NON-NLS-1$
+    private JCheckBox createInstancePerSample = new JCheckBox(JMeterUtils.getResString("junit_create_instance_per_sample")); //$NON-NLS-1$
 
     /** A combo box allowing the user to choose a test class. */
     private JComboBox<String> classnameCombo;
@@ -171,14 +171,10 @@ implements ChangeListener, ActionListener, ItemListener
             if(initialize) {
                 synchronized (IS_INITILIAZED) {
                     if(IS_INITILIAZED.compareAndSet(false, true)) {
-                        @SuppressWarnings("deprecation")
-                        List<String> annotatedClasses = ClassFinder.findAnnotatedClasses(SPATHS,
-                                new Class[]{Test.class}, false);
-                        annotatedTestClasses = annotatedClasses;
-                        @SuppressWarnings("deprecation")
-                        List<String> junitClasses = ClassFinder.findClassesThatExtend(SPATHS,
-                                new Class[]{TestCase.class});
-                        junitTestClasses = junitClasses;
+                        annotatedTestClasses = ClassFinder.findAnnotatedClasses(SPATHS,
+                            new Class[] {Test.class}, false);
+                        junitTestClasses = ClassFinder.findClassesThatExtend(SPATHS,
+                             new Class[] { TestCase.class });
                     }
                     if (junit4.isSelected()){
                         classList = annotatedTestClasses;

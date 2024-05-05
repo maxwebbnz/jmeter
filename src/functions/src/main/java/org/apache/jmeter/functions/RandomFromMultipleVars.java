@@ -31,8 +31,6 @@ import org.apache.jmeter.util.JMeterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.auto.service.AutoService;
-
 /**
  * Provides a RandomFromMultipleVars function which returns a random element from a multi valued extracted variable.
  * Those kind of variables are extracted by:
@@ -43,7 +41,6 @@ import com.google.auto.service.AutoService;
  *
  * @since 3.1
  */
-@AutoService(Function.class)
 public class RandomFromMultipleVars extends AbstractFunction {
     private static final Logger log = LoggerFactory.getLogger(RandomFromMultipleVars.class);
 
@@ -111,8 +108,8 @@ public class RandomFromMultipleVars extends AbstractFunction {
      * @param vars {@link JMeterVariables}
      * @param results {@link List} where results are stored
      */
-    private static void extractVariableValuesToList(String variableName,
-            JMeterVariables vars, List<? super String> results) {
+    private void extractVariableValuesToList(String variableName,
+            JMeterVariables vars, List<String> results) {
         String matchNumberAsStr = vars.get(variableName+"_matchNr");
         int matchNumber = 0;
         if(!StringUtils.isEmpty(matchNumberAsStr)) {

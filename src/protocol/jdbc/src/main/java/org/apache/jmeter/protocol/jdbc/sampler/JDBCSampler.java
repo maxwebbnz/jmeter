@@ -72,17 +72,16 @@ public class JDBCSampler extends AbstractJDBCTestElement implements Sampler, Tes
         Connection conn = null;
 
         try {
-            String dataSource = getDataSource();
-            if (JOrphanUtils.isBlank(dataSource)) {
+            if (JOrphanUtils.isBlank(getDataSource())) {
                 throw new IllegalArgumentException("Name for DataSoure must not be empty in " + getName());
             }
 
             try {
-                conn = DataSourceElement.getConnection(dataSource);
+                conn = DataSourceElement.getConnection(getDataSource());
             } finally {
                 res.connectEnd();
             }
-            res.setResponseHeaders(DataSourceElement.getConnectionInfo(dataSource));
+            res.setResponseHeaders(DataSourceElement.getConnectionInfo(getDataSource()));
             res.setResponseData(execute(conn, res));
         } catch (SQLException ex) {
             final String errCode = Integer.toString(ex.getErrorCode());

@@ -20,7 +20,6 @@ package org.apache.jmeter.protocol.smtp.sampler;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -39,12 +38,10 @@ import javax.mail.Part;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.ContentType;
 import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeUtility;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.CountingOutputStream;
 import org.apache.commons.io.output.NullOutputStream;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.ConfigTestElement;
 import org.apache.jmeter.protocol.smtp.sampler.gui.SecuritySettingsPanel;
 import org.apache.jmeter.protocol.smtp.sampler.protocol.SendMailCommand;
@@ -166,7 +163,7 @@ public class SmtpSampler extends AbstractSampler {
         return result;
     }
 
-    private static boolean executeMessage(SampleResult result, SendMailCommand sendMailCmd, Message message) {
+    private boolean executeMessage(SampleResult result, SendMailCommand sendMailCmd, Message message) {
         boolean didSampleSucceed = false;
         try {
             sendMailCmd.execute(message);
@@ -191,7 +188,7 @@ public class SmtpSampler extends AbstractSampler {
     private long calculateMessageSize(Message message) throws IOException, MessagingException {
         if (getPropertyAsBoolean(MESSAGE_SIZE_STATS)) {
             // calculate message size
-            CountingOutputStream cs = new CountingOutputStream(NullOutputStream.INSTANCE);
+            CountingOutputStream cs = new CountingOutputStream(NullOutputStream.NULL_OUTPUT_STREAM);
             message.writeTo(cs);
             return cs.getByteCount();
         } else {
@@ -199,7 +196,7 @@ public class SmtpSampler extends AbstractSampler {
         }
     }
 
-    private static byte[] processSampler(Message message) throws IOException, MessagingException {
+    private byte[] processSampler(Message message) throws IOException, MessagingException {
         // process the sampler result
         try (InputStream is = message.getInputStream()) {
             return IOUtils.toByteArray(is);
@@ -210,11 +207,11 @@ public class SmtpSampler extends AbstractSampler {
         final String[] attachments = getPropertyAsString(ATTACH_FILE).split(FILENAME_SEPARATOR);
         return Arrays.stream(attachments) // NOSONAR No need to close
                 .filter(s -> !s.isEmpty())
-                .map(SmtpSampler::attachmentToFile)
+                .map(this::attachmentToFile)
                 .collect(Collectors.toList());
     }
 
-    private static File attachmentToFile(String attachment) { // NOSONAR False positive saying not used
+    private File attachmentToFile(String attachment) { // NOSONAR False positive saying not used
         File file = new File(attachment);
         if (!file.isAbsolute() && !file.exists()) {
             if(log.isDebugEnabled()) {
@@ -275,7 +272,7 @@ public class SmtpSampler extends AbstractSampler {
         sendMailCmd.setEnableDebug(getPropertyAsBoolean(ENABLE_DEBUG));
 
         if (getPropertyAsString(MAIL_FROM).matches(".*@.*")) {
-            sendMailCmd.setSender(encodeAddress(getPropertyAsString(MAIL_FROM)));
+            sendMailCmd.setSender(getPropertyAsString(MAIL_FROM));
         }
 
         // Process address lists
@@ -293,7 +290,7 @@ public class SmtpSampler extends AbstractSampler {
         return sendMailCmd;
     }
 
-    private static String getRequestHeaders(Message message) throws MessagingException {
+    private String getRequestHeaders(Message message) throws MessagingException {
         StringBuilder sb = new StringBuilder();
         @SuppressWarnings("unchecked") // getAllHeaders() is not yet genericised
         Enumeration<Header> headers = message.getAllHeaders(); // throws ME
@@ -301,7 +298,7 @@ public class SmtpSampler extends AbstractSampler {
         return sb.toString();
     }
 
-    private static String getSamplerData(Message message) throws MessagingException, IOException {
+    private String getSamplerData(Message message) throws MessagingException, IOException {
         StringBuilder sb = new StringBuilder();
         Object content = message.getContent(); // throws ME
         if (content instanceof Multipart) {
@@ -333,7 +330,7 @@ public class SmtpSampler extends AbstractSampler {
     }
 
     @SuppressWarnings("JdkObsolete")
-    private static void writeHeaders(Enumeration<? extends Header> headers, StringBuilder sb) {
+    private void writeHeaders(Enumeration<Header> headers, StringBuilder sb) {
         while (headers.hasMoreElements()) {
             Header header = headers.nextElement();
             sb.append(header.getName());
@@ -343,7 +340,7 @@ public class SmtpSampler extends AbstractSampler {
         }
     }
 
-    private static void writeBodyPart(StringBuilder sb, BodyPart bodyPart)
+    private void writeBodyPart(StringBuilder sb, BodyPart bodyPart)
             throws MessagingException, IOException {
         @SuppressWarnings("unchecked") // API not yet generic
         Enumeration<Header> allHeaders = bodyPart.getAllHeaders(); // throws ME
@@ -371,28 +368,12 @@ public class SmtpSampler extends AbstractSampler {
         if (!propValue.isEmpty()) { // we have at least one potential address
             List<InternetAddress> addresses = new ArrayList<>();
             for (String address : propValue.split(";")) {
-                addresses.add(new InternetAddress(encodeAddress(address)));
+                addresses.add(new InternetAddress(address.trim()));
             }
             return addresses;
         } else {
             return null;
         }
-    }
-
-    private static String encodeAddress(String address) {
-        String trimmedAddress = address.trim();
-        if (!StringUtils.isAsciiPrintable(trimmedAddress)) {
-            try {
-                final int startOfRealAddress = trimmedAddress.indexOf('<');
-                if (startOfRealAddress >= 0) {
-                    String personalPart = trimmedAddress.substring(0, startOfRealAddress);
-                    return MimeUtility.encodeWord(personalPart) + trimmedAddress.substring(startOfRealAddress);
-                }
-            } catch (UnsupportedEncodingException e) {
-                log.warn("Can't encode [{}] as quoted printable", trimmedAddress, e);
-            }
-        }
-        return trimmedAddress;
     }
 
     /**

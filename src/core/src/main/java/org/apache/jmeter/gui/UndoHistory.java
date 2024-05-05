@@ -61,7 +61,7 @@ public class UndoHistory implements TreeModelListener, Serializable {
     private boolean working = false;
 
     /** History listeners */
-    private final List<HistoryListener> listeners = new ArrayList<>();
+    private List<HistoryListener> listeners = new ArrayList<>();
 
     private final UndoManager manager = new UndoManager();
 

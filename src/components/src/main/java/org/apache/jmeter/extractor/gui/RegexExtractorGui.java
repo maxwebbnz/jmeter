@@ -244,7 +244,7 @@ public class RegexExtractorGui extends AbstractPostProcessorGui {
         return panel;
     }
 
-    private static void addField(JPanel panel, JLabeledTextField field, GridBagConstraints gbc) {
+    private void addField(JPanel panel, JLabeledTextField field, GridBagConstraints gbc) {
         List<JComponent> item = field.getComponentList();
         panel.add(item.get(0), gbc.clone());
         gbc.gridx++;
@@ -254,14 +254,14 @@ public class RegexExtractorGui extends AbstractPostProcessorGui {
     }
 
     // Next line
-    private static void resetContraints(GridBagConstraints gbc) {
+    private void resetContraints(GridBagConstraints gbc) {
         gbc.gridx = 0;
         gbc.gridy++;
         gbc.weightx = 0;
         gbc.fill=GridBagConstraints.NONE;
     }
 
-    private static void initConstraints(GridBagConstraints gbc) {
+    private void initConstraints(GridBagConstraints gbc) {
         gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.fill = GridBagConstraints.NONE;
         gbc.gridheight = 1;

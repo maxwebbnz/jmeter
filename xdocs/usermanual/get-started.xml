@@ -102,7 +102,6 @@ The other specific Test Plan sections are:
 <li><a href="build-ldap-test-plan.html">LDAP</a></li>
 <li><a href="build-ldapext-test-plan.html">LDAP Extended</a></li>
 <li><a href="build-ws-test-plan.html">WebServices (SOAP)</a></li>
-<li><a href="build-programmatic-test-plan.html">Building Test Plan programmatically</a></li>
 </ul>
 </p>
 <p>Once you are comfortable with building and running JMeter Test Plans, you can look into the
@@ -115,7 +114,7 @@ over your Test Plans.</p>
 <p>JMeter requires that your computing environment meets some minimum requirements.</p>
 
 <subsection name="&sect-num;.1.1 Java Version" anchor="java_versions">
-<note>JMeter is compatible with Java 17 or higher.
+<note>JMeter is compatible with Java 8 or higher.
 We highly advise you to install latest minor version of your major version for security and performance reasons.
 </note>
 <p>Because JMeter uses only standard Java APIs, please do not file bug reports if your JRE fails to run
@@ -317,7 +316,7 @@ will override the HEAP settings in the script.
 # it will be sourced in by bin/jmeter
 
 # Use a bigger heap, but a smaller metaspace, than the default
-export HEAP="-Xms1G -Xmx1G -XX:MaxMetaspaceSize=192m"
+export HEAP="-Xms1G -Xmx1G -XMaxMetaspaceSize=192m"
 
 # Try to guess the locale from the OS. The space as value is on purpose!
 export JMETER_LANGUAGE=" "
@@ -827,8 +826,8 @@ This daemon thread waits a short while; if it returns from the wait, then clearl
 JVM has not been able to exit, and the thread prints a message to say why.
 </p>
 <p>
-The property <code>jmeter.exit.check.pause</code> can be used to configure the delay before printing non-daemon threads.
-If set to <code>0</code> (default value), then JMeter does not print non-terminated threads at the end of the test.
+The property <code>jmeter.exit.check.pause</code> can be used to override the default pause of 2000ms (2secs).
+If set to <code>0</code>, then JMeter does not start the daemon thread.
 </p>
 </subsection>
 

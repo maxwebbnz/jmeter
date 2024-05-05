@@ -17,11 +17,11 @@
 
 package org.apache.jmeter.protocol.http.util.accesslog;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.apache.jmeter.junit.JMeterTestCase;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -86,7 +86,7 @@ public class TestLogFilter extends JMeterTestCase {
     public void testReplaceExtension() {
         testf.setReplaceExtension("html", "jsp");
         testf.isFiltered(TESTSTR, null);// set the required variables
-        Assertions.assertEquals(TESTSTROUT, testf.filter(TESTSTR));
+        assertEquals(TESTSTROUT, testf.filter(TESTSTR));
     }
 
     @Test
@@ -99,9 +99,9 @@ public class TestLogFilter extends JMeterTestCase {
             testf.isFiltered(theFile, null);
             String line = testf.filter(theFile);
             if (line != null) {
-                assertTrue(expect, "Expect to accept " + theFile);
+                assertTrue("Expect to accept " + theFile, expect);
             } else {
-                assertFalse(expect, "Expect to reject " + theFile);
+                assertFalse("Expect to reject " + theFile, expect);
             }
         }
     }
@@ -116,9 +116,9 @@ public class TestLogFilter extends JMeterTestCase {
             testf.isFiltered(theFile, null);
             String line = testf.filter(theFile);
             if (line != null) {
-                assertTrue(expect, "Expect to accept " + theFile);
+                assertTrue("Expect to accept " + theFile, expect);
             } else {
-                assertFalse(expect, "Expect to reject " + theFile);
+                assertFalse("Expect to reject " + theFile, expect);
             }
         }
     }
@@ -133,9 +133,9 @@ public class TestLogFilter extends JMeterTestCase {
             assertPrimitiveEquals(!expect, testf.isFiltered(theFile, null));
             String line = testf.filter(theFile);
             if (line != null) {
-                assertTrue(expect, "Expect to accept " + theFile);
+                assertTrue("Expect to accept " + theFile, expect);
             } else {
-                assertFalse(expect, "Expect to reject " + theFile);
+                assertFalse("Expect to reject " + theFile, expect);
             }
         }
     }
@@ -150,9 +150,9 @@ public class TestLogFilter extends JMeterTestCase {
             assertPrimitiveEquals(!expect, testf.isFiltered(theFile, null));
             String line = testf.filter(theFile);
             if (line != null) {
-                assertTrue(expect, "Expect to accept " + theFile);
+                assertTrue("Expect to accept " + theFile, expect);
             } else {
-                assertFalse(expect, "Expect to reject " + theFile);
+                assertFalse("Expect to reject " + theFile, expect);
             }
         }
     }

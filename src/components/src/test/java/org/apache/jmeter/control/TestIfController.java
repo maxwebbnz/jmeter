@@ -17,8 +17,9 @@
 
 package org.apache.jmeter.control;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.junit.JMeterTestCase;
@@ -33,11 +34,11 @@ import org.apache.jmeter.threads.JMeterVariables;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-class TestIfController extends JMeterTestCase {
+public class TestIfController extends JMeterTestCase {
 
     @BugId("56160")
     @Test
-    void testStackOverflow() throws Exception {
+    public void testStackOverflow() throws Exception {
         LoopController controller = new LoopController();
         controller.setLoops(1);
         controller.setContinueForever(false);
@@ -66,13 +67,13 @@ class TestIfController extends JMeterTestCase {
             }
             assertEquals(0, counter);
         } catch (StackOverflowError e) {
-            throw new AssertionError("Stackoverflow occurred in testStackOverflow", e);
+            fail("Stackoverflow occurred in testStackOverflow");
         }
     }
 
     @BugId("53768")
     @Test
-    void testBug53768() throws Exception {
+    public void testBug53768() throws Exception {
         LoopController controller = new LoopController();
         controller.setLoops(1);
         controller.setContinueForever(false);
@@ -130,13 +131,13 @@ class TestIfController extends JMeterTestCase {
             assertEquals("0", vars.get("VAR1"));
 
         } catch (StackOverflowError e) {
-            throw new AssertionError("Stackoverflow occurred in testStackOverflow", e);
+            fail("Stackoverflow occurred in testStackOverflow");
         }
     }
 
     @Test
     @Disabled
-    void testProcessing() throws Exception {
+    public void testProcessing() throws Exception {
 
         GenericController controller = new GenericController();
 
@@ -149,7 +150,7 @@ class TestIfController extends JMeterTestCase {
     }
 
     @Test
-    void testProcessingTrue() throws Exception {
+    public void testProcessingTrue() throws Exception {
         LoopController controller = new LoopController();
         controller.setLoops(2);
         controller.addTestElement(new TestSampler("Sample1"));
@@ -176,7 +177,7 @@ class TestIfController extends JMeterTestCase {
     }
 
     @Test
-    void testProcessingTrueWithExpression() throws Exception {
+    public void testProcessingTrueWithExpression() throws Exception {
         LoopController controller = new LoopController();
         controller.setLoops(2);
         controller.addTestElement(new TestSampler("Sample1"));
@@ -208,7 +209,7 @@ class TestIfController extends JMeterTestCase {
      * Test false return on sample3 (sample4 doesn't execute)
      */
     @Test
-    void testEvaluateAllChildrenWithoutSubController() throws Exception {
+    public void testEvaluateAllChildrenWithoutSubController() throws Exception {
         LoopController controller = new LoopController();
         controller.setLoops(2);
         controller.addTestElement(new TestSampler("Sample1"));
@@ -244,7 +245,7 @@ class TestIfController extends JMeterTestCase {
      * test 2 loops with a sub generic controller (sample4 doesn't execute)
      */
     @Test
-    void testEvaluateAllChildrenWithSubController() throws Exception {
+    public void testEvaluateAllChildrenWithSubController() throws Exception {
         LoopController controller = new LoopController();
         controller.setLoops(2);
         controller.addTestElement(new TestSampler("Sample1"));
@@ -280,7 +281,7 @@ class TestIfController extends JMeterTestCase {
     }
 
     @Test
-    void shouldIgnoreEmptyLastLine() {
+    public void shouldIgnoreEmptyLastLine() {
         GenericController controller = new GenericController();
 
         IfController ifCont = new IfController("true\n");
@@ -295,6 +296,6 @@ class TestIfController extends JMeterTestCase {
         ifCont.setRunningVersion(true);
 
         Sampler sampler = controller.next();
-        assertNotNull(sampler);
+        assertFalse(sampler == null);
     }
 }

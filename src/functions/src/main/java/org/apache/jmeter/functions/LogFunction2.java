@@ -28,8 +28,6 @@ import org.apache.jmeter.util.JMeterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.auto.service.AutoService;
-
 /**
  * <p>
  * Function to log a message.
@@ -45,7 +43,6 @@ import com.google.auto.service.AutoService;
  * Returns: - Empty String (so can be used where return value would be a nuisance)
  * @since 2.2
  */
-@AutoService(Function.class)
 public class LogFunction2 extends AbstractFunction {
     private static final Logger log = LoggerFactory.getLogger(LogFunction2.class);
 

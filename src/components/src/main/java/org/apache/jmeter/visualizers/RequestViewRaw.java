@@ -30,13 +30,10 @@ import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jorphan.gui.GuiUtils;
 
-import com.google.auto.service.AutoService;
-
 /**
  * (historical) Panel to view request data
  *
  */
-@AutoService(RequestView.class)
 public class RequestViewRaw implements RequestView {
 
     // Used by Request Panel

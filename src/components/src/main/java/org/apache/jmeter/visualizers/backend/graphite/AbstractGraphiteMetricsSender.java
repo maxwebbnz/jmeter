@@ -17,7 +17,7 @@
 
 package org.apache.jmeter.visualizers.backend.graphite;
 
-import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.pool2.impl.GenericKeyedObjectPool;
@@ -44,8 +44,8 @@ abstract class AbstractGraphiteMetricsSender implements GraphiteMetricsSender {
         config.setMaxTotalPerKey(-1);
         config.setMaxTotal(-1);
         config.setMaxIdlePerKey(-1);
-        config.setMinEvictableIdleDuration(Duration.ofMinutes(3));
-        config.setTimeBetweenEvictionRuns(Duration.ofMinutes(3));
+        config.setMinEvictableIdleTimeMillis(TimeUnit.MINUTES.toMillis(3));
+        config.setTimeBetweenEvictionRunsMillis(TimeUnit.MINUTES.toMillis(3));
 
         return new GenericKeyedObjectPool<>(
                 new SocketOutputStreamPoolFactory(SOCKET_CONNECT_TIMEOUT_MS, SOCKET_TIMEOUT), config);

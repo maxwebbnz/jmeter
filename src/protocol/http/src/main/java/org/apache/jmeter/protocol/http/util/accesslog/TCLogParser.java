@@ -32,12 +32,9 @@ import java.util.StringTokenizer;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerBase;
-import org.apache.jmeter.protocol.http.sampler.HTTPSamplerBaseSchema;
 import org.apache.jmeter.testelement.TestElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.auto.service.AutoService;
 
 /**
  * Description:<br>
@@ -75,7 +72,6 @@ import com.google.auto.service.AutoService;
  */
 
 @SuppressWarnings("InconsistentCapitalization")
-@AutoService(LogParser.class)
 public class TCLogParser implements LogParser {
     protected static final Logger log = LoggerFactory.getLogger(TCLogParser.class);
 
@@ -285,7 +281,7 @@ public class TCLogParser implements LogParser {
         String cleanedLine = this.cleanURL(line);
         log.debug("parsing line: {}", line);
         // now we set request method
-        el.set(HTTPSamplerBaseSchema.INSTANCE.getMethod(), RMETHOD);
+        el.setProperty(HTTPSamplerBase.METHOD, RMETHOD);
         if (FILTER != null) {
             log.debug("filter is not null");
             if (!FILTER.isFiltered(line,el)) {
@@ -422,10 +418,10 @@ public class TCLogParser implements LogParser {
         if (url.contains("?")) {
             StringTokenizer tokens = this.tokenize(url, "?");
             this.URL_PATH = tokens.nextToken();
-            el.set(HTTPSamplerBaseSchema.INSTANCE.getPath(), URL_PATH);
+            el.setProperty(HTTPSamplerBase.PATH, URL_PATH);
             return tokens.hasMoreTokens() ? tokens.nextToken() : null;
         }
-        el.set(HTTPSamplerBaseSchema.INSTANCE.getPath(), url);
+        el.setProperty(HTTPSamplerBase.PATH, url);
         return null;
     }
 

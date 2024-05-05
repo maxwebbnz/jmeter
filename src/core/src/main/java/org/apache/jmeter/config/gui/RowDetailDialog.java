@@ -21,17 +21,14 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.InputMap;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -41,7 +38,6 @@ import javax.swing.JRootPane;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.text.JTextComponent;
 
 import org.apache.jmeter.gui.action.KeyStrokes;
 import org.apache.jmeter.gui.util.JSyntaxTextArea;
@@ -50,12 +46,10 @@ import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jorphan.gui.ComponentUtil;
 import org.apache.jorphan.gui.ObjectTableModel;
 
-import net.miginfocom.swing.MigLayout;
-
 /**
  * Show detail of a Row
  */
-public class RowDetailDialog extends JDialog implements ActionListener, DocumentListener, ItemListener {
+public class RowDetailDialog extends JDialog implements ActionListener, DocumentListener {
 
     private static final long serialVersionUID = 6578889215615435475L;
 
@@ -70,7 +64,13 @@ public class RowDetailDialog extends JDialog implements ActionListener, Document
 
     private static final String UPDATE = "update"; // $NON-NLS-1$
 
-    private List<JComponent> dataComponents;
+    private JLabel nameLabel;
+
+    private JTextField nameTF;
+
+    private JLabel valueLabel;
+
+    private JSyntaxTextArea valueTA;
 
     private JButton nextButton;
 
@@ -132,24 +132,30 @@ public class RowDetailDialog extends JDialog implements ActionListener, Document
     private void init() { // WARNING: called from ctor so must not be overridden (i.e. must be private or final)
         this.getContentPane().setLayout(new BorderLayout(10,10));
 
-        JPanel dataPanel = new JPanel(new MigLayout("fillx, wrap 2", "[][fill, grow]"));
-        dataComponents = new ArrayList<>();
+        nameLabel = new JLabel(JMeterUtils.getResString("name")); //$NON-NLS-1$
+        nameTF = new JTextField(JMeterUtils.getResString("name"), 20); //$NON-NLS-1$
+        nameTF.getDocument().addDocumentListener(this);
+        JPanel namePane = new JPanel(new BorderLayout());
+        namePane.add(nameLabel, BorderLayout.WEST);
+        namePane.add(nameTF, BorderLayout.CENTER);
 
-        final int columnCount = tableModel.getColumnCount();
-        final int linesPerTextArea = Math.max(5, 30 / Math.max(columnCount - 1, 1));
-        for (int column = 0; column < columnCount; column++) {
-            JLabel dataLabel = new JLabel(JMeterUtils.getResString(tableModel.getColumnName(column)));
-            dataPanel.add(dataLabel);
-            JComponent component = createComponentForRow(columnCount, linesPerTextArea, column,
-                    tableModel.getValueAt(selectedRow, column));
-            dataPanel.add(component);
-            dataLabel.setLabelFor(component);
-        }
-
+        valueLabel = new JLabel(JMeterUtils.getResString("value")); //$NON-NLS-1$
+        valueTA = JSyntaxTextArea.getInstance(30, 80);
+        valueTA.getDocument().addDocumentListener(this);
         setValues(selectedRow);
+        JPanel valuePane = new JPanel(new BorderLayout());
+        valuePane.add(valueLabel, BorderLayout.NORTH);
+        JTextScrollPane jTextScrollPane = JTextScrollPane.getInstance(valueTA);
+        valuePane.add(jTextScrollPane, BorderLayout.CENTER);
 
-        JPanel mainPanel = new JPanel(new MigLayout());
-        mainPanel.add(dataPanel, "wrap");
+        JPanel detailPanel = new JPanel(new BorderLayout());
+        detailPanel.add(namePane, BorderLayout.NORTH);
+        detailPanel.add(valuePane, BorderLayout.CENTER);
+
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(7, 3, 3, 3));
+        mainPanel.add(detailPanel, BorderLayout.CENTER);
 
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
@@ -172,43 +178,12 @@ public class RowDetailDialog extends JDialog implements ActionListener, Document
         buttonsPanel.add(previousButton);
         buttonsPanel.add(nextButton);
         buttonsPanel.add(closeButton);
-        mainPanel.add(buttonsPanel, "center");
+        mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
         this.getContentPane().add(mainPanel);
-        dataComponents.get(0).requestFocusInWindow();
+        nameTF.requestFocusInWindow();
 
         this.pack();
         ComponentUtil.centerComponentInWindow(this);
-    }
-
-    private JComponent createComponentForRow(final int columnCount, final int linesPerTextArea, int column, Object value) {
-        if (column > 0 || columnCount == 1) {
-            if (tableModel.getColumnClass(column).equals(Boolean.class)) {
-                JCheckBox checkBox = new JCheckBox();
-                if (value instanceof Boolean) {
-                    checkBox.setSelected((Boolean) value);
-                }
-                checkBox.addItemListener(this);
-                dataComponents.add(checkBox);
-                return checkBox;
-            } else {
-                JSyntaxTextArea dataArea = JSyntaxTextArea
-                        .getInstance(linesPerTextArea, 80);
-                if (value instanceof String) {
-                    dataArea.setInitialText((String) value);
-                }
-                dataArea.getDocument().addDocumentListener(this);
-                dataComponents.add(dataArea);
-                return JTextScrollPane.getInstance(dataArea);
-            }
-        } else {
-            final JTextField nameTF = new JTextField("");
-            if (value instanceof String) {
-                nameTF.setText((String) value);
-            }
-            nameTF.getDocument().addDocumentListener(this);
-            dataComponents.add(nameTF);
-            return nameTF;
-        }
     }
 
     /**
@@ -239,22 +214,13 @@ public class RowDetailDialog extends JDialog implements ActionListener, Document
     }
 
     /**
-     * Set dataComponents fields based on the value of the tableModel
+     * Set TextField and TA values from model
      * @param selectedRow Selected row
      */
     private void setValues(int selectedRow) {
-        for (int i = 0; i < tableModel.getColumnCount(); i++) {
-            final JComponent component = dataComponents.get(i);
-            if (component instanceof JTextComponent) {
-                JTextComponent dataArea = (JTextComponent) component;
-                dataArea.setText((String) tableModel.getValueAt(selectedRow, i));
-                if (dataArea instanceof JSyntaxTextArea) {
-                    dataArea.setCaretPosition(0);
-                }
-            } else if (component instanceof JCheckBox) {
-                ((JCheckBox) component).setSelected((Boolean) tableModel.getValueAt(selectedRow, i));
-            }
-        }
+        nameTF.setText((String)tableModel.getValueAt(selectedRow, 0));
+        valueTA.setInitialText((String)tableModel.getValueAt(selectedRow, 1));
+        valueTA.setCaretPosition(0);
         textChanged = false;
     }
 
@@ -263,14 +229,8 @@ public class RowDetailDialog extends JDialog implements ActionListener, Document
      * @param actionEvent the event that led to this call
      */
     protected void doUpdate(ActionEvent actionEvent) {
-        for (int i = 0; i < tableModel.getColumnCount(); i++) {
-            final JComponent component = dataComponents.get(i);
-            if (component instanceof JTextComponent) {
-                tableModel.setValueAt(((JTextComponent) component).getText(), selectedRow, i);
-            } else if (component instanceof JCheckBox) {
-                tableModel.setValueAt(((JCheckBox) component).isSelected(), selectedRow, i);
-            }
-        }
+        tableModel.setValueAt(nameTF.getText(), selectedRow, 0);
+        tableModel.setValueAt(valueTA.getText(), selectedRow, 1);
         // Change Cancel label to Close
         closeButton.setText(JMeterUtils.getResString("close")); //$NON-NLS-1$
         textChanged = false;
@@ -298,11 +258,6 @@ public class RowDetailDialog extends JDialog implements ActionListener, Document
 
     @Override
     public void changedUpdate(DocumentEvent e) {
-        changeLabelButton();
-    }
-
-    @Override
-    public void itemStateChanged(ItemEvent e) {
         changeLabelButton();
     }
 

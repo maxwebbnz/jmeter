@@ -27,8 +27,6 @@ import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.samplers.Sampler;
 import org.apache.jmeter.util.JMeterUtils;
 
-import com.google.auto.service.AutoService;
-
 /**
  * Function to set a JMeter property
  *
@@ -42,7 +40,6 @@ import com.google.auto.service.AutoService;
  * Returns: nothing or original value if the 3rd parameter is true
  * @since 2.1
  */
-@AutoService(Function.class)
 public class SetProperty extends AbstractFunction {
 
     private static final List<String> desc = new ArrayList<>();

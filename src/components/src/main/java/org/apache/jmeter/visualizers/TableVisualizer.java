@@ -54,7 +54,6 @@ import org.apache.jorphan.gui.RendererUtils;
 import org.apache.jorphan.gui.RightAlignRenderer;
 import org.apache.jorphan.gui.layout.VerticalLayout;
 import org.apache.jorphan.reflect.Functor;
-import org.apache.jorphan.util.AlphaNumericComparator;
 
 /**
  * This class implements a statistical analyser that calculates both the average
@@ -115,9 +114,9 @@ public class TableVisualizer extends AbstractVisualizer implements Clearable {
 
     private final transient Calculator calc = new Calculator();
 
-    private final Format format = new SimpleDateFormat("HH:mm:ss.SSS"); //$NON-NLS-1$
+    private Format format = new SimpleDateFormat("HH:mm:ss.SSS"); //$NON-NLS-1$
 
-    private final Deque<SampleResult> newRows = new ConcurrentLinkedDeque<>();
+    private Deque<SampleResult> newRows = new ConcurrentLinkedDeque<>();
 
     // Column renderers
     private static final TableCellRenderer[] RENDERERS =
@@ -227,7 +226,7 @@ public class TableVisualizer extends AbstractVisualizer implements Clearable {
 
         // Set up the table itself
         table = new JTable(model);
-        final ObjectTableSorter rowSorter = new ObjectTableSorter(model).setValueComparator(5,
+        table.setRowSorter(new ObjectTableSorter(model).setValueComparator(5,
                 Comparator.nullsFirst(
                         (ImageIcon o1, ImageIcon o2) -> {
                             if (o1 == o2) {
@@ -240,13 +239,7 @@ public class TableVisualizer extends AbstractVisualizer implements Clearable {
                                 return 1;
                             }
                             throw new IllegalArgumentException("Only success and failure images can be compared");
-                        }));
-        for (int i=0; i<model.getColumnCount(); i++) {
-            if (model.getColumnClass(i).equals(String.class)) {
-                rowSorter.setValueComparator(i, AlphaNumericComparator.TO_STRING_COMPARATOR);
-            }
-        }
-        table.setRowSorter(rowSorter);
+                        })));
         JMeterUtils.applyHiDPI(table);
         HeaderAsPropertyRendererWrapper.setupDefaultRenderer(table);
         RendererUtils.applyRenderers(table, RENDERERS);

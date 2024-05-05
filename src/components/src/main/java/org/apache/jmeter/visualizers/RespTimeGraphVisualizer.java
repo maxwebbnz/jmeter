@@ -23,10 +23,9 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -278,7 +277,7 @@ public class RespTimeGraphVisualizer extends AbstractVisualizer implements Actio
         init();
     }
 
-    private static String[] keys(Map<String, ?> map) {
+    private String[] keys(Map<String, ?> map) {
         return map.keySet().toArray(ArrayUtils.EMPTY_STRING_ARRAY);
     }
 
@@ -706,13 +705,12 @@ public class RespTimeGraphVisualizer extends AbstractVisualizer implements Actio
         return buttonPanel;
     }
 
+    @SuppressWarnings("JdkObsolete")
     public String[] getXAxisLabels() {
-        DateTimeFormatter formatter = DateTimeFormatter
-                .ofPattern(xAxisTimeFormat.getText()) //$NON-NLS-1$
-                .withZone(ZoneId.systemDefault());
+        SimpleDateFormat formatter = new SimpleDateFormat(xAxisTimeFormat.getText()); //$NON-NLS-1$
         String[] xAxisLabels = new String[(int) durationTest]; // Test can't have a duration more than 2^31 secs (cast from long to int)
         for (int j = 0; j < durationTest; j++) {
-            xAxisLabels[j] = formatter.format(Instant.ofEpochMilli((minStartTime + j) * intervalValue));
+            xAxisLabels[j] = formatter.format(new Date((minStartTime + j) * intervalValue));
         }
         return xAxisLabels;
     }

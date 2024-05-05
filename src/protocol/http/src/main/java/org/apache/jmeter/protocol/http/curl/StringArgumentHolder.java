@@ -45,8 +45,8 @@ public class StringArgumentHolder implements ArgumentHolder {
         return Objects.equals(metadata, other.metadata) && Objects.equals(name, other.name);
     }
 
-    private final String name;
-    private final Map<String, String> metadata;
+    private String name;
+    private Map<String, String> metadata;
 
     private StringArgumentHolder(String name, Map<String, String> metadata) {
         this.name = name;
@@ -63,7 +63,6 @@ public class StringArgumentHolder implements ArgumentHolder {
         return this.name;
     }
 
-    @Override
     public Map<String, String> getMetadata() {
         return Collections.unmodifiableMap(metadata);
     }

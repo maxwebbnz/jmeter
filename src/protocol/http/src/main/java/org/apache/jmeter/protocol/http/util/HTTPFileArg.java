@@ -17,20 +17,11 @@
 
 package org.apache.jmeter.protocol.http.util;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
-import java.util.Objects;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.testelement.AbstractTestElement;
 import org.apache.jmeter.testelement.property.JMeterProperty;
-import org.apache.jmeter.testelement.schema.PropertiesAccessor;
-import org.apache.jmeter.testelement.schema.PropertyDescriptor;
-import org.apache.tika.Tika;
-import org.apache.tika.config.TikaConfig;
-import org.apache.tika.exception.TikaException;
-import org.xml.sax.SAXException;
+import org.apache.jmeter.testelement.property.StringProperty;
 
 /**
  * Class representing a file parameter for http upload.
@@ -43,10 +34,17 @@ public class HTTPFileArg extends AbstractTestElement implements Serializable {
 
     private static final long serialVersionUID = 240L;
 
+    /** Name used to store the file's path. */
+    private static final String FILEPATH = "File.path";
+
+    /** Name used to store the file's paramname. */
+    private static final String PARAMNAME = "File.paramname";
+
+    /** Name used to store the file's mimetype. */
+    private static final String MIMETYPE = "File.mimetype";
+
     /** temporary storage area for the body header. */
     private String header;
-
-    private static final Tika tika = createTika();
 
     /**
      * Constructor for an empty HTTPFileArg object
@@ -84,35 +82,7 @@ public class HTTPFileArg extends AbstractTestElement implements Serializable {
         }
         setPath(path);
         setParamName(paramname);
-        setMimeType(detectMimeType(path, mimetype));
-    }
-
-    private static Tika createTika() {
-        try {
-            return new Tika(new TikaConfig(HTTPFileArg.class.getClassLoader()
-                    .getResourceAsStream("org/apache/jmeter/protocol/http/gui/action/tika-config.xml")));
-        } catch (TikaException | IOException | SAXException e) {
-            return new Tika();
-        }
-    }
-
-    private static String detectMimeType(String path, String mimetype) {
-        if (StringUtils.isNotBlank(mimetype)) {
-            return mimetype;
-        }
-        mimetype = Objects.toString(mimetype, "");
-        if (StringUtils.isBlank(path)) {
-            return mimetype;
-        }
-        File file = new File(path);
-        if (file.canRead()) {
-            try {
-                return tika.detect(file);
-            } catch (IOException e) {
-                // do nothing, we will detect it later by name
-            }
-        }
-        return tika.detect(path);
+        setMimeType(mimetype);
     }
 
     /**
@@ -132,24 +102,14 @@ public class HTTPFileArg extends AbstractTestElement implements Serializable {
         if (path == null || paramname == null || mimetype == null){
             throw new IllegalArgumentException("Parameters must not be null");
         }
-        setProperty(getSchema().getPath(), path);
-        setProperty(getSchema().getMimeType(), mimetype);
-        setProperty(getSchema().getParameterName(), paramname);
+        setProperty(FILEPATH, path);
+        setProperty(MIMETYPE, mimetype);
+        setProperty(PARAMNAME, paramname);
     }
 
-    @Override
-    public HTTPFileArgSchema getSchema() {
-        return HTTPFileArgSchema.INSTANCE;
-    }
-
-    @Override
-    public PropertiesAccessor<? extends HTTPFileArg, ? extends HTTPFileArgSchema> getProps() {
-        return new PropertiesAccessor<>(this, getSchema());
-    }
-
-    private void setProperty(PropertyDescriptor<?, ?> descriptor, JMeterProperty prop) {
+    private void setProperty(String name, JMeterProperty prop) {
         JMeterProperty jmp = prop.clone();
-        jmp.setName(descriptor.getName());
+        jmp.setName(name);
         setProperty(jmp);
     }
 
@@ -173,7 +133,7 @@ public class HTTPFileArg extends AbstractTestElement implements Serializable {
      * the new http parameter name
      */
     public void setParamName(String newParamName) {
-        set(getSchema().getParameterName(), newParamName);
+        setProperty(new StringProperty(PARAMNAME, newParamName));
     }
 
     /**
@@ -182,7 +142,7 @@ public class HTTPFileArg extends AbstractTestElement implements Serializable {
      * @return the http parameter name
      */
     public String getParamName() {
-        return get(getSchema().getParameterName());
+        return getPropertyAsString(PARAMNAME);
     }
 
     /**
@@ -192,7 +152,7 @@ public class HTTPFileArg extends AbstractTestElement implements Serializable {
      * the new mimetype
      */
     public void setMimeType(String newMimeType) {
-        set(getSchema().getMimeType(), newMimeType);
+        setProperty(new StringProperty(MIMETYPE, newMimeType));
     }
 
     /**
@@ -201,7 +161,7 @@ public class HTTPFileArg extends AbstractTestElement implements Serializable {
      * @return the http parameter mimetype
      */
     public String getMimeType() {
-        return get(getSchema().getMimeType());
+        return getPropertyAsString(MIMETYPE);
     }
 
     /**
@@ -211,8 +171,7 @@ public class HTTPFileArg extends AbstractTestElement implements Serializable {
      *  the new path
      */
     public void setPath(String newPath) {
-        setMimeType(detectMimeType(newPath, getMimeType()));
-        set(getSchema().getPath(), newPath);
+        setProperty(new StringProperty(FILEPATH, newPath));
     }
 
     /**
@@ -221,7 +180,7 @@ public class HTTPFileArg extends AbstractTestElement implements Serializable {
      * @return the file's path
      */
     public String getPath() {
-        return get(getSchema().getPath());
+        return getPropertyAsString(FILEPATH);
     }
 
    /**

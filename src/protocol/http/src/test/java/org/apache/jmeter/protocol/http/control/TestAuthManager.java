@@ -17,30 +17,29 @@
 
 package org.apache.jmeter.protocol.http.control;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 
 import org.apache.jmeter.junit.JMeterTestCase;
 import org.apache.jmeter.testelement.property.CollectionProperty;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class TestAuthManager extends JMeterTestCase {
 
     @Test
     public void testHttp() throws Exception {
-        Assertions.assertTrue(AuthManager.isSupportedProtocol(new URL("http:")));
+        assertTrue(AuthManager.isSupportedProtocol(new URL("http:")));
     }
 
     @Test
     public void testHttps() throws Exception {
-        Assertions.assertTrue(AuthManager.isSupportedProtocol(new URL("https:")));
+        assertTrue(AuthManager.isSupportedProtocol(new URL("https:")));
     }
 
     @Test
@@ -89,8 +88,7 @@ public class TestAuthManager extends JMeterTestCase {
     @Test
     public void testAddFileWithoutDomainAndRealmWithMechanism() throws IOException {
         File authFile = File.createTempFile("auth", ".txt");
-        Files.write(authFile.toPath(),
-                "http://example.com\tuser\tpassword\t\t\tBASIC_DIGEST".getBytes(Charset.defaultCharset()));
+        Files.write(authFile.toPath(), "http://example.com\tuser\tpassword\t\t\tBASIC_DIGEST".getBytes());
         AuthManager manager = new AuthManager();
         manager.addFile(authFile.getAbsolutePath());
         Authorization authForURL = manager.getAuthForURL(new URL("http://example.com"));
@@ -100,9 +98,7 @@ public class TestAuthManager extends JMeterTestCase {
     @Test
     public void testAddFileWithDomainAndRealmAndDefaultMechanism() throws IOException {
         File authFile = File.createTempFile("auth", ".txt");
-        Files.write(authFile.toPath(),
-                "http://example.com\tuser\tpassword\tdomain\tEXAMPLE.COM\tBASIC_DIGEST"
-                        .getBytes(Charset.defaultCharset()));
+        Files.write(authFile.toPath(), "http://example.com\tuser\tpassword\tdomain\tEXAMPLE.COM\tBASIC_DIGEST".getBytes());
         AuthManager manager = new AuthManager();
         manager.addFile(authFile.getAbsolutePath());
         Authorization authForURL = manager.getAuthForURL(new URL("http://example.com"));
@@ -113,9 +109,7 @@ public class TestAuthManager extends JMeterTestCase {
     @Test
     public void testAddFileWithDomainAndRealmAndMechanism() throws IOException {
         File authFile = File.createTempFile("auth", ".txt");
-        Files.write(authFile.toPath(),
-                "http://example.com\tuser\tpassword\tdomain\tEXAMPLE.COM\tKERBEROS"
-                        .getBytes(Charset.defaultCharset()));
+        Files.write(authFile.toPath(), "http://example.com\tuser\tpassword\tdomain\tEXAMPLE.COM\tKERBEROS".getBytes());
         AuthManager manager = new AuthManager();
         manager.addFile(authFile.getAbsolutePath());
         Authorization authForURL = manager.getAuthForURL(new URL("http://example.com"));

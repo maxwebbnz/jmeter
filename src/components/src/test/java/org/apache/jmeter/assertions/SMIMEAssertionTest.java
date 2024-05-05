@@ -17,7 +17,7 @@
 
 package org.apache.jmeter.assertions;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.Assert.assertFalse;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -111,8 +111,9 @@ public class SMIMEAssertionTest implements JMeterSerialTest {
         testElement.setVerifySignature(true);
         AssertionResult result = SMIMEAssertion.getResult(testElement, parent,
                 "Test");
-        assertFalse(result.isError(), "Result should not be an error");
-        assertFalse(result.isFailure(), "Result should not fail: " + result.getFailureMessage());
+        assertFalse("Result should not be an error", result.isError());
+        assertFalse("Result should not fail: " + result.getFailureMessage(),
+                result.isFailure());
     }
 
     @Test
@@ -122,8 +123,9 @@ public class SMIMEAssertionTest implements JMeterSerialTest {
         testElement.setSignerEmail("bob@b.example.com");
         AssertionResult result = SMIMEAssertion.getResult(testElement, parent,
                 "Test");
-        assertFalse(result.isError(), "Result should not be an error");
-        assertFalse(result.isFailure(), "Result should not fail: " + result.getFailureMessage());
+        assertFalse("Result should not be an error", result.isError());
+        assertFalse("Result should not fail: " + result.getFailureMessage(),
+                result.isFailure());
     }
 
     @Test
@@ -133,8 +135,9 @@ public class SMIMEAssertionTest implements JMeterSerialTest {
         testElement.setSignerSerial("0xc8c46f8fbf9ebea4");
         AssertionResult result = SMIMEAssertion.getResult(testElement, parent,
                 "Test");
-        assertFalse(result.isError(), "Result should not be an error");
-        assertFalse(result.isFailure(), "Result should not fail: " + result.getFailureMessage());
+        assertFalse("Result should not be an error", result.isError());
+        assertFalse("Result should not fail: " + result.getFailureMessage(),
+                result.isFailure());
     }
 
     @Test
@@ -146,8 +149,9 @@ public class SMIMEAssertionTest implements JMeterSerialTest {
                 .setSignerDn(signerDn);
         AssertionResult result = SMIMEAssertion.getResult(testElement, parent,
                 "Test");
-        assertFalse(result.isError(), "Result should not be an error");
-        assertFalse(result.isFailure(), "Result should not fail: " + result.getFailureMessage());
+        assertFalse("Result should not be an error", result.isError());
+        assertFalse("Result should not fail: " + result.getFailureMessage(),
+                result.isFailure());
     }
 
     @Test
@@ -159,8 +163,9 @@ public class SMIMEAssertionTest implements JMeterSerialTest {
                 .setIssuerDn(issuerDn);
         AssertionResult result = SMIMEAssertion.getResult(testElement, parent,
                 "Test");
-        assertFalse(result.isError(), "Result should not be an error");
-        assertFalse(result.isFailure(), "Result should not fail: " + result.getFailureMessage());
+        assertFalse("Result should not be an error", result.isError());
+        assertFalse("Result should not fail: " + result.getFailureMessage(),
+                result.isFailure());
     }
 
     @Test
@@ -171,8 +176,9 @@ public class SMIMEAssertionTest implements JMeterSerialTest {
         testElement.setSignerCertFile(new File(getClass().getResource("email.pem").toURI()).getAbsolutePath());
         AssertionResult result = SMIMEAssertion.getResult(testElement, parent,
                 "Test");
-        assertFalse(result.isError(), "Result should not be an error");
-        assertFalse(result.isFailure(), "Result should not fail: " + result.getFailureMessage());
+        assertFalse("Result should not be an error", result.isError());
+        assertFalse("Result should not fail: " + result.getFailureMessage(),
+                result.isFailure());
     }
 
     private SampleResult createChildSample() throws MessagingException,

@@ -17,6 +17,10 @@
 
 package org.apache.jmeter.protocol.http.sampler;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
@@ -24,7 +28,6 @@ import java.util.List;
 
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.jmeter.protocol.http.util.HTTPConstants;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class TestHttpWebdav {
@@ -38,10 +41,12 @@ public class TestHttpWebdav {
     @Test
     public void testIsWebdavMethod() {
         for (String method : VALID_METHODS) {
-            Assertions.assertTrue(HttpWebdav.isWebdavMethod(method), method + " is a HttpWebdav method");
+            assertTrue(method + " is a HttpWebdav method",
+                    HttpWebdav.isWebdavMethod(method));
         }
         for (String method : INVALID_METHODS) {
-            Assertions.assertFalse(HttpWebdav.isWebdavMethod(method), method + " is not a HttpWebdav method");
+            assertFalse(method + " is not a HttpWebdav method",
+                    HttpWebdav.isWebdavMethod(method));
         }
     }
 
@@ -50,7 +55,7 @@ public class TestHttpWebdav {
         for (String method : VALID_METHODS) {
             HttpRequestBase request = new HttpWebdav(method, new URI(
                     "http://example.com"));
-            Assertions.assertEquals(method, request.getMethod());
+            assertEquals(method, request.getMethod());
         }
     }
 

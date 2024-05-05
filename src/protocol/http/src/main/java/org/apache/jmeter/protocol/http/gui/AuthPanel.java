@@ -76,7 +76,7 @@ public class AuthPanel extends AbstractConfigGui implements ActionListener {
 
     private static final String CONTROLLED_BY_THREADGROUP = "Controlled_By_ThreadGroup"; //$NON-NLS-1$
 
-    private final InnerTableModel tableModel;
+    private InnerTableModel tableModel;
 
     private JCheckBox clearEachIteration;
 
@@ -107,8 +107,7 @@ public class AuthPanel extends AbstractConfigGui implements ActionListener {
     public TestElement createTestElement() {
         AuthManager authMan = tableModel.manager;
         configureTestElement(authMan);
-        authMan.setClearEachIteration(false);
-        authMan.setControlledByThread(false);
+        authMan.setClearEachIteration(clearEachIteration.isSelected());
         return (TestElement) authMan.clone();
     }
 
@@ -450,7 +449,7 @@ public class AuthPanel extends AbstractConfigGui implements ActionListener {
 
     private static class PasswordCellRenderer extends JPasswordField implements TableCellRenderer {
         private static final long serialVersionUID = 5169856333827579927L;
-        private final Border myBorder;
+        private Border myBorder;
 
         public PasswordCellRenderer() {
             super();

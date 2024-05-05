@@ -30,13 +30,10 @@ import org.apache.oro.text.regex.Perl5Compiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.auto.service.AutoService;
-
 /**
  * Escape ORO meta characters
  * @since 2.9
  */
-@AutoService(Function.class)
 public class EscapeOroRegexpChars extends AbstractFunction {
     private static final Logger log = LoggerFactory.getLogger(EscapeOroRegexpChars.class);
 
@@ -78,7 +75,7 @@ public class EscapeOroRegexpChars extends AbstractFunction {
 
         String escapedValue = Perl5Compiler.quotemeta(valueToEscape);
 
-        if (!varName.isEmpty()) {
+        if (varName.length() > 0) {
             JMeterVariables vars = getVariables();
             if (vars != null) {// Can be null if called from Config item testEnded() method
                 vars.put(varName, escapedValue);

@@ -32,7 +32,7 @@ import javax.swing.table.TableCellRenderer;
  */
 public class HeaderAsPropertyRendererWrapper implements TableCellRenderer {
 
-    private final TableCellRenderer delegate;
+    private TableCellRenderer delegate;
 
     /**
      * @param renderer {@link TableCellRenderer} to delegate to

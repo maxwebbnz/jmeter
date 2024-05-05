@@ -21,7 +21,6 @@ import java.io.Serializable;
 
 import org.apache.jmeter.config.ConfigElement;
 import org.apache.jmeter.testelement.AbstractTestElement;
-import org.apache.jmeter.testelement.schema.PropertiesAccessor;
 
 /**
  * This class is an HTTP Header encapsulator.
@@ -30,6 +29,11 @@ import org.apache.jmeter.testelement.schema.PropertiesAccessor;
 public class Header extends AbstractTestElement implements Serializable {
 
     private static final long serialVersionUID = 240L;
+
+    private static final String HNAME = "Header.name";  //$NON-NLS-1$
+    // See TestElementPropertyConverter
+
+    private static final String VALUE = "Header.value"; //$NON-NLS-1$
 
     /**
      * Create the header. Uses an empty name and value as default
@@ -51,16 +55,6 @@ public class Header extends AbstractTestElement implements Serializable {
         this.setValue(value);
     }
 
-    @Override
-    public HeaderSchema getSchema() {
-        return HeaderSchema.INSTANCE;
-    }
-
-    @Override
-    public PropertiesAccessor<? extends Header, ? extends HeaderSchema> getProps() {
-        return new PropertiesAccessor<>(this, getSchema());
-    }
-
     public void addConfigElement(ConfigElement config) {
     }
 
@@ -75,7 +69,7 @@ public class Header extends AbstractTestElement implements Serializable {
      */
     @Override
     public String getName() {
-        return get(getSchema().getHeaderName());
+        return getPropertyAsString(HNAME);
     }
 
     /**
@@ -85,7 +79,7 @@ public class Header extends AbstractTestElement implements Serializable {
      */
     @Override
     public void setName(String name) {
-        set(getSchema().getHeaderName(), name);
+        this.setProperty(HNAME, name);
     }
 
     /**
@@ -94,7 +88,7 @@ public class Header extends AbstractTestElement implements Serializable {
      * @return the value of this header
      */
     public String getValue() {
-        return get(getSchema().getValue());
+        return getPropertyAsString(VALUE);
     }
 
     /**
@@ -103,7 +97,7 @@ public class Header extends AbstractTestElement implements Serializable {
      * @param value the value of this header
      */
     public void setValue(String value) {
-        set(getSchema().getValue(), value);
+        this.setProperty(VALUE, value);
     }
 
     /**

@@ -60,6 +60,8 @@ public class ProxyAuthenticator extends Authenticator {
                 return new PasswordAuthentication(userName, password);
             case SERVER:
                 break;
+            default:
+                break;
         }
         return null;
     }

@@ -187,12 +187,12 @@ public class MainFrame extends JFrame implements TestStateListener, Remoteable, 
     /** LogTarget that receives ERROR or FATAL */
     private transient ErrorsAndFatalsCounterLogTarget errorsAndFatalsCounterLogTarget;
 
-    private final javax.swing.Timer computeTestDurationTimer = new javax.swing.Timer(1000,
+    private javax.swing.Timer computeTestDurationTimer = new javax.swing.Timer(1000,
             this::computeTestDuration);
 
-    private final AtomicInteger errorOrFatal = new AtomicInteger(0);
+    private AtomicInteger errorOrFatal = new AtomicInteger(0);
 
-    private final javax.swing.Timer refreshErrorsTimer = new javax.swing.Timer(1000,
+    private javax.swing.Timer refreshErrorsTimer = new javax.swing.Timer(1000,
             this::refreshErrors);
 
     /**
@@ -256,10 +256,6 @@ public class MainFrame extends JFrame implements TestStateListener, Remoteable, 
                 }
                 JMeterUtils.refreshUI();
             }
-        });
-        addPropertyChangeListener("graphicsConfiguration", evt -> {
-            // Update UI when JMeter window moves to a different monitor as it might have different scaling settings
-            JMeterUtils.refreshUI();
         });
     }
 
@@ -409,7 +405,7 @@ public class MainFrame extends JFrame implements TestStateListener, Remoteable, 
         stoppingMessage = new EscapeDialog(this, JMeterUtils.getResString("stopping_test_title"), true); //$NON-NLS-1$
         String label = JMeterUtils.getResString("stopping_test"); //$NON-NLS-1
         if (!StringUtils.isEmpty(host)) {
-            label = label + " " + JMeterUtils.getResString("stopping_test_host") + ": " + host;
+            label = label + JMeterUtils.getResString("stopping_test_host")+ ": " + host;
         }
         JLabel stopLabel = new JLabel(label); //$NON-NLS-1$$NON-NLS-2$
         stopLabel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
@@ -631,7 +627,7 @@ public class MainFrame extends JFrame implements TestStateListener, Remoteable, 
      *
      * @return the main scroll pane
      */
-    private static JScrollPane createMainPanel() {
+    private JScrollPane createMainPanel() {
         return new JScrollPane();
     }
 
@@ -639,7 +635,7 @@ public class MainFrame extends JFrame implements TestStateListener, Remoteable, 
      * Create at the down of the left a Console for Log events
      * @return {@link LoggerPanel}
      */
-    private static LoggerPanel createLoggerPanel() {
+    private LoggerPanel createLoggerPanel() {
         LoggerPanel loggerPanel = new LoggerPanel();
         loggerPanel.setMinimumSize(new Dimension(0, 100));
         loggerPanel.setPreferredSize(new Dimension(0, 150));
@@ -707,7 +703,7 @@ public class MainFrame extends JFrame implements TestStateListener, Remoteable, 
         return treevar;
     }
 
-    private static void addQuickComponentHotkeys(JTree treevar) {
+    private void addQuickComponentHotkeys(JTree treevar) {
         Action quickComponent = new QuickComponent("Quick Component");
 
         InputMap inputMap = treevar.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -726,7 +722,7 @@ public class MainFrame extends JFrame implements TestStateListener, Remoteable, 
      *
      * @return a renderer to draw the test tree nodes
      */
-    private static TreeCellRenderer getCellRenderer() {
+    private TreeCellRenderer getCellRenderer() {
         return new JMeterCellRenderer();
     }
 
@@ -771,7 +767,7 @@ public class MainFrame extends JFrame implements TestStateListener, Remoteable, 
          * Bug 62336: On Windows CTRL+6 doesn't give us an actionCommand, so
          * we have to try harder and read the KeyEvent from the EventQueue
          */
-        private static String getCurrentKey(ActionEvent actionEvent) {
+        private String getCurrentKey(ActionEvent actionEvent) {
             String actionCommand = actionEvent.getActionCommand();
             if (actionCommand != null) {
                 return actionCommand;
@@ -908,7 +904,7 @@ public class MainFrame extends JFrame implements TestStateListener, Remoteable, 
     /**
      * Define AWT window title (WM_CLASS string) (useful on Gnome 3 / Linux)
      */
-    private static void setWindowTitle() {
+    private void setWindowTitle() {
         Class<?> xtoolkit = Toolkit.getDefaultToolkit().getClass();
         if (xtoolkit.getName().equals("sun.awt.X11.XToolkit")) { // NOSONAR (we don't want to depend on native LAF) $NON-NLS-1$
             try {
@@ -919,14 +915,6 @@ public class MainFrame extends JFrame implements TestStateListener, Remoteable, 
                 if (log.isWarnEnabled()) {
                     log.warn("Error awt title: {}", nsfe.toString()); // $NON-NLS-1$
                 }
-            } catch (RuntimeException e) {
-                // By default, strong encapsulation prevents setAccessible on java.desktop
-                if ("java.lang.reflect.InaccessibleObjectException".equals(e.getClass().getName())) {
-                    /* ignore */
-                    log.info("Unable to adjust awtAppClassName to {}", DEFAULT_APP_NAME);
-                    return;
-                }
-                throw e;
             }
         }
     }

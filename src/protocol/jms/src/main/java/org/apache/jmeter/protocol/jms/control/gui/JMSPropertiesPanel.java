@@ -60,7 +60,7 @@ public class JMSPropertiesPanel extends JPanel implements ActionListener {
     private static final int COL_VALUE = 1;
     private static final int COL_TYPE = 2;
 
-    private final InnerTableModel tableModel;
+    private InnerTableModel tableModel;
 
     private JTable jmsPropertiesTable;
 

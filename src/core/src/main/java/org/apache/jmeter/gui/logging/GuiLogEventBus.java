@@ -29,7 +29,7 @@ public class GuiLogEventBus {
     /**
      * Registered GUI log event listeners array.
      */
-    private final List<GuiLogEventListener> listeners = new ArrayList<>();
+    private List<GuiLogEventListener> listeners = new ArrayList<>();
 
     /**
      * Default constructor.

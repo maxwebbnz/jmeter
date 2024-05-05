@@ -63,7 +63,6 @@ import org.apache.jmeter.gui.GuiPackage;
 import org.apache.jmeter.gui.action.AbstractAction;
 import org.apache.jmeter.gui.action.ActionNames;
 import org.apache.jmeter.gui.action.ActionRouter;
-import org.apache.jmeter.gui.action.Command;
 import org.apache.jmeter.gui.plugin.MenuCreator;
 import org.apache.jmeter.gui.tree.JMeterTreeModel;
 import org.apache.jmeter.gui.tree.JMeterTreeNode;
@@ -97,7 +96,6 @@ import org.apache.jmeter.testbeans.gui.TestBeanGUI;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.testelement.TestPlan;
 import org.apache.jmeter.threads.AbstractThreadGroup;
-import org.apache.jmeter.threads.AbstractThreadGroupSchema;
 import org.apache.jmeter.threads.ThreadGroup;
 import org.apache.jmeter.threads.gui.ThreadGroupGui;
 import org.apache.jmeter.util.JMeterUtils;
@@ -112,18 +110,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import com.google.auto.service.AutoService;
-
 /**
  * Opens a popup where user can enter a cURL command line and create a test plan
  * from it
  *
  * @since 5.1
  */
-@AutoService({
-        Command.class,
-        MenuCreator.class
-})
 public class ParseCurlCommandAction extends AbstractAction implements MenuCreator, ActionListener { // NOSONAR
     private static final Logger LOGGER = LoggerFactory.getLogger(ParseCurlCommandAction.class);
     private static final String ACCEPT_ENCODING = "Accept-Encoding";
@@ -131,6 +123,7 @@ public class ParseCurlCommandAction extends AbstractAction implements MenuCreato
     public static final String IMPORT_CURL = "import_curl";
     private static final String CREATE_REQUEST = "CREATE_REQUEST";
     private static final String CERT = "cert";
+    private Logger log = LoggerFactory.getLogger(getClass());
     /** A panel allowing results to be saved. */
     private FilePanel filePanel = null;
     static {
@@ -200,12 +193,12 @@ public class ParseCurlCommandAction extends AbstractAction implements MenuCreato
      * @return the first node of the given type in the test component tree, or
      *         <code>null</code> if none was found.
      */
-    private static JMeterTreeNode findFirstNodeOfType(Class<?> type) {
+    private JMeterTreeNode findFirstNodeOfType(Class<?> type) {
         JMeterTreeModel treeModel = GuiPackage.getInstance().getTreeModel();
         return treeModel.getNodesOfType(type).stream().filter(JMeterTreeNode::isEnabled).findFirst().orElse(null);
     }
 
-    private static DNSCacheManager findNodeOfTypeDnsCacheManagerByType(boolean isCustom) {
+    private DNSCacheManager findNodeOfTypeDnsCacheManagerByType(boolean isCustom) {
         JMeterTreeModel treeModel = GuiPackage.getInstance().getTreeModel();
         List<JMeterTreeNode> res = treeModel.getNodesOfType(DNSCacheManager.class);
         for (JMeterTreeNode jm : res) {
@@ -226,13 +219,13 @@ public class ParseCurlCommandAction extends AbstractAction implements MenuCreato
         ThreadGroup threadGroup = new ThreadGroup();
         threadGroup.setProperty(TestElement.GUI_CLASS, ThreadGroupGui.class.getName());
         threadGroup.setProperty(TestElement.NAME, "Thread Group");
-        threadGroup.set(AbstractThreadGroupSchema.INSTANCE.getNumThreads(), "${__P(threads,10)}");
+        threadGroup.setProperty(AbstractThreadGroup.NUM_THREADS, "${__P(threads,10)}");
         threadGroup.setProperty(ThreadGroup.RAMP_TIME,"${__P(rampup,30)}");
         threadGroup.setScheduler(true);
         threadGroup.setProperty(ThreadGroup.DURATION,"${__P(duration,3600)}");
         threadGroup.setDelay(5);
         LoopController loopCtrl = new LoopController();
-        loopCtrl.setLoops("${__P(iterations,-1)}");
+        loopCtrl.setProperty(LoopController.LOOPS,"${__P(iterations,-1)}");
         loopCtrl.setContinueForever(false);
         threadGroup.setSamplerController(loopCtrl);
         TestPlan testPlan = new TestPlan();
@@ -315,12 +308,11 @@ public class ParseCurlCommandAction extends AbstractAction implements MenuCreato
         if (StringUtils.isNotEmpty(url.getQuery())) {
             path += "?" + url.getQuery();
         }
-        // setMethod must be before setPath as setPath uses method to determine if parameters should be parsed or not
-        httpSampler.setMethod(request.getMethod());
         httpSampler.setPath(path);
         httpSampler.setDomain(url.getHost());
         httpSampler.setUseKeepAlive(request.isKeepAlive());
         httpSampler.setFollowRedirects(true);
+        httpSampler.setMethod(request.getMethod());
         HeaderManager headerManager = createHeaderManager(request);
         httpSampler.addTestElement(headerManager);
         configureTimeout(request, httpSampler);
@@ -345,7 +337,7 @@ public class ParseCurlCommandAction extends AbstractAction implements MenuCreato
         return httpSampler;
     }
 
-    private static void configureTimeout(Request request, HTTPSamplerProxy httpSampler) {
+    private void configureTimeout(Request request, HTTPSamplerProxy httpSampler) {
         double connectTimeout = request.getConnectTimeout();
         double maxTime = request.getMaxTime();
         if (connectTimeout >= 0) {
@@ -364,7 +356,7 @@ public class ParseCurlCommandAction extends AbstractAction implements MenuCreato
      * @param request {@link Request}
      * @return {@link HeaderManager} element
      */
-    private static HeaderManager createHeaderManager(Request request) {
+    private HeaderManager createHeaderManager(Request request) {
         HeaderManager headerManager = new HeaderManager();
         headerManager.setProperty(TestElement.GUI_CLASS, HeaderPanel.class.getName());
         headerManager.setProperty(TestElement.NAME, "HTTP HeaderManager");
@@ -418,7 +410,7 @@ public class ParseCurlCommandAction extends AbstractAction implements MenuCreato
         }
     }
 
-    private static KeystoreConfig createKeystoreConfiguration() {
+    private KeystoreConfig createKeystoreConfiguration() {
         KeystoreConfig keystoreConfig = new KeystoreConfig();
         keystoreConfig.setProperty(TestElement.GUI_CLASS, TestBeanGUI.class.getName());
         keystoreConfig.setProperty(TestElement.NAME, "Keystore Configuration");
@@ -431,7 +423,7 @@ public class ParseCurlCommandAction extends AbstractAction implements MenuCreato
      *
      * @param request {@link Request}
      */
-    private static void createAuthManager(Request request, AuthManager authManager) {
+    private void createAuthManager(Request request, AuthManager authManager) {
         Authorization auth = request.getAuthorization();
         authManager.setProperty(TestElement.GUI_CLASS, AuthPanel.class.getName());
         authManager.setProperty(TestElement.NAME, "HTTP AuthorizationManager");
@@ -446,7 +438,7 @@ public class ParseCurlCommandAction extends AbstractAction implements MenuCreato
      * @param authManager {@link AuthManager} element
      * @return whether to update Authorization Manager in http request
      */
-    private static boolean canAddAuthManagerInHttpRequest(Request request, AuthManager authManager) {
+    private boolean canAddAuthManagerInHttpRequest(Request request, AuthManager authManager) {
         Authorization auth = request.getAuthorization();
         for (int i = 0; i < authManager.getAuthObjects().size(); i++) {
             if (!authManager.getAuthObjectAt(i).getUser().equals(auth.getUser())
@@ -465,7 +457,7 @@ public class ParseCurlCommandAction extends AbstractAction implements MenuCreato
      * @param authManager {@link AuthManager} element
      * @return whether to update Authorization Manager in Thread Group
      */
-    private static boolean canUpdateAuthManagerInThreadGroup(Request request, AuthManager authManager) {
+    private boolean canUpdateAuthManagerInThreadGroup(Request request, AuthManager authManager) {
         Authorization auth = request.getAuthorization();
         for (int i = 0; i < authManager.getAuthObjects().size(); i++) {
             if (auth.getURL().equals(authManager.getAuthObjectAt(i).getURL())) {
@@ -475,7 +467,7 @@ public class ParseCurlCommandAction extends AbstractAction implements MenuCreato
         return true;
     }
 
-    private static void createDnsServer(Request request, DNSCacheManager dnsCacheManager) {
+    private void createDnsServer(Request request, DNSCacheManager dnsCacheManager) {
         Set<String> dnsServers = request.getDnsServers();
         dnsCacheManager.setProperty(TestElement.GUI_CLASS, DNSCachePanel.class.getName());
         dnsCacheManager.setProperty(TestElement.NAME, "DNS Cache Manager");
@@ -486,7 +478,7 @@ public class ParseCurlCommandAction extends AbstractAction implements MenuCreato
         }
     }
 
-    private static boolean canAddDnsServerInHttpRequest(Request request, DNSCacheManager dnsCacheManager) {
+    private boolean canAddDnsServerInHttpRequest(Request request, DNSCacheManager dnsCacheManager) {
         Set<String> currentDnsServers =new HashSet<>();
         Set<String> newDnsServers = request.getDnsServers();
         for (int i = 0; i < dnsCacheManager.getServers().size(); i++) {
@@ -495,7 +487,7 @@ public class ParseCurlCommandAction extends AbstractAction implements MenuCreato
         return !(newDnsServers.size() == currentDnsServers.size() && newDnsServers.containsAll(currentDnsServers));
     }
 
-    private static void createDnsResolver(Request request, DNSCacheManager dnsCacheManager) {
+    private void createDnsResolver(Request request, DNSCacheManager dnsCacheManager) {
         dnsCacheManager.setProperty(TestElement.GUI_CLASS, DNSCachePanel.class.getName());
         dnsCacheManager.setProperty(TestElement.NAME, "DNS Cache Manager");
         dnsCacheManager.setCustomResolver(true);
@@ -519,7 +511,7 @@ public class ParseCurlCommandAction extends AbstractAction implements MenuCreato
         return "Created from cURL on " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
     }
 
-    private static boolean canAddDnsResolverInHttpRequest(Request request, DNSCacheManager dnsCacheManager) {
+    private boolean canAddDnsResolverInHttpRequest(Request request, DNSCacheManager dnsCacheManager) {
         if (dnsCacheManager.getHosts().size() != 1) {
             return true;
         } else {
@@ -558,11 +550,11 @@ public class ParseCurlCommandAction extends AbstractAction implements MenuCreato
                         if (contentFile.canRead()) {
                             contentType = tika.detect(contentFile);
                         } else {
-                            LOGGER.info("Can not read file {}, so guessing contentType by extension.", formValue);
+                            log.info("Can not read file {}, so guessing contentType by extension.", formValue);
                             contentType = tika.detect(formValue);
                         }
                     } catch (IOException e) {
-                        LOGGER.info(
+                        log.info(
                                 "Could not detect contentType for file {} by content, so falling back to detection by filename",
                                 formValue);
                         contentType = tika.detect(formValue);
@@ -582,7 +574,7 @@ public class ParseCurlCommandAction extends AbstractAction implements MenuCreato
         }
     }
 
-    private static void createProxyServer(Request request, HTTPSamplerProxy httpSampler) {
+    private void createProxyServer(Request request, HTTPSamplerProxy httpSampler) {
         Map<String, String> proxyServer = request.getProxyServer();
         for (Map.Entry<String, String> proxyPara : proxyServer.entrySet()) {
             String key = proxyPara.getKey();

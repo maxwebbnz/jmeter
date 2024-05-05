@@ -17,9 +17,9 @@
 
 package org.apache.jmeter.protocol.http.control;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Field;
 
@@ -55,7 +55,7 @@ public class TestCookieManagerThreadIteration {
         sampler.setCookieManager(cookieManager);
         sampler.setThreadContext(jmctx);
         boolean res = (boolean) cookieManager.getThreadContext().getVariables().getObject(SAME_USER);
-        assertTrue(res, "When test different users on the different iternations, the cookie should be cleared");
+        assertTrue("When test different users on the different iternations, the cookie should be cleared", res);
     }
 
     @Test
@@ -68,7 +68,7 @@ public class TestCookieManagerThreadIteration {
         sampler.setCookieManager(cookieManager);
         sampler.setThreadContext(jmctx);
         boolean res = (boolean) cookieManager.getThreadContext().getVariables().getObject(SAME_USER);
-        assertFalse(res, "When test same user on the different iternations, the cookie shouldn't be cleared");
+        assertFalse("When test same user on the different iternations, the cookie shouldn't be cleared", res);
     }
 
     @Test
@@ -92,23 +92,15 @@ public class TestCookieManagerThreadIteration {
         cookieManagerStatic.getCookies().addItem(cookieStatic);
         CollectionProperty initialCookies = cookieManagerStatic.getCookies();
         privateStringField.set(cookieManagerDynamic, initialCookies);
-        assertEquals(
-                1,
-                cookieManagerDynamic.getCookies().size(),
-                "Before the iteration,the quantity of cookies should be 1");
-        assertEquals(
-                DYNAMIC_COOKIE,
-                cookieManagerDynamic.getCookies().get(0).getName(),
-                "Before the iteration, the value of cookie should be what user have set");
+        assertTrue("Before the iteration,the quantity of cookies should be 1",
+                cookieManagerDynamic.getCookies().size() == 1);
+        assertEquals("Before the iteration, the value of cookie should be what user have set", DYNAMIC_COOKIE,
+                cookieManagerDynamic.getCookies().get(0).getName());
         cookieManagerDynamic.testIterationStart(null);
-        assertEquals(
-                STATIC_COOKIE,
-                cookieManagerDynamic.getCookies().get(0).getName(),
-                "After the iteration, the value of cookie should be the initial cookies");
-        assertEquals(
-                1,
-                cookieManagerDynamic.getCookies().size(),
-                "After the iteration, the quantity of cookies should be 1");
+        assertEquals("After the iteration, the value of cookie should be the initial cookies", STATIC_COOKIE,
+                cookieManagerDynamic.getCookies().get(0).getName());
+        assertTrue("After the iteration, the quantity of cookies should be 1",
+                cookieManagerDynamic.getCookies().size() == 1);
         // Controlled by CookieManager
         jmvars.putObject(SAME_USER, true);
         jmctx.setVariables(jmvars);
@@ -123,23 +115,15 @@ public class TestCookieManagerThreadIteration {
         cookieManagerStatic.getCookies().addItem(cookieStatic);
         initialCookies = cookieManagerStatic.getCookies();
         privateStringField.set(cookieManagerDynamic, initialCookies);
-        assertEquals(
-                DYNAMIC_COOKIE,
-                cookieManagerDynamic.getCookies().get(0).getName(),
-                "Before the iteration, the value of cookie should be what user have set");
-        assertEquals(
-                1,
-                cookieManagerDynamic.getCookies().size(),
-                "Before the iteration,the quantity of cookies should be 1");
+        assertEquals("Before the iteration, the value of cookie should be what user have set", DYNAMIC_COOKIE,
+                cookieManagerDynamic.getCookies().get(0).getName());
+        assertTrue("Before the iteration,the quantity of cookies should be 1",
+                cookieManagerDynamic.getCookies().size() == 1);
         cookieManagerDynamic.testIterationStart(null);
-        assertEquals(
-                STATIC_COOKIE,
-                cookieManagerDynamic.getCookies().get(0).getName(),
-                "After the iteration, the value of cookie should be the initial cookies");
-        assertEquals(
-                1,
-                cookieManagerDynamic.getCookies().size(),
-                "After the iteration, the quantity of cookies should be 1");
+        assertEquals("After the iteration, the value of cookie should be the initial cookies", STATIC_COOKIE,
+                cookieManagerDynamic.getCookies().get(0).getName());
+        assertTrue("After the iteration, the quantity of cookies should be 1",
+                cookieManagerDynamic.getCookies().size() == 1);
     }
 
     @Test
@@ -163,23 +147,15 @@ public class TestCookieManagerThreadIteration {
         cookieManagerStatic.getCookies().addItem(cookieStatic);
         CollectionProperty initialCookies = cookieManagerStatic.getCookies();
         privateStringField.set(cookieManagerDynamic, initialCookies);
-        assertEquals(
-                1,
-                cookieManagerDynamic.getCookies().size(),
-                "Before the iteration,the quantity of cookies should be 1");
-        assertEquals(
-                DYNAMIC_COOKIE,
-                cookieManagerDynamic.getCookies().get(0).getName(),
-                "Before the iteration, the value of cookie should be what user have set");
+        assertTrue("Before the iteration,the quantity of cookies should be 1",
+                cookieManagerDynamic.getCookies().size() == 1);
+        assertEquals("Before the iteration, the value of cookie should be what user have set", DYNAMIC_COOKIE,
+                cookieManagerDynamic.getCookies().get(0).getName());
         cookieManagerDynamic.testIterationStart(null);
-        assertEquals(
-                DYNAMIC_COOKIE,
-                cookieManagerDynamic.getCookies().get(0).getName(),
-                "After the iteration, the value of cookie should be what user have set");
-        assertEquals(
-                1,
-                cookieManagerDynamic.getCookies().size(),
-                "After the iteration, the quantity of cookies should be 1");
+        assertEquals("After the iteration, the value of cookie should be what user have set", DYNAMIC_COOKIE,
+                cookieManagerDynamic.getCookies().get(0).getName());
+        assertTrue("After the iteration, the quantity of cookies should be 1",
+                cookieManagerDynamic.getCookies().size() == 1);
 
         // Controlled by CookieManager
         jmvars.putObject(SAME_USER, false);
@@ -193,19 +169,14 @@ public class TestCookieManagerThreadIteration {
         cookieManagerStatic.getCookies().clear();
         cookieStatic.setName(STATIC_COOKIE);
         privateStringField.set(cookieManagerDynamic, initialCookies);
-        assertEquals(
-                DYNAMIC_COOKIE,
-                cookieManagerDynamic.getCookies().get(0).getName(),
-                "Before the iteration, the value of cookie should be what user have set");
-        assertEquals(
-                1,
-                cookieManagerDynamic.getCookies().size(),
-                "Before the iteration,the quantity of cookies should be 1");
+        assertEquals("Before the iteration, the value of cookie should be what user have set", DYNAMIC_COOKIE,
+                cookieManagerDynamic.getCookies().get(0).getName());
+        assertTrue("Before the iteration,the quantity of cookies should be 1",
+                cookieManagerDynamic.getCookies().size() == 1);
         cookieManagerDynamic.testIterationStart(null);
-        assertEquals(
-                DYNAMIC_COOKIE,
-                cookieManagerDynamic.getCookies().get(0).getName(),
-                "After the iteration, the value of cookie should be what user have set");
-        assertEquals(1, cookieManagerDynamic.getCookies().size(), "After the iteration, the quantity of cookies should be 1");
+        assertEquals("After the iteration, the value of cookie should be what user have set", DYNAMIC_COOKIE,
+                cookieManagerDynamic.getCookies().get(0).getName());
+        assertTrue("After the iteration, the quantity of cookies should be 1",
+                cookieManagerDynamic.getCookies().size() == 1);
     }
 }

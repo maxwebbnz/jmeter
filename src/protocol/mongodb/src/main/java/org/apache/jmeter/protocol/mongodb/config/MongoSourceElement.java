@@ -107,7 +107,6 @@ public class MongoSourceElement
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public void testStarted() {
         if(log.isDebugEnabled()) {
             log.debug(getTitle() + " testStarted");

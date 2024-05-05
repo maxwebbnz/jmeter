@@ -17,9 +17,9 @@
 
 package org.apache.jmeter.control;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 import org.apache.jmeter.engine.util.ValueReplacer;
 import org.apache.jmeter.junit.JMeterTestCase;
@@ -186,32 +186,32 @@ public class TestWhileController extends JMeterTestCase {
         controller.addTestElement(new TestSampler("after"));
         controller.initialize();
         for (int i = 1; i <= 3; i++) {
-            assertEquals("before", nextName(controller), "Loop: " + i);
-            assertEquals("one", nextName(controller), "Loop: " + i);
-            assertEquals("two", nextName(controller), "Loop: " + i);
-            assertEquals("three", nextName(controller), "Loop: " + i);
-            assertEquals("four", nextName(controller), "Loop: " + i);
-            assertEquals("after", nextName(controller), "Loop: " + i);
-            assertNull(nextName(controller), "Loop: " + i);
+            assertEquals("Loop: " + i, "before", nextName(controller));
+            assertEquals("Loop: " + i, "one", nextName(controller));
+            assertEquals("Loop: " + i, "two", nextName(controller));
+            assertEquals("Loop: " + i, "three", nextName(controller));
+            assertEquals("Loop: " + i, "four", nextName(controller));
+            assertEquals("Loop: " + i, "after", nextName(controller));
+            assertNull("Loop: " + i, nextName(controller));
         }
         jmvars.put("VAR", "LAST"); // Should not enter the loop
         for (int i = 1; i <= 3; i++) {
-            assertEquals("before", nextName(controller), "Loop: " + i);
-            assertEquals("after", nextName(controller), "Loop: " + i);
-            assertNull(nextName(controller), "Loop: " + i);
+            assertEquals("Loop: " + i, "before", nextName(controller));
+            assertEquals("Loop: " + i, "after", nextName(controller));
+            assertNull("Loop: " + i, nextName(controller));
         }
         jmvars.put("VAR", "");
         for (int i = 1; i <= 3; i++) {
-            assertEquals("before", nextName(controller), "Loop: " + i);
+            assertEquals("Loop: " + i, "before", nextName(controller));
             if (i == 1) {
-                assertEquals("one", nextName(controller), "Loop: " + i);
-                assertEquals("two", nextName(controller), "Loop: " + i);
-                assertEquals("three", nextName(controller), "Loop: " + i);
+                assertEquals("Loop: " + i, "one", nextName(controller));
+                assertEquals("Loop: " + i, "two", nextName(controller));
+                assertEquals("Loop: " + i, "three", nextName(controller));
                 jmvars.put("VAR", "LAST"); // Should not enter the loop next time
-                assertEquals("four", nextName(controller), "Loop: " + i);
+                assertEquals("Loop: " + i, "four", nextName(controller));
             }
-            assertEquals("after", nextName(controller), "Loop: " + i);
-            assertNull(nextName(controller), "Loop: " + i);
+            assertEquals("Loop: " + i, "after", nextName(controller));
+            assertNull("Loop: " + i, nextName(controller));
         }
     }
 
@@ -237,33 +237,33 @@ public class TestWhileController extends JMeterTestCase {
         controller.addTestElement(new TestSampler("after"));
         controller.initialize();
         for (int i = 1; i <= 3; i++) {
-            assertEquals("before", nextName(controller), "Loop: " + i);
-            assertEquals("one", nextName(controller), "Loop: " + i);
-            assertEquals("two", nextName(controller), "Loop: " + i);
-            assertEquals("three", nextName(controller), "Loop: " + i);
-            assertEquals("four", nextName(controller), "Loop: " + i);
-            assertEquals("after", nextName(controller), "Loop: " + i);
-            assertNull(nextName(controller), "Loop: " + i);
+            assertEquals("Loop: " + i, "before", nextName(controller));
+            assertEquals("Loop: " + i, "one", nextName(controller));
+            assertEquals("Loop: " + i, "two", nextName(controller));
+            assertEquals("Loop: " + i, "three", nextName(controller));
+            assertEquals("Loop: " + i, "four", nextName(controller));
+            assertEquals("Loop: " + i, "after", nextName(controller));
+            assertNull("Loop: " + i, nextName(controller));
         }
         jmvars.put("VAR", "LAST"); // Should not enter the loop
         for (int i = 1; i <= 3; i++) {
-            assertEquals("before", nextName(controller), "Loop: " + i);
-            assertEquals("after", nextName(controller), "Loop: " + i);
-            assertNull(nextName(controller), "Loop: " + i);
+            assertEquals("Loop: " + i, "before", nextName(controller));
+            assertEquals("Loop: " + i, "after", nextName(controller));
+            assertNull("Loop: " + i, nextName(controller));
         }
         jmvars.put("VAR", "");
         for (int i = 1; i <= 3; i++) {
-            assertEquals("before", nextName(controller), "Loop: " + i);
+            assertEquals("Loop: " + i, "before", nextName(controller));
             if (i == 1) {
-                assertEquals("one", nextName(controller), "Loop: " + i);
-                assertEquals("two", nextName(controller), "Loop: " + i);
+                assertEquals("Loop: " + i, "one", nextName(controller));
+                assertEquals("Loop: " + i, "two", nextName(controller));
                 jmvars.put("VAR", "LAST"); // Should not enter the loop next time
                 // But should continue to the end of the loop
-                assertEquals("three", nextName(controller), "Loop: " + i);
-                assertEquals("four", nextName(controller), "Loop: " + i);
+                assertEquals("Loop: " + i, "three", nextName(controller));
+                assertEquals("Loop: " + i, "four", nextName(controller));
             }
-            assertEquals("after", nextName(controller), "Loop: " + i);
-            assertNull(nextName(controller), "Loop: " + i);
+            assertEquals("Loop: " + i, "after", nextName(controller));
+            assertNull("Loop: " + i, nextName(controller));
         }
     }
 

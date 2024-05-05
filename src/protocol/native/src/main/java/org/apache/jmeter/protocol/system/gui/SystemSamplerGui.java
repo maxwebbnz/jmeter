@@ -213,17 +213,19 @@ public class SystemSamplerGui extends AbstractSamplerGui implements ItemListener
         return panel;
     }
 
+
     /**
      * @return JPanel Arguments Panel
      */
     private JPanel makeArgumentsPanel() {
-        final ObjectTableModel objectTableModel = new ObjectTableModel(
-                new String[] { ArgumentsPanel.COLUMN_RESOURCE_NAMES_1 }, Argument.class,
-                new Functor[] { new Functor("getValue") }, // $NON-NLS-1$
-                new Functor[] { new Functor("setValue") }, // $NON-NLS-1$
-                new Class[] { String.class });
-        argsPanel = new ArgumentsPanel(JMeterUtils.getResString("arguments_panel_title"), null, true, false, // $NON-NLS-1$
-                objectTableModel, cols -> new Argument("", cols[0]));
+        argsPanel = new ArgumentsPanel(JMeterUtils.getResString("arguments_panel_title"), null, true, false ,  // $NON-NLS-1$
+                new ObjectTableModel(new String[] { ArgumentsPanel.COLUMN_RESOURCE_NAMES_1 },
+                        Argument.class,
+                        new Functor[] {
+                        new Functor("getValue") },  // $NON-NLS-1$
+                        new Functor[] {
+                        new Functor("setValue") }, // $NON-NLS-1$
+                        new Class[] {String.class }));
         return argsPanel;
     }
 

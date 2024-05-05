@@ -25,10 +25,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Field;
 import java.net.URL;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
+import java.util.Map;
+import java.util.TimeZone;
 
 import org.apache.jmeter.junit.JMeterTestCase;
 import org.apache.jmeter.protocol.http.control.CacheManager.CacheEntry;
@@ -38,29 +39,26 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 
-import com.github.benmanes.caffeine.cache.Cache;
-
 @Execution(ExecutionMode.CONCURRENT)
 public abstract class TestCacheManagerBase extends JMeterTestCase {
     protected static final String LOCAL_HOST = "http://localhost/";
     protected static final String EXPECTED_ETAG = "0xCAFEBABEDEADBEEF";
-    protected static final ZoneId GMT = ZoneId.of("GMT");
+    protected static final TimeZone GMT = TimeZone.getTimeZone("GMT");
     protected CacheManager cacheManager;
     protected String currentTimeInGMT;
     protected String vary = null;
     protected URL url;
     protected HTTPSampleResult sampleResultOK;
 
-    protected String makeDate(Instant d) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss z")
-                .withLocale(Locale.US)
-                .withZone(GMT);
-        return formatter.format(d);
+    protected String makeDate(Date d) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US);
+        simpleDateFormat.setTimeZone(GMT);
+        return simpleDateFormat.format(d);
     }
 
     public void setUp() throws Exception {
         this.cacheManager = new CacheManager();
-        this.currentTimeInGMT = makeDate(Instant.now());
+        this.currentTimeInGMT = makeDate(new Date());
         this.url = new URL(LOCAL_HOST);
 
         this.sampleResultOK = getSampleResultWithSpecifiedResponseCode("200");
@@ -108,7 +106,7 @@ public abstract class TestCacheManagerBase extends JMeterTestCase {
         this.cacheManager.testIterationStart(null);
         assertNoSuchEntry();
         long start = System.currentTimeMillis();
-        setExpires(makeDate(Instant.ofEpochMilli(start + 2000)));
+        setExpires(makeDate(new Date(start + 2000)));
         cacheResultWithGivenCode("304");
         assertValidEntry();
         sleepTill(start + 2010);
@@ -121,7 +119,7 @@ public abstract class TestCacheManagerBase extends JMeterTestCase {
         this.cacheManager.testIterationStart(null);
         assertNoSuchEntry();
         long start = System.currentTimeMillis();
-        setExpires(makeDate(Instant.ofEpochMilli(start + 2000)));
+        setExpires(makeDate(new Date(start + 2000)));
         cacheResult(sampleResultOK);
         assertValidEntry();
         sleepTill(start + 2010);
@@ -133,7 +131,7 @@ public abstract class TestCacheManagerBase extends JMeterTestCase {
         this.cacheManager.setUseExpires(false);
         this.cacheManager.testIterationStart(null);
         assertNoSuchEntry();
-        setExpires(makeDate(Instant.ofEpochMilli(System.currentTimeMillis() + 2000)));
+        setExpires(makeDate(new Date(System.currentTimeMillis() + 2000)));
         cacheResult(sampleResultOK);
         assertInvalidEntry();
     }
@@ -144,11 +142,11 @@ public abstract class TestCacheManagerBase extends JMeterTestCase {
         this.cacheManager.testIterationStart(null);
         assertNoSuchEntry();
         long start = System.currentTimeMillis();
-        setExpires(makeDate(Instant.ofEpochMilli(start)));
+        setExpires(makeDate(new Date(start)));
         setCacheControl("public, max-age=1");
         cacheResult(sampleResultOK);
         assertValidEntry();
-        sleepTill(start + 2010);
+        sleepTill(start + 1010);
         assertInvalidEntry();
     }
 
@@ -215,7 +213,7 @@ public abstract class TestCacheManagerBase extends JMeterTestCase {
         this.cacheManager.testIterationStart(null);
         assertNull(getThreadCacheEntry(LOCAL_HOST), "Should not find entry");
         assertFalse(this.cacheManager.inCache(url, origHeaders), "Should not find valid entry");
-        setExpires(makeDate(Instant.ofEpochMilli(System.currentTimeMillis())));
+        setExpires(makeDate(new Date(System.currentTimeMillis())));
         setCacheControl("public, max-age=5");
         sampleResultOK.setRequestHeaders(asString(origHeaders));
         this.vary = vary;
@@ -232,7 +230,7 @@ public abstract class TestCacheManagerBase extends JMeterTestCase {
         this.cacheManager.setUseExpires(true);
         this.cacheManager.testIterationStart(null);
         assertNoSuchEntry();
-        setExpires(makeDate(Instant.ofEpochMilli(System.currentTimeMillis())));
+        setExpires(makeDate(new Date(System.currentTimeMillis())));
         setCacheControl("public, max-age=5");
         HTTPSampleResult sampleResultHEAD = getSampleResultWithSpecifiedResponseCode("200");
         sampleResultHEAD.setHTTPMethod("HEAD");
@@ -246,11 +244,11 @@ public abstract class TestCacheManagerBase extends JMeterTestCase {
         this.cacheManager.testIterationStart(null);
         assertNoSuchEntry();
         long start = System.currentTimeMillis();
-        setExpires(makeDate(Instant.ofEpochMilli(start)));
+        setExpires(makeDate(new Date(start)));
         setCacheControl("private, max-age=1");
         cacheResult(sampleResultOK);
         assertValidEntry();
-        sleepTill(start + 2020);
+        sleepTill(start + 1050);
         assertInvalidEntry();
     }
 
@@ -266,7 +264,7 @@ public abstract class TestCacheManagerBase extends JMeterTestCase {
         // be fresh for the next 10% of X seconds == 0.1*X seconds
         long start = System.currentTimeMillis();
         long age = 30 * 1000; // 30 seconds
-        setLastModified(makeDate(Instant.ofEpochMilli(start - age)));
+        setLastModified(makeDate(new Date(start - age)));
         cacheResult(sampleResultOK);
         assertValidEntry();
         sleepTill(start + age / 10 + 1010);
@@ -285,7 +283,7 @@ public abstract class TestCacheManagerBase extends JMeterTestCase {
         // be fresh for the next 10% of X seconds == 0.1*X seconds
         long start = System.currentTimeMillis();
         long age = 30 * 1000; // 30 seconds
-        setLastModified(makeDate(Instant.ofEpochMilli(start - age)));
+        setLastModified(makeDate(new Date(start - age)));
         cacheResult(sampleResultOK);
         assertValidEntry();
         sleepTill(start + age / 10 + 1010);
@@ -298,7 +296,7 @@ public abstract class TestCacheManagerBase extends JMeterTestCase {
         this.cacheManager.testIterationStart(null);
         assertNoSuchEntry();
         long start = System.currentTimeMillis();
-        setExpires(makeDate(Instant.ofEpochMilli(start + 2000)));
+        setExpires(makeDate(new Date(start + 2000)));
         setCacheControl("private");
         cacheResult(sampleResultOK);
         assertValidEntry();
@@ -342,11 +340,11 @@ public abstract class TestCacheManagerBase extends JMeterTestCase {
         this.cacheManager.testIterationStart(null);
         assertNoSuchEntry();
         long start = System.currentTimeMillis();
-        setExpires(makeDate(Instant.ofEpochMilli(start)));
+        setExpires(makeDate(new Date(start)));
         setCacheControl("public, max-age=1, no-transform");
         cacheResult(sampleResultOK);
         assertValidEntry();
-        sleepTill(start + 2010);
+        sleepTill(start + 1010);
         assertInvalidEntry();
     }
 
@@ -354,8 +352,7 @@ public abstract class TestCacheManagerBase extends JMeterTestCase {
     private void assertInvalidEntry() throws Exception {
         CacheEntry cachedEntry = getThreadCacheEntry(LOCAL_HOST);
         assertNotNull(getThreadCacheEntry(LOCAL_HOST), "Should find entry");
-        assertFalse(this.cacheManager.inCache(url),
-                () -> "Should not find valid entry. Found: " + cachedEntry + " at " + System.currentTimeMillis());
+        assertFalse(this.cacheManager.inCache(url), "Should not find valid entry. Found: " + cachedEntry + " at " + System.currentTimeMillis());
     }
 
     @SuppressWarnings("deprecation")
@@ -387,7 +384,7 @@ public abstract class TestCacheManagerBase extends JMeterTestCase {
     @Test
     public void testSaveDetailsWithEmptySampleResultGivesNoCacheEntry() throws Exception {
         cacheResultWithGivenCode("");
-        assertTrue(getThreadCache().asMap().isEmpty(), "Saving details with empty SampleResult should not make cache entry.");
+        assertTrue(getThreadCache().isEmpty(), "Saving details with empty SampleResult should not make cache entry.");
     }
 
     @Test
@@ -424,13 +421,13 @@ public abstract class TestCacheManagerBase extends JMeterTestCase {
 
     @Test
     public void testClearCache() throws Exception {
-        assertTrue(getThreadCache().asMap().isEmpty(), "ThreadCache should be empty initially.");
+        assertTrue(getThreadCache().isEmpty(), "ThreadCache should be empty initially.");
         cacheResultWithGivenCode("200");
         assertFalse(
-                getThreadCache().asMap().isEmpty(),
+                getThreadCache().isEmpty(),
                 "ThreadCache should be populated after saving details for HttpMethod with SampleResult with response code 200.");
         this.cacheManager.clear();
-        assertTrue(getThreadCache().asMap().isEmpty(), "ThreadCache should be emptied by call to clear.");
+        assertTrue(getThreadCache().isEmpty(), "ThreadCache should be emptied by call to clear.");
     }
 
     protected HTTPSampleResult getSampleResultWithSpecifiedResponseCode(String code) {
@@ -441,17 +438,17 @@ public abstract class TestCacheManagerBase extends JMeterTestCase {
         return sampleResult;
     }
 
-    private Cache<String, CacheManager.CacheEntry> getThreadCache() throws Exception {
+    private Map<String, CacheManager.CacheEntry> getThreadCache() throws Exception {
         Field threadLocalfield = CacheManager.class.getDeclaredField("threadCache");
         threadLocalfield.setAccessible(true);
         @SuppressWarnings("unchecked")
-        ThreadLocal<Cache<String, CacheManager.CacheEntry>> threadLocal = (ThreadLocal<Cache<String, CacheManager.CacheEntry>>) threadLocalfield
+        ThreadLocal<Map<String, CacheManager.CacheEntry>> threadLocal = (ThreadLocal<Map<String, CacheManager.CacheEntry>>) threadLocalfield
                 .get(this.cacheManager);
         return threadLocal.get();
     }
 
     protected CacheManager.CacheEntry getThreadCacheEntry(String url) throws Exception {
-        return getThreadCache().getIfPresent(url);
+        return getThreadCache().get(url);
     }
 
 

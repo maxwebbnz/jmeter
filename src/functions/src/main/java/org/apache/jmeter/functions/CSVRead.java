@@ -28,8 +28,6 @@ import org.apache.jmeter.util.JMeterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.auto.service.AutoService;
-
 /**
  * The function represented by this class allows data to be read from CSV files.
  * Syntax is similar to StringFromFile function. The function allows the test to
@@ -55,7 +53,6 @@ import com.google.auto.service.AutoService;
  * {@code __CSVRead(*ONE,1);}, etc.
  * @since 1.9
  */
-@AutoService(Function.class)
 public class CSVRead extends AbstractFunction {
     private static final Logger log = LoggerFactory.getLogger(CSVRead.class);
 

@@ -64,13 +64,4 @@ public class GraphQLRequestParams implements Serializable {
     public void setVariables(String variables) {
         this.variables = variables;
     }
-
-    @Override
-    public String toString() {
-        return "GraphQLRequestParams{" +
-                "operationName='" + operationName + '\'' +
-                ", query='" + query + '\'' +
-                ", variables='" + variables + '\'' +
-                '}';
-    }
 }

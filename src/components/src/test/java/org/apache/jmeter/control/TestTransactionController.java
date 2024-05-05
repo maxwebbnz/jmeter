@@ -17,12 +17,17 @@
 
 package org.apache.jmeter.control;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.jmeter.assertions.ResponseAssertion;
 import org.apache.jmeter.junit.JMeterTestCase;
+import org.apache.jmeter.reporters.ResultCollector;
 import org.apache.jmeter.sampler.DebugSampler;
-import org.apache.jmeter.test.samplers.CollectSamplesListener;
+import org.apache.jmeter.samplers.SampleEvent;
+import org.apache.jmeter.samplers.SampleListener;
 import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.threads.JMeterThread;
 import org.apache.jmeter.threads.JMeterVariables;
@@ -39,7 +44,7 @@ public class TestTransactionController extends JMeterTestCase {
     public void testIssue57958() throws Exception {
         JMeterContextService.getContext().setVariables(new JMeterVariables());
 
-        CollectSamplesListener listener = new CollectSamplesListener();
+        TestSampleListener listener = new TestSampleListener();
 
         TransactionController transactionController = new TransactionController();
         transactionController.setGenerateParentSample(true);
@@ -76,9 +81,26 @@ public class TestTransactionController extends JMeterTestCase {
         thread.setOnErrorStopThread(true);
         thread.run();
 
-        assertEquals(1, listener.getEvents().size(),
-                "Must one transaction samples with parent debug sample");
-        assertEquals("Number of samples in transaction : 1, number of failing samples : 1",
-                listener.getEvents().get(0).getResult().getResponseMessage());
+        assertEquals("Must one transaction samples with parent debug sample", 1, listener.events.size());
+        assertEquals("Number of samples in transaction : 1, number of failing samples : 1", listener.events.get(0).getResult().getResponseMessage());
+    }
+
+    public class TestSampleListener extends ResultCollector implements SampleListener {
+        public List<SampleEvent> events = new ArrayList<>();
+
+        @Override
+        public void sampleOccurred(SampleEvent e) {
+            events.add(e);
+        }
+
+        @Override
+        public void sampleStarted(SampleEvent e) {
+            events.add(e);
+        }
+
+        @Override
+        public void sampleStopped(SampleEvent e) {
+            events.add(e);
+        }
     }
 }

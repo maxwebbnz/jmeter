@@ -21,9 +21,6 @@ import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.util.JMeterUtils;
 import org.jsoup.Jsoup;
 
-import com.google.auto.service.AutoService;
-
-@AutoService(ResultRenderer.class)
 public class RenderAsHTMLFormatted extends SamplerResultTab implements ResultRenderer {
 
     /** {@inheritDoc} */

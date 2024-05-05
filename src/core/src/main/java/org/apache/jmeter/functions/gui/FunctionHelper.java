@@ -239,7 +239,6 @@ public class FunctionHelper extends JDialog implements ActionListener, ChangeLis
             Arguments args = (Arguments) parameterPanel.createTestElement();
             String functionCall = buildFunctionCallString(functionName, args);
             cutPasteFunction.setText(functionCall);
-            cutPasteFunction.setEnabled(true);
             GuiUtils.copyTextToClipboard(cutPasteFunction.getText());
             CompoundVariable function = new CompoundVariable(functionCall);
             JMeterContext threadContext = JMeterContextService.getContext();
@@ -266,14 +265,13 @@ public class FunctionHelper extends JDialog implements ActionListener, ChangeLis
         }
     }
 
-    private static String variablesToString(JMeterVariables jMeterVariables) {
+    private String variablesToString(JMeterVariables jMeterVariables) {
         StringBuilder sb = new StringBuilder();
         jMeterVariables.entrySet().forEach(e->sb.append(e.getKey()).append("=").append(e.getValue()).append("\r\n"));
         return sb.toString();
     }
 
-    @VisibleForTesting
-    static String buildFunctionCallString(String functionName, Arguments args) {
+    private String buildFunctionCallString(String functionName, Arguments args) {
         StringBuilder functionCall = new StringBuilder("${");
         functionCall.append(functionName);
         if (args.getArguments().size() > 0) {
@@ -302,7 +300,7 @@ public class FunctionHelper extends JDialog implements ActionListener, ChangeLis
      * @param arg string that should be escaped
      * @return escaped string
      */
-    private static String escapeCommata(String arg) {
+    private String escapeCommata(String arg) {
         int level = 0;
         StringBuilder result = new StringBuilder(arg.length());
         try (Reader r = new StringReader(arg)) {

@@ -34,7 +34,6 @@ import org.apache.jmeter.threads.JMeterContext;
 import org.apache.jmeter.threads.JMeterVariables;
 import org.apache.jmeter.util.Document;
 import org.apache.jmeter.util.JMeterUtils;
-import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -163,10 +162,7 @@ public class BoundaryExtractor extends AbstractScopedTestElement implements Post
      * @param matches List of String
      * @return 0 if there is only one match, else the number of matches, this is used to remove
      */
-    private static int saveMatches(JMeterVariables vars, String refName, int matchNumber, List<String> matches) {
-        if (matchNumber >=0 && matches.isEmpty()) {
-            return 0;
-        }
+    private int saveMatches(JMeterVariables vars, String refName, int matchNumber, List<String> matches) {
         int matchCount = 0;
         if (matchNumber == 0) {
             saveRandomMatch(vars, refName, matches);
@@ -179,14 +175,14 @@ public class BoundaryExtractor extends AbstractScopedTestElement implements Post
         return matchCount;
     }
 
-    private static void saveRandomMatch(JMeterVariables vars, String refName, List<String> matches) {
+    private void saveRandomMatch(JMeterVariables vars, String refName, List<String> matches) {
         String match = matches.get(JMeterUtils.getRandomInt(matches.size()));
         if (match != null) {
             vars.put(refName, match);
         }
     }
 
-    private static void saveOneMatch(JMeterVariables vars, String refName, List<String> matches) {
+    private void saveOneMatch(JMeterVariables vars, String refName, List<String> matches) {
         if (matches.size() == 1) { // if not then invalid matchNum was likely supplied
             String match = matches.get(0);
             if (match != null) {
@@ -195,7 +191,7 @@ public class BoundaryExtractor extends AbstractScopedTestElement implements Post
         }
     }
 
-    private static void saveAllMatches(JMeterVariables vars, String refName, List<String> matches) {
+    private void saveAllMatches(JMeterVariables vars, String refName, List<String> matches) {
         vars.put(refName + REF_MATCH_NR, Integer.toString(matches.size()));
         for (int i = 0; i < matches.size(); i++) {
             String match = matches.get(i);
@@ -237,12 +233,11 @@ public class BoundaryExtractor extends AbstractScopedTestElement implements Post
         return result.getResponseDataAsString(); // Bug 36898
     }
 
-    @VisibleForTesting
-    static List<String> extract(
+    private List<String> extract(
             String leftBoundary, String rightBoundary, int matchNumber, Stream<String> previousResults) {
         boolean allItems = matchNumber <= 0;
         return previousResults
-                .flatMap(input -> extract(leftBoundary, rightBoundary, input).stream())
+                .flatMap(input -> extractAll(leftBoundary, rightBoundary, input).stream())
                 .skip(allItems ? 0L : matchNumber - 1)
                 .limit(allItems ? Long.MAX_VALUE : 1L)
                 .collect(Collectors.toList());
@@ -259,8 +254,7 @@ public class BoundaryExtractor extends AbstractScopedTestElement implements Post
      * @param inputString   text in which to look for the fragments
      * @return list where the found text fragments will be placed
      */
-    @VisibleForTesting
-    static List<String> extract(String leftBoundary, String rightBoundary, int matchNumber, String inputString) {
+    private List<String> extract(String leftBoundary, String rightBoundary, int matchNumber, String inputString) {
         if (StringUtils.isBlank(inputString)) {
             return Collections.emptyList();
         }
@@ -306,11 +300,6 @@ public class BoundaryExtractor extends AbstractScopedTestElement implements Post
     }
 
     public List<String> extractAll(
-            String leftBoundary, String rightBoundary, String textToParse) {
-        return extract(leftBoundary, rightBoundary, textToParse);
-    }
-
-    private static List<String> extract(
             String leftBoundary, String rightBoundary, String textToParse) {
         return extract(leftBoundary, rightBoundary, -1, textToParse);
     }

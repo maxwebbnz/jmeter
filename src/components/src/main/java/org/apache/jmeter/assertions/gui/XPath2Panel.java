@@ -102,7 +102,7 @@ public class XPath2Panel extends JPanel {
 
         return panel;
     }
-    private static void resetContraints(GridBagConstraints gbc) {
+    private void resetContraints(GridBagConstraints gbc) {
         gbc.gridx = 0;
         gbc.gridy++;
         gbc.weightx = 0;
@@ -110,7 +110,7 @@ public class XPath2Panel extends JPanel {
         gbc.fill = GridBagConstraints.NONE;
     }
 
-    private static void initConstraints(GridBagConstraints gbc) {
+    private void initConstraints(GridBagConstraints gbc) {
         gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.fill = GridBagConstraints.NONE;
         gbc.gridheight = 1;

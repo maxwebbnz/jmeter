@@ -49,13 +49,10 @@ import org.apache.jorphan.gui.JLabeledChoice;
 import org.apache.jorphan.gui.JLabeledTextField;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 
-import com.google.auto.service.AutoService;
-
 /**
  * Implement ResultsRender for CSS/JQuery tester
  * @since 2.10
  */
-@AutoService(ResultRenderer.class)
 public class RenderAsCssJQuery implements ResultRenderer, ActionListener {
 
     private static final String CSSJQUEY_TESTER_COMMAND = "cssjquery_tester"; // $NON-NLS-1$
@@ -148,7 +145,6 @@ public class RenderAsCssJQuery implements ResultRenderer, ActionListener {
    public void renderResult(SampleResult sampleResult) {
        clearData();
         String response = ViewResultsFullVisualizer.getResponseAsString(sampleResult);
-        response = ViewResultsFullVisualizer.wrapLongLines(response);
         cssJqueryDataField.setText(response);
         cssJqueryDataField.setCaretPosition(0);
     }

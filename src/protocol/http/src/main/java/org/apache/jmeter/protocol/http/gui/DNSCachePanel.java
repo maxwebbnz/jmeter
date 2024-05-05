@@ -103,7 +103,7 @@ public class DNSCachePanel extends AbstractConfigGui implements ActionListener {
     private JButton addHostButton;
     private JButton deleteHostButton;
 
-    private final ButtonGroup providerDNSradioGroup = new ButtonGroup();
+    private ButtonGroup providerDNSradioGroup = new ButtonGroup();
 
     private static final String[] COLUMN_RESOURCE_NAMES = {
         JMeterUtils.getResString("dns_hostname_or_ip"), //$NON-NLS-1$
@@ -140,14 +140,10 @@ public class DNSCachePanel extends AbstractConfigGui implements ActionListener {
         configureTestElement(dnsRes);
         if (dnsRes instanceof DNSCacheManager) {
             DNSCacheManager dnsCacheManager = (DNSCacheManager) dnsRes;
-            // Init servers list
-            dnsCacheManager.getServers();
             for (int i = 0; i < dnsServersTableModel.getRowCount(); i++) {
                 String server = (String) dnsServersTableModel.getRowData(i)[0];
                 dnsCacheManager.addServer(server);
             }
-            // Init hosts list
-            dnsCacheManager.getHosts();
             for (int i = 0; i < dnsHostsTableModel.getRowCount(); i++) {
                 String host = (String) dnsHostsTableModel.getRowData(i)[0];
                 String addresses = (String) dnsHostsTableModel.getRowData(i)[1];
@@ -192,19 +188,10 @@ public class DNSCachePanel extends AbstractConfigGui implements ActionListener {
     }
 
     @Override
-    public TestElement makeTestElement() {
-        return new DNSCacheManager();
-    }
-
-    @Override
-    public void assignDefaultValues(TestElement element) {
-        super.assignDefaultValues(element);
-        DNSCacheManager manager = (DNSCacheManager) element;
-        // It sets empty list of servers and hosts
-        manager.getServers();
-        manager.getHosts();
-        manager.setClearEachIteration(true);
-        manager.setCustomResolver(false);
+    public TestElement createTestElement() {
+        DNSCacheManager dnsCacheManager = new DNSCacheManager();
+        modifyTestElement(dnsCacheManager);
+        return dnsCacheManager;
     }
 
     @Override
@@ -377,7 +364,7 @@ public class DNSCachePanel extends AbstractConfigGui implements ActionListener {
         }
     }
 
-    private static void enableTable(boolean custEnabled, boolean sysEnabled, JTable table, PowerTableModel model,
+    private void enableTable(boolean custEnabled, boolean sysEnabled, JTable table, PowerTableModel model,
             JButton addButton, JButton deleteButton) {
         table.setEnabled(custEnabled);
         Color greyColor = new Color(240, 240, 240);
@@ -392,7 +379,7 @@ public class DNSCachePanel extends AbstractConfigGui implements ActionListener {
         }
     }
 
-    private static void addTableRow(JTable table, PowerTableModel model, JButton button) {
+    private void addTableRow(JTable table, PowerTableModel model, JButton button) {
         // If a table cell is being edited, we should accept the current
         // value and stop the editing before adding a new row.
         GuiUtils.stopTableEditing(table);
@@ -409,7 +396,7 @@ public class DNSCachePanel extends AbstractConfigGui implements ActionListener {
         table.setRowSelectionInterval(rowToSelect, rowToSelect);
     }
 
-    private static void deleteTableRow(JTable table, PowerTableModel model, JButton button) {
+    private void deleteTableRow(JTable table, PowerTableModel model, JButton button) {
         if (model.getRowCount() > 0) {
             // If a table cell is being edited, we must cancel the editing
             // before deleting the row.

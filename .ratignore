@@ -1,9 +1,7 @@
 checksum.xml
-build-logic/checksum.xml
-build-logic/gradle/checksum-dependency-plugin/cached-pgp-keys/**
+buildSrc/checksum.xml
 gradle/wrapper/gradle-wrapper.jar
-gradle/checksum-dependency-plugin/cached-pgp-keys/**
-**/.*
+.*
 .*/**
 CODE_OF_CONDUCT.md
 CONTRIBUTING.md
@@ -12,7 +10,6 @@ gradle.md
 ISSUE_TEMPLATE.md
 PULL_REQUEST_TEMPLATE.md
 README.md
-renovate.json
 **/*.jmx
 bin/examples/**
 bin/report-output/**

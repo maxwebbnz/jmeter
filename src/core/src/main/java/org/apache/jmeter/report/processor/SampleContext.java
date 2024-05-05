@@ -30,7 +30,7 @@ import java.util.Map;
 public class SampleContext {
 
     private File workingDirectory;
-    private final Map<String, Object> data = new HashMap<>();
+    private Map<String, Object> data = new HashMap<>();
 
     /**
      * Return the root directory that consumers are authorized to use for

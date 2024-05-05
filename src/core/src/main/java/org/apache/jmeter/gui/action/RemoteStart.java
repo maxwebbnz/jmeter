@@ -33,9 +33,6 @@ import org.apache.jmeter.threads.RemoteThreadsListenerTestElement;
 import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jorphan.collections.HashTree;
 
-import com.google.auto.service.AutoService;
-
-@AutoService(Command.class)
 public class RemoteStart extends AbstractAction {
 
     private static final String LOCAL_HOST = "127.0.0.1"; // NOSONAR $NON-NLS-1$
@@ -57,7 +54,7 @@ public class RemoteStart extends AbstractAction {
         commands.add(ActionNames.REMOTE_EXIT_ALL);
     }
 
-    private final DistributedRunner distributedRunner = new DistributedRunner();
+    private DistributedRunner distributedRunner = new DistributedRunner();
 
     public RemoteStart() {
     }
@@ -100,7 +97,7 @@ public class RemoteStart extends AbstractAction {
         }
     }
 
-    private static List<String> getRemoteHosts() {
+    private List<String> getRemoteHosts() {
         String remoteHostsString = JMeterUtils.getPropDefault(REMOTE_HOSTS, LOCAL_HOST);
         StringTokenizer st = new StringTokenizer(remoteHostsString, REMOTE_HOSTS_SEPARATOR);
         List<String> list = new ArrayList<>();
@@ -115,7 +112,7 @@ public class RemoteStart extends AbstractAction {
         return commands;
     }
 
-    private static HashTree getTestTree() {
+    private HashTree getTestTree() {
         GuiPackage gui = GuiPackage.getInstance();
         HashTree testTree = gui.getTreeModel().getTestPlan();
         HashTree tree = JMeter.convertSubTree(testTree, true);

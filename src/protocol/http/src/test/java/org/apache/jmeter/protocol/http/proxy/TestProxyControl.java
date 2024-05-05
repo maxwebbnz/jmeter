@@ -17,8 +17,8 @@
 
 package org.apache.jmeter.protocol.http.proxy;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.apache.jmeter.protocol.http.sampler.HTTPNullSampler;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerBase;
@@ -43,21 +43,21 @@ public class TestProxyControl {
     public void testFilter1() throws Exception {
         sampler.setDomain("jakarta.org");
         sampler.setPath("index.jsp");
-        assertTrue(control.filterUrl(sampler), "Should find jakarta.org/index.jsp");
+        assertTrue("Should find jakarta.org/index.jsp", control.filterUrl(sampler));
     }
 
     @Test
     public void testFilter2() throws Exception {
         sampler.setPath("index.jsp");
         sampler.setDomain("www.apache.org");
-        assertFalse(control.filterUrl(sampler), "Should not match www.apache.org");
+        assertFalse("Should not match www.apache.org", control.filterUrl(sampler));
     }
 
     @Test
     public void testFilter3() throws Exception {
         sampler.setPath("header.gif");
         sampler.setDomain("jakarta.org");
-        assertFalse(control.filterUrl(sampler), "Should not match header.gif");
+        assertFalse("Should not match header.gif", control.filterUrl(sampler));
     }
 
     @Test
@@ -68,33 +68,33 @@ public class TestProxyControl {
         control.setContentTypeExclude(null);
 
         result.setContentType(null);
-        assertTrue(control.filterContentType(result), "Should allow if no content-type present");
+        assertTrue("Should allow if no content-type present", control.filterContentType(result));
         result.setContentType("text/html; charset=utf-8");
-        assertTrue(control.filterContentType(result), "Should allow text/html");
+        assertTrue("Should allow text/html", control.filterContentType(result));
         result.setContentType("image/png");
-        assertTrue(control.filterContentType(result), "Should allow image/png");
+        assertTrue("Should allow image/png", control.filterContentType(result));
 
         // Empty filters
         control.setContentTypeInclude("");
         control.setContentTypeExclude("");
 
         result.setContentType(null);
-        assertTrue(control.filterContentType(result), "Should allow if no content-type present");
+        assertTrue("Should allow if no content-type present", control.filterContentType(result));
         result.setContentType("text/html; charset=utf-8");
-        assertTrue(control.filterContentType(result), "Should allow text/html");
+        assertTrue("Should allow text/html", control.filterContentType(result));
         result.setContentType("image/png");
-        assertTrue(control.filterContentType(result), "Should allow image/png");
+        assertTrue("Should allow image/png", control.filterContentType(result));
 
         // Non empty filters
         control.setContentTypeInclude(" ");
         control.setContentTypeExclude(" ");
 
         result.setContentType(null);
-        assertTrue(control.filterContentType(result), "Should allow if no content-type present");
+        assertTrue("Should allow if no content-type present", control.filterContentType(result));
         result.setContentType("text/html; charset=utf-8");
-        assertFalse(control.filterContentType(result), "Should not allow text/html");
+        assertFalse("Should not allow text/html", control.filterContentType(result));
         result.setContentType("image/png");
-        assertFalse(control.filterContentType(result), "Should not allow image/png");
+        assertFalse("Should not allow image/png", control.filterContentType(result));
     }
 
     @Test
@@ -103,11 +103,11 @@ public class TestProxyControl {
         control.setContentTypeInclude("text/html|text/ascii");
 
         result.setContentType(null);
-        assertTrue(control.filterContentType(result), "Should allow if no content-type present");
+        assertTrue("Should allow if no content-type present", control.filterContentType(result));
         result.setContentType("text/html; charset=utf-8");
-        assertTrue(control.filterContentType(result), "Should allow text/html");
+        assertTrue("Should allow text/html", control.filterContentType(result));
         result.setContentType("text/css");
-        assertFalse(control.filterContentType(result), "Should not allow text/css");
+        assertFalse("Should not allow text/css", control.filterContentType(result));
     }
 
     @Test
@@ -116,11 +116,11 @@ public class TestProxyControl {
         control.setContentTypeExclude("text/css");
 
         result.setContentType(null);
-        assertTrue(control.filterContentType(result), "Should allow if no content-type present");
+        assertTrue("Should allow if no content-type present", control.filterContentType(result));
         result.setContentType("text/html; charset=utf-8");
-        assertTrue(control.filterContentType(result), "Should allow text/html");
+        assertTrue("Should allow text/html", control.filterContentType(result));
         result.setContentType("text/css");
-        assertFalse(control.filterContentType(result), "Should not allow text/css");
+        assertFalse("Should not allow text/css", control.filterContentType(result));
     }
 
     @Test
@@ -131,25 +131,25 @@ public class TestProxyControl {
         control.setContentTypeExclude("text/css");
 
         result.setContentType(null);
-        assertTrue(control.filterContentType(result), "Should allow if no content-type present");
+        assertTrue("Should allow if no content-type present", control.filterContentType(result));
         result.setContentType("text/html; charset=utf-8");
-        assertTrue(control.filterContentType(result), "Should allow text/html");
+        assertTrue("Should allow text/html", control.filterContentType(result));
         result.setContentType("text/css");
-        assertFalse(control.filterContentType(result), "Should not allow text/css");
+        assertFalse("Should not allow text/css", control.filterContentType(result));
         result.setContentType("image/png");
-        assertFalse(control.filterContentType(result), "Should not allow image/png");
+        assertFalse("Should not allow image/png", control.filterContentType(result));
 
         // Allow all but images
         control.setContentTypeInclude(null);
         control.setContentTypeExclude("image/.*");
 
         result.setContentType(null);
-        assertTrue(control.filterContentType(result), "Should allow if no content-type present");
+        assertTrue("Should allow if no content-type present", control.filterContentType(result));
         result.setContentType("text/html; charset=utf-8");
-        assertTrue(control.filterContentType(result), "Should allow text/html");
+        assertTrue("Should allow text/html", control.filterContentType(result));
         result.setContentType("text/css");
-        assertTrue(control.filterContentType(result), "Should allow text/css");
+        assertTrue("Should allow text/css", control.filterContentType(result));
         result.setContentType("image/png");
-        assertFalse(control.filterContentType(result), "Should not allow image/png");
+        assertFalse("Should not allow image/png", control.filterContentType(result));
     }
 }

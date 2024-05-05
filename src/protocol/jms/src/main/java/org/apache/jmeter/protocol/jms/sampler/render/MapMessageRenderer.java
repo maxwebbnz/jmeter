@@ -26,7 +26,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 
 public class MapMessageRenderer implements MessageRenderer<Map<String,Object>> {
 
-    private final TextMessageRenderer delegate;
+    private TextMessageRenderer delegate;
 
     public MapMessageRenderer(TextMessageRenderer delegate) {
         this.delegate = delegate;

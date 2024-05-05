@@ -51,7 +51,7 @@ public final class JSyntaxSearchToolBar implements ActionListener {
     /**
      * The component where we Search
      */
-    private final JSyntaxTextArea dataField;
+    private JSyntaxTextArea dataField;
 
     /**
      * @param dataField {@link JSyntaxTextArea} to use for searching
@@ -114,7 +114,7 @@ public final class JSyntaxSearchToolBar implements ActionListener {
         }
     }
 
-    private static SearchContext createSearchContext(String text, boolean forward, boolean matchCase,
+    private SearchContext createSearchContext(String text, boolean forward, boolean matchCase,
             boolean isRegex) {
         SearchContext context = new SearchContext();
         context.setSearchFor(text);

@@ -24,8 +24,8 @@ import java.util.Objects;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class FileArgumentHolder implements ArgumentHolder {
-    private final String name;
-    private final Map<String, String> metadata;
+    private String name;
+    private Map<String, String> metadata;
 
     private FileArgumentHolder(String name, Map<String, String> metadata) {
         this.name = name;

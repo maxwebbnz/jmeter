@@ -20,7 +20,6 @@ package org.apache.jmeter.report.processor;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -70,13 +69,13 @@ public class CsvFileSampleSource extends AbstractSampleSource {
     private static final Logger LOG = LoggerFactory.getLogger(CsvFileSampleSource.class);
 
     /** input csv files to be produced */
-    private final File[] inputFiles;
+    private File[] inputFiles;
 
     /** csv readers corresponding to the input files */
-    private final CsvSampleReader[] csvReaders;
+    private CsvSampleReader[] csvReaders;
 
     /** mock producer to produce samples to its consumers */
-    private final PrivateProducer producer;
+    private PrivateProducer producer;
 
     /**
      * Build a sample source from the specified input file and character
@@ -142,7 +141,7 @@ public class CsvFileSampleSource extends AbstractSampleSource {
     /**
      * Get the current time in milliseconds
      */
-    private static long now() {
+    private long now() {
         return System.currentTimeMillis();
     }
 
@@ -152,7 +151,7 @@ public class CsvFileSampleSource extends AbstractSampleSource {
      *
      * @return A readable string that displays the time provided as milliseconds
      */
-    private static String time(long t) {
+    private String time(long t) {
         return TimeHelper.time(t);
     }
 
@@ -248,7 +247,7 @@ public class CsvFileSampleSource extends AbstractSampleSource {
          *                  {@code null})
          */
         public void setSampleConsumers(List<SampleConsumer> consumers) {
-            Objects.requireNonNull(consumers, "consumers must not be null");
+            Validate.notNull(consumers, "consumers must not be null");
 
             this.sampleConsumers = consumers;
         }

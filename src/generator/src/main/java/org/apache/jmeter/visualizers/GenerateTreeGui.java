@@ -62,7 +62,7 @@ public class GenerateTreeGui extends AbstractConfigGui
 
     private static final long serialVersionUID = 1L;
 
-    private final JButton generateButton = new JButton("Generate");
+    private JButton generateButton = new JButton("Generate");
 
     public GenerateTreeGui() {
         super();
@@ -77,6 +77,11 @@ public class GenerateTreeGui extends AbstractConfigGui
     @Override
     public String getStaticLabel() {
         return "Test Generator"; // $NON-NLS-1$
+    }
+
+    @Override
+    public String getDocAnchor() {
+        return super.getDocAnchor();
     }
 
     @Override
@@ -104,7 +109,7 @@ public class GenerateTreeGui extends AbstractConfigGui
         addElements(MenuFactory.LISTENERS,       "Listeners",       guiPackage, treeModel, myTarget);
     }
 
-    private static void addElements(
+    private void addElements(
             String menuKey, String title, GuiPackage guiPackage,
             JMeterTreeModel treeModel, JMeterTreeNode myTarget) {
 
@@ -172,7 +177,7 @@ public class GenerateTreeGui extends AbstractConfigGui
      * @param name  A name for the Controller
      * @return the new node
      */
-    private static JMeterTreeNode addSimpleController(JMeterTreeModel model, JMeterTreeNode node, String name) {
+    private JMeterTreeNode addSimpleController(JMeterTreeModel model, JMeterTreeNode node, String name) {
         final TestElement sc = new GenericController();
         sc.setProperty(TestElement.GUI_CLASS, LOGIC_CONTROLLER_GUI);
         sc.setProperty(TestElement.NAME, name); // Use old style
@@ -202,7 +207,7 @@ public class GenerateTreeGui extends AbstractConfigGui
         }
     }
 
-    private static JMeterTreeNode addToTree(final JMeterTreeModel model,
+    private JMeterTreeNode addToTree(final JMeterTreeModel model,
             final JMeterTreeNode node, final TestElement sc) {
         RunGUI runnable = new RunGUI(model, node, sc);
         if(SwingUtilities.isEventDispatchThread()) {
@@ -227,7 +232,7 @@ public class GenerateTreeGui extends AbstractConfigGui
      * @return the first node of the given type in the test component tree, or
      * <code>null</code> if none was found.
      */
-    private static JMeterTreeNode findFirstNodeOfType(Class<?> type, JMeterTreeModel treeModel) {
+    private JMeterTreeNode findFirstNodeOfType(Class<?> type, JMeterTreeModel treeModel) {
         return treeModel.getNodesOfType(type).stream()
                 .filter(JMeterTreeNode::isEnabled)
                 .findFirst()

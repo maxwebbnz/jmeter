@@ -68,7 +68,6 @@ public class BeanShellPreProcessor extends BeanShellTestElement
     }
 
     @Override
-    @SuppressWarnings("RedundantOverride")
     public Object clone() {
         return super.clone();
     }

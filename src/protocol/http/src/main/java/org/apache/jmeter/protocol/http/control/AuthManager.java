@@ -97,10 +97,10 @@ public class AuthManager extends ConfigTestElement implements TestStateListener,
 
     private static final boolean DEFAULT_CLEAR_VALUE = false;
 
-    /** Decides whether port should be omitted from SPN for Kerberos SPNEGO authentication */
+    /** Decides whether port should be omitted from SPN for kerberos spnego authentication */
     public static final boolean STRIP_PORT = JMeterUtils.getPropDefault("kerberos.spnego.strip_port", true);
 
-    /** Decides whether SPN for Kerberos SPNEGO authentication should be acquired for the canonicalized host name*/
+    /** Decides whether port should be omitted from SPN for kerberos spnego authentication */
     public static final boolean USE_CANONICAL_HOST_NAME = JMeterUtils.getPropDefault("kerberos.spnego.use_canonical_host_name", true);
 
     public enum Mechanism {
@@ -135,7 +135,7 @@ public class AuthManager extends ConfigTestElement implements TestStateListener,
         }
     }
 
-    private final KerberosManager kerberosManager = new KerberosManager();
+    private KerberosManager kerberosManager = new KerberosManager();
 
     /**
      * Default Constructor.
@@ -503,7 +503,7 @@ public class AuthManager extends ConfigTestElement implements TestStateListener,
      * @param url to be checked
      * @return <code>true</code> when port should omitted in SPN
      */
-    private static boolean isStripPort(URL url) {
+    private boolean isStripPort(URL url) {
         if (STRIP_PORT) {
             return true;
         }
@@ -518,7 +518,7 @@ public class AuthManager extends ConfigTestElement implements TestStateListener,
      * @param b {@link Authorization}
      * @return true if a and b match
      */
-    private static boolean match(Authorization a, Authorization b){
+    private boolean match(Authorization a, Authorization b){
         return
                 a.getURL().equals(b.getURL())&&
                 a.getDomain().equals(b.getDomain())&&

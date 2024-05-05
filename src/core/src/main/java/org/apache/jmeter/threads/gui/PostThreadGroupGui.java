@@ -38,7 +38,9 @@ public class PostThreadGroupGui extends ThreadGroupGui implements ItemListener {
     }
 
     @Override
-    public TestElement makeTestElement() {
-        return new PostThreadGroup();
+    public TestElement createTestElement() {
+        PostThreadGroup tg = new PostThreadGroup();
+        modifyTestElement(tg);
+        return tg;
     }
 }

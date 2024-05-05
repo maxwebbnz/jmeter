@@ -124,8 +124,8 @@ public class TemplateManager {
     }
 
     public static final class LoggingErrorHandler implements ErrorHandler {
-        private final Logger logger;
-        private final File file;
+        private Logger logger;
+        private File file;
 
         public LoggingErrorHandler(Logger logger, File file) {
             this.logger = logger;
@@ -188,7 +188,7 @@ public class TemplateManager {
      * @param templates Map of {@link Template} referenced by name
      * @param templateNode {@link Node} the xml template node
      */
-    static void parseTemplateNode(Map<? super String, ? super Template> templates, Node templateNode) {
+    void parseTemplateNode(Map<String, Template> templates, Node templateNode) {
         if (templateNode.getNodeType() == Node.ELEMENT_NODE) {
             Template template = new Template();
             Element element =  (Element) templateNode;
@@ -206,11 +206,11 @@ public class TemplateManager {
         }
     }
 
-    private static String textOfFirstTag(Element element, String tagName) {
+    private String textOfFirstTag(Element element, String tagName) {
         return element.getElementsByTagName(tagName).item(0).getTextContent();
     }
 
-    private static Map<String, String> parseParameterNodes(NodeList parameterNodes) {
+    private Map<String, String> parseParameterNodes(NodeList parameterNodes) {
         Map<String, String> parametersMap = new HashMap<>();
         for (int i = 0; i < parameterNodes.getLength(); i++) {
             Element element =  (Element) parameterNodes.item(i);

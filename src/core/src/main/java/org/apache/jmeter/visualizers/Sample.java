@@ -208,7 +208,7 @@ public class Sample implements Serializable, Comparable<Sample> {
      * @return the start time using the specified format
      * Intended for use from Functors
      */
-    @SuppressWarnings("JavaUtilDate")
+    @SuppressWarnings("JdkObsolete")
     public String getStartTimeFormatted(Format format) {
         return format.format(new Date(getStartTime()));
     }

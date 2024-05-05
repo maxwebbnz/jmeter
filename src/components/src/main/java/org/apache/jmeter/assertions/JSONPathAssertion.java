@@ -19,10 +19,7 @@ package org.apache.jmeter.assertions;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.testelement.AbstractTestElement;
@@ -34,7 +31,6 @@ import org.slf4j.LoggerFactory;
 
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
-import net.minidev.json.JSONValue;
 
 import com.jayway.jsonpath.JsonPath;
 
@@ -53,14 +49,11 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
     public static final String INVERT = "INVERT";
     public static final String ISREGEX = "ISREGEX";
 
-    private static final boolean USE_JAVA_REGEX = !JMeterUtils.getPropDefault(
-            "jmeter.regex.engine", "oro").equalsIgnoreCase("oro");
-
-    private static final ThreadLocal<DecimalFormat> decimalFormatter =
+    private static ThreadLocal<DecimalFormat> decimalFormatter =
             ThreadLocal.withInitial(JSONPathAssertion::createDecimalFormat);
 
     private static DecimalFormat createDecimalFormat() {
-        DecimalFormat decimalFormatter = new DecimalFormat("#.#", new DecimalFormatSymbols(Locale.US));
+        DecimalFormat decimalFormatter = new DecimalFormat("#.#");
         decimalFormatter.setMaximumFractionDigits(340); // java.text.DecimalFormat.DOUBLE_FRACTION_DIGITS == 340
         decimalFormatter.setMinimumFractionDigits(1);
         return decimalFormatter;
@@ -117,13 +110,6 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
         Object value = JsonPath.read(jsonString, getJsonPath());
 
         if (!isJsonValidationBool()) {
-            if (value instanceof JSONArray) {
-                JSONArray arrayValue = (JSONArray) value;
-                if (arrayValue.isEmpty() && !JsonPath.isPathDefinite(getJsonPath())) {
-                    throw new IllegalStateException(String.format("JSONPath '%s' is indefinite and the extracted Value is an empty Array." +
-                            " Please use an assertion value, to be sure to get a correct result. Expected value was '%s'", getJsonPath(), getExpectedValue()));
-                }
-            }
             return;
         }
 
@@ -139,15 +125,15 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
         }
 
         if (isExpectNull()) {
-            throw new IllegalStateException(String.format("Value in json path '%s' expected to be null, but found '%s'", getJsonPath(), value));
+            throw new IllegalStateException(String.format("Value expected to be null, but found '%s'", value));
         } else {
             String msg;
             if (isUseRegex()) {
-                msg = "Value in json path '%s' expected to match regexp '%s', but it did not match: '%s'";
+                msg = "Value expected to match regexp '%s', but it did not match: '%s'";
             } else {
-                msg = "Value in json path '%s' expected to be '%s', but found '%s'";
+                msg = "Value expected to be '%s', but found '%s'";
             }
-            throw new IllegalStateException(String.format(msg, getJsonPath(), getExpectedValue(), objectToString(value)));
+            throw new IllegalStateException(String.format(msg, getExpectedValue(), objectToString(value)));
         }
     }
 
@@ -167,17 +153,12 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
     }
 
     private boolean isEquals(Object subj) {
+        String str = objectToString(subj);
         if (isUseRegex()) {
-            String str = objectToString(subj);
-            if (USE_JAVA_REGEX) {
-                return JMeterUtils.compilePattern(getExpectedValue()).matcher(str).matches();
-            } else {
-                Pattern pattern = JMeterUtils.getPatternCache().getPattern(getExpectedValue());
-                return JMeterUtils.getMatcher().matches(str, pattern);
-            }
+            Pattern pattern = JMeterUtils.getPatternCache().getPattern(getExpectedValue());
+            return JMeterUtils.getMatcher().matches(str, pattern);
         } else {
-            Object expected = JSONValue.parse(getExpectedValue());
-            return Objects.equals(expected, subj);
+            return str.equals(getExpectedValue());
         }
     }
 

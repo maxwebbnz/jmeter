@@ -90,8 +90,6 @@ public class SearchTreeDialog extends JDialog implements ActionListener { // NOS
 
     private JButton replaceAndFindButton;
 
-    private JButton resetSearchButton;
-
     private JButton cancelButton;
 
     private JTextField searchTF;
@@ -107,7 +105,7 @@ public class SearchTreeDialog extends JDialog implements ActionListener { // NOS
 
     private transient Triple<String, Boolean, Boolean> lastSearchConditions = null;
 
-    private final List<JMeterTreeNode> lastSearchResult = new ArrayList<>();
+    private List<JMeterTreeNode> lastSearchResult = new ArrayList<>();
     private int currentSearchIndex;
 
     @VisibleForTesting
@@ -189,10 +187,6 @@ public class SearchTreeDialog extends JDialog implements ActionListener { // NOS
         searchPanel.add(replaceTF);
         searchPanel.add(statusLabel, "span 2");
         searchPanel.add(searchCriterionPanel, "span 2");
-        resetSearchButton = createButton("menu_search_reset");
-        resetSearchButton.addActionListener(this);
-        searchPanel.add(resetSearchButton);
-
 
         JPanel buttonsPanel = new JPanel(new GridLayout(9, 1));
         searchButton = createButton("search_search_all"); //$NON-NLS-1$
@@ -232,7 +226,7 @@ public class SearchTreeDialog extends JDialog implements ActionListener { // NOS
         ComponentUtil.centerComponentInWindow(this);
     }
 
-    private static JButton createButton(String messageKey) {
+    private JButton createButton(String messageKey) {
         return new JButton(JMeterUtils.getResString(messageKey));
     }
 
@@ -262,17 +256,7 @@ public class SearchTreeDialog extends JDialog implements ActionListener { // NOS
                 doReplace();
             }
             doNavigateToSearchResult(true);
-        } else if(source == resetSearchButton) {
-            doResetSearch(e);
         }
-    }
-
-
-    /**
-    * Provides Reset Search Action
-    */
-    private static void doResetSearch(ActionEvent event) {
-        ActionRouter.getInstance().doActionNow(new ActionEvent(event.getSource(), event.getID(), ActionNames.SEARCH_RESET));
     }
 
     /**
@@ -403,7 +387,7 @@ public class SearchTreeDialog extends JDialog implements ActionListener { // NOS
      * @param expand true if we want to expand
      * @param nodes Set of {@link JMeterTreeNode} to mark
      */
-    private static void markConcernedNodes(boolean expand, Set<? extends JMeterTreeNode> nodes) {
+    private void markConcernedNodes(boolean expand, Set<JMeterTreeNode> nodes) {
         GuiPackage guiInstance = GuiPackage.getInstance();
         JTree jTree = guiInstance.getMainFrame().getTree();
         for (JMeterTreeNode jMeterTreeNode : nodes) {
@@ -467,7 +451,7 @@ public class SearchTreeDialog extends JDialog implements ActionListener { // NOS
      * @param caseSensitiveReplacement boolean if search is case sensitive
      * @return null if no replacement occurred or Pair of (number of replacement, current tree node)
      */
-    private static Pair<Integer, JMeterTreeNode> doReplacementInCurrentNode(JMeterTreeNode jMeterTreeNode,
+    private Pair<Integer, JMeterTreeNode> doReplacementInCurrentNode(JMeterTreeNode jMeterTreeNode,
             String regex, String replaceBy, boolean caseSensitiveReplacement) {
         try {
             if (jMeterTreeNode.getUserObject() instanceof Replaceable) {

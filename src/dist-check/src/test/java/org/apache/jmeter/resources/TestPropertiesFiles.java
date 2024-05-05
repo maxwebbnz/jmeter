@@ -17,8 +17,8 @@
 
 package org.apache.jmeter.resources;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,7 +34,7 @@ public class TestPropertiesFiles extends JMeterTestCase {
     @Test
     public void testUserProperties() throws Exception {
         Properties props = loadProps(new File(JMeterUtils.getJMeterBinDir(), "user.properties"));
-        assertTrue(props.isEmpty(), "user.properties should not contain any enabled properties");
+        assertTrue("user.properties should not contain any enabled properties", props.isEmpty());
     }
 
     // The keys in jmeter.properties and reportgenerator.properties should be distinct
@@ -45,12 +45,12 @@ public class TestPropertiesFiles extends JMeterTestCase {
         Enumeration<?> jmeterNames = jmeter.propertyNames();
         while (jmeterNames.hasMoreElements()) {
             final Object key = jmeterNames.nextElement();
-            assertFalse(report.containsKey(key), "reportgenerator should not contain the jmeter key " + key);
+            assertFalse("reportgenerator should not contain the jmeter key " + key, report.containsKey(key));
         }
         Enumeration<?> reportNames = report.propertyNames();
         while (reportNames.hasMoreElements()) {
             final Object key = reportNames.nextElement();
-            assertFalse(jmeter.containsKey(key), "jmeter should not contain the reportgenerator key " + key);
+            assertFalse("jmeter should not contain the reportgenerator key " + key, jmeter.containsKey(key));
         }
     }
 

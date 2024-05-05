@@ -38,7 +38,7 @@ public class BooleanPropertyEditor extends PropertyEditorSupport {
         return value instanceof Boolean ?  toString((Boolean) value) : null;
     }
 
-    private static String toString(Boolean value) {
+    private String toString(Boolean value) {
         return value ? TRUE : FALSE;
     }
 

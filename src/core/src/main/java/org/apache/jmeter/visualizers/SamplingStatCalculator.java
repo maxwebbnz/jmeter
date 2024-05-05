@@ -34,7 +34,7 @@ public class SamplingStatCalculator {
 
     private long firstTime;
 
-    private final String label;
+    private String label;
 
     private volatile Sample currentSample;
 

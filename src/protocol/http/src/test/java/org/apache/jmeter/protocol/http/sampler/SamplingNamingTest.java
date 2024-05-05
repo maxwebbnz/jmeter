@@ -17,47 +17,55 @@
 
 package org.apache.jmeter.protocol.http.sampler;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.stream.Stream;
+import static org.junit.Assert.assertEquals;
 
 import org.apache.jmeter.junit.JMeterTestCase;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.testelement.TestPlan;
 import org.apache.jorphan.test.JMeterSerialTest;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
-class SamplingNamingTest extends JMeterTestCase implements JMeterSerialTest {
+@RunWith(Parameterized.class)
+public class SamplingNamingTest extends JMeterTestCase implements JMeterSerialTest {
     private static final String JMETER_HOME_PAGE = "https://jmeter.apache.org";
     private static final String LABEL = "JMeter-HP";
+    private String implementation;
 
-    private static Stream<Arguments> getImplementations() {
-        return Stream.of(
-                Arguments.of(HTTPSamplerFactory.IMPL_HTTP_CLIENT4),
-                Arguments.of(HTTPSamplerFactory.IMPL_JAVA));
+    public SamplingNamingTest(String implementation) {
+        this.implementation = implementation;
     }
 
-    @ParameterizedTest(name="Run {index}: implementation:{0}")
-    @Disabled(value = "Test produces: We should have at least one sample result, we had none too often")
-    @MethodSource("getImplementations")
-    void testBug63364(String implementation) {
+    @Parameters(name = "Run {index}: implementation:{0}")
+    public static String[] getImplementations() {
+        return new String[]{
+                HTTPSamplerFactory.IMPL_HTTP_CLIENT4,
+                HTTPSamplerFactory.IMPL_JAVA};
+    }
+
+    @Test
+    @Ignore(value = "Test produces: We should have at least one sample result, we had none too often")
+    @Parameters(name = "getImplementations")
+    public void testBug63364() {
         TestPlan plan = new TestPlan();
         SampleResult[] subResults = doSample(implementation);
-        assertTrue(subResults.length > 0, "We should have at least one sample result, we had none");
+        Assert.assertTrue("We should have at least one sample result, we had none", subResults.length > 0);
         for (int i = 0; i < subResults.length; i++) {
-            assertEquals(LABEL + "-" + i, subResults[i].getSampleLabel(), "Expected sample label to be " + LABEL + "-" + i);
+            assertEquals("Expected sample label to be " + LABEL + "-" + i, LABEL + "-" + i,
+                    subResults[i].getSampleLabel());
         }
         final boolean prevValue = TestPlan.getFunctionalMode();
         plan.setFunctionalMode(true);
         try {
             subResults = doSample(implementation);
-            assertTrue(subResults.length > 0, "We should have at least one sample result, we had none");
+            Assert.assertTrue("We should have at least one sample result, we had none", subResults.length > 0);
             for (SampleResult subResult : subResults) {
-                assertTrue(subResult.getSampleLabel().startsWith(JMETER_HOME_PAGE), "Expected sample label to start with " + JMETER_HOME_PAGE);
+                Assert.assertTrue("Expected sample label to start with " + JMETER_HOME_PAGE,
+                        subResult.getSampleLabel().startsWith(JMETER_HOME_PAGE));
             }
         } finally {
             plan.setFunctionalMode(prevValue);
@@ -79,7 +87,7 @@ class SamplingNamingTest extends JMeterTestCase implements JMeterSerialTest {
         // We intentionally keep only resources which start with JMETER_HOME_PAGE
         httpSamplerProxy.setEmbeddedUrlRE(JMETER_HOME_PAGE + ".*");
         SampleResult result = httpSamplerProxy.sample();
-        assertEquals(LABEL, result.getSampleLabel(), "Expected sample label to be " + LABEL);
+        assertEquals("Expected sample label to be " + LABEL, LABEL, result.getSampleLabel());
         return result.getSubResults();
     }
 }

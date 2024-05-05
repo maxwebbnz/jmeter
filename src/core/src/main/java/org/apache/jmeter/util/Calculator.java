@@ -17,11 +17,6 @@
 
 package org.apache.jmeter.util;
 
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.DoubleAdder;
-import java.util.concurrent.atomic.LongAccumulator;
-import java.util.concurrent.atomic.LongAdder;
-
 import org.apache.jmeter.samplers.SampleResult;
 
 /**
@@ -35,27 +30,31 @@ import org.apache.jmeter.samplers.SampleResult;
  */
 public class Calculator {
 
-    private final DoubleAdder sum = new DoubleAdder();
+    private double sum = 0;
 
-    private final DoubleAdder sumOfSquares = new DoubleAdder();
+    private double sumOfSquares = 0;
 
-    private final LongAdder count = new LongAdder();
+    private double mean = 0;
 
-    private final LongAdder bytes = new LongAdder();
+    private double deviation = 0;
 
-    private final LongAdder sentBytes = new LongAdder();
+    private int count = 0;
 
-    private final AtomicLong maximum = new AtomicLong();
+    private long bytes = 0;
 
-    private final AtomicLong minimum = new AtomicLong();
+    private long sentBytes = 0;
 
-    private final LongAdder errors = new LongAdder();
+    private long maximum = Long.MIN_VALUE;
+
+    private long minimum = Long.MAX_VALUE;
+
+    private int errors = 0;
 
     private final String label;
 
-    private final AtomicLong startTime = new AtomicLong();
+    private long startTime = 0;
 
-    private final LongAccumulator elapsedTime = new LongAccumulator(Math::max, Long.MIN_VALUE);
+    private long elapsedTime = 0;
 
     public Calculator() {
         this("");
@@ -63,20 +62,21 @@ public class Calculator {
 
     public Calculator(String label) {
         this.label = label;
-        clear();
     }
 
     public void clear() {
-        maximum.set(Long.MIN_VALUE);
-        minimum.set(Long.MAX_VALUE);
-        sum.reset();
-        sumOfSquares.reset();
-        count.reset();
-        bytes.reset();
-        sentBytes.reset();
-        errors.reset();
-        startTime.set(Long.MAX_VALUE);
-        elapsedTime.reset();
+        maximum = Long.MIN_VALUE;
+        minimum = Long.MAX_VALUE;
+        sum = 0;
+        sumOfSquares = 0;
+        mean = 0;
+        deviation = 0;
+        count = 0;
+        bytes = 0;
+        sentBytes = 0;
+        errors = 0;
+        startTime = 0;
+        elapsedTime = 0;
     }
 
     /**
@@ -87,31 +87,23 @@ public class Calculator {
      * @param sampleCount number of samples included in the value
      */
     private void addValue(long newValue, int sampleCount) {
-        count.add(sampleCount);
-        sum.add((double) newValue);
-        long value;
-        double extraSumOfSquares;
-        if (sampleCount > 1) {
-            value = newValue / sampleCount;
+        count += sampleCount;
+        double currentVal = newValue;
+        sum += currentVal;
+        if (sampleCount > 1){
+            minimum=Math.min(newValue/sampleCount, minimum);
+            maximum=Math.max(newValue/sampleCount, maximum);
             // For n values in an aggregate sample the average value = (val/n)
             // So need to add n * (val/n) * (val/n) = val * val / n
-            extraSumOfSquares = ((double) newValue * (double) newValue) / sampleCount;
+            sumOfSquares += (currentVal * currentVal) / sampleCount;
         } else { // no point dividing by 1
-            value = newValue;
-            extraSumOfSquares = (double) newValue * (double) newValue;
+            minimum=Math.min(newValue, minimum);
+            maximum=Math.max(newValue, maximum);
+            sumOfSquares += currentVal * currentVal;
         }
-        sumOfSquares.add(extraSumOfSquares);
-
-        long currentMinimum = minimum.get();
-        if (currentMinimum > value) {
-            // We don't expect minimum to update often
-            minimum.accumulateAndGet(value, Math::min);
-        }
-        long currentMaximum = maximum.get();
-        if (currentMaximum < value) {
-            // We don't expect the maximum to update often
-            maximum.accumulateAndGet(value, Math::max);
-        }
+        // Calculate each time, as likely to be called for each add
+        mean = sum / count;
+        deviation = Math.sqrt((sumOfSquares / count) - (mean * mean));
     }
 
     /**
@@ -123,14 +115,13 @@ public class Calculator {
         addBytes(res.getBytesAsLong());
         addSentBytes(res.getSentBytes());
         addValue(res.getTime(),res.getSampleCount());
-        errors.add(res.getErrorCount()); // account for multiple samples
-        long testStarted = startTime.get();
-        // accumulateAndGet always performs the mutation, however, the "test start" timestamp is stable,
-        // so we expect only a few operations to go through the slow path of accumulateAndGet
-        if (res.getStartTime() < testStarted) {
-            testStarted = startTime.accumulateAndGet(res.getStartTime(), Math::min);
+        errors+=res.getErrorCount(); // account for multiple samples
+        if (startTime == 0){ // not yet initialised
+            startTime=res.getStartTime();
+        } else {
+            startTime = Math.min(startTime, res.getStartTime());
         }
-        elapsedTime.accumulate(res.getEndTime() - testStarted);
+        elapsedTime = Math.max(elapsedTime, res.getEndTime()-startTime);
     }
 
     /**
@@ -138,7 +129,7 @@ public class Calculator {
      * @param newValue received bytes
      */
     public void addBytes(long newValue) {
-        bytes.add(newValue);
+        bytes += newValue;
     }
 
     /**
@@ -146,54 +137,36 @@ public class Calculator {
      * @param value sent bytes
      */
     private void addSentBytes(long value) {
-        sentBytes.add(value);
+        sentBytes += value;
     }
 
     public long getTotalBytes() {
-        return bytes.sum();
+        return bytes;
     }
 
 
     public double getMean() {
-        double sum = this.sum.sum();
-        double count = this.count.sum();
-        if (count == 0) {
-            return 0.0;
-        }
-        return sum / count;
+        return mean;
     }
 
     public Number getMeanAsNumber() {
-        // It was long in previous releases, so let's keep it that way for now
-        return (long) getMean();
+        return (long) mean;
     }
 
     public double getStandardDeviation() {
-        double sum = this.sum.sum();
-        double sumOfSquares = this.sumOfSquares.sum();
-        double count = this.count.sum();
-        // Just in case
-        if (count == 0) {
-            return 0.0;
-        }
-        double mean = sum / count;
-        return Math.sqrt((sumOfSquares / count) - (mean * mean));
+        return deviation;
     }
 
     public long getMin() {
-        return minimum.get();
+        return minimum;
     }
 
     public long getMax() {
-        return maximum.get();
+        return maximum;
     }
 
     public int getCount() {
-        return (int) getCountLong();
-    }
-
-    public long getCountLong() {
-        return count.sum();
+        return count;
     }
 
     public String getLabel() {
@@ -208,11 +181,13 @@ public class Calculator {
      *         that were recorded.
      */
     public double getErrorPercentage() {
-        long count = this.count.sum();
+        double rval = 0.0;
+
         if (count == 0) {
-            return 0.0;
+            return rval;
         }
-        return errors.sum() / (double) count;
+        rval = (double) errors / (double) count;
+        return rval;
     }
 
     /**
@@ -224,7 +199,7 @@ public class Calculator {
      * @return throughput associated to this sampler in requests per second
      */
     public double getRate() {
-        return getRatePerSecond(count.sum());
+        return getRatePerSecond(count);
     }
 
     /**
@@ -234,10 +209,8 @@ public class Calculator {
      * @return average page size in bytes
      */
     public double getAvgPageBytes() {
-        long count = this.count.sum();
-        long bytes = this.bytes.sum();
         if (count > 0 && bytes > 0) {
-            return ((double) bytes) / count;
+            return (double) bytes / count;
         }
         return 0.0;
     }
@@ -248,7 +221,7 @@ public class Calculator {
      * @return throughput in bytes/second
      */
     public double getBytesPerSecond() {
-        return getRatePerSecond(bytes.sum());
+        return getRatePerSecond(bytes);
     }
 
     /**
@@ -266,7 +239,7 @@ public class Calculator {
      * @return throughput in bytes/second
      */
     public double getSentBytesPerSecond() {
-        return getRatePerSecond(sentBytes.sum());
+        return getRatePerSecond(sentBytes);
     }
 
     /**
@@ -284,7 +257,6 @@ public class Calculator {
      * @return double rate
      */
     private double getRatePerSecond(long value) {
-        long elapsedTime = this.elapsedTime.get();
         if (elapsedTime > 0) {
             return value / ((double) elapsedTime / 1000); // 1000 = millisecs/sec
         }

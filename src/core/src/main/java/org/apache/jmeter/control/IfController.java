@@ -26,7 +26,7 @@ import javax.script.SimpleScriptContext;
 
 import org.apache.jmeter.samplers.Sampler;
 import org.apache.jmeter.testelement.ThreadListener;
-import org.apache.jmeter.testelement.schema.PropertiesAccessor;
+import org.apache.jmeter.testelement.property.StringProperty;
 import org.apache.jmeter.util.JMeterUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
@@ -67,6 +67,12 @@ public class IfController extends GenericController implements Serializable, Thr
 
     private static final String NASHORN_ENGINE_NAME = "nashorn"; //$NON-NLS-1$
 
+    private static final String CONDITION = "IfController.condition"; //$NON-NLS-1$
+
+    private static final String EVALUATE_ALL = "IfController.evaluateAll"; //$NON-NLS-1$
+
+    private static final String USE_EXPRESSION = "IfController.useExpression"; //$NON-NLS-1$
+
     private static final String USE_RHINO_ENGINE_PROPERTY = "javascript.use_rhino"; //$NON-NLS-1$
 
     private static final boolean USE_RHINO_ENGINE =
@@ -90,6 +96,7 @@ public class IfController extends GenericController implements Serializable, Thr
             try {
                 Scriptable scope = cx.initStandardObjects(null);
                 Object cxResultObject = cx.evaluateString(scope, condition
+                /** * conditionString ** */
                 , "<cmd>", 1, null);
                 result = computeResultFromString(condition, Context.toString(cxResultObject));
             } catch (Exception e) {
@@ -116,7 +123,7 @@ public class IfController extends GenericController implements Serializable, Thr
         }
     }
 
-    private static final JsEvaluator JAVASCRIPT_EVALUATOR = USE_RHINO_ENGINE ? new RhinoJsEngine() : new NashornJsEngine();
+    private static JsEvaluator JAVASCRIPT_EVALUATOR = USE_RHINO_ENGINE ? new RhinoJsEngine() : new NashornJsEngine();
 
     /**
      * Initialization On Demand Holder pattern
@@ -147,22 +154,12 @@ public class IfController extends GenericController implements Serializable, Thr
         this.setCondition(condition);
     }
 
-    @Override
-    public IfControllerSchema getSchema() {
-        return IfControllerSchema.INSTANCE;
-    }
-
-    @Override
-    public PropertiesAccessor<? extends IfController, ? extends IfControllerSchema> getProps() {
-        return new PropertiesAccessor<>(this, getSchema());
-    }
-
     /**
      * Condition Accessor - this is gonna be like <code>${count} &lt; 10</code>
      * @param condition The condition for this controller
      */
     public void setCondition(String condition) {
-        set(getSchema().getCondition(), condition);
+        setProperty(new StringProperty(CONDITION, condition));
     }
 
     /**
@@ -170,7 +167,7 @@ public class IfController extends GenericController implements Serializable, Thr
      * @return the condition associated with this controller
      */
     public String getCondition() {
-        return get(getSchema().getCondition()).trim();
+        return getPropertyAsString(CONDITION).trim();
     }
 
     /**
@@ -206,7 +203,6 @@ public class IfController extends GenericController implements Serializable, Thr
 
 
     private static boolean evaluateExpression(String cond) {
-        log.debug("    >> evaluate Expression [{}] equals (ignoring case) 'true'", cond);
         return cond.equalsIgnoreCase("true"); // $NON-NLS-1$
     }
 
@@ -258,19 +254,19 @@ public class IfController extends GenericController implements Serializable, Thr
     }
 
     public boolean isEvaluateAll() {
-        return get(getSchema().getEvaluateAll());
+        return getPropertyAsBoolean(EVALUATE_ALL,false);
     }
 
     public void setEvaluateAll(boolean b) {
-        set(getSchema().getEvaluateAll(), b);
+        setProperty(EVALUATE_ALL,b);
     }
 
     public boolean isUseExpression() {
-        return get(getSchema().getUseExpression());
+        return getPropertyAsBoolean(USE_EXPRESSION, false);
     }
 
     public void setUseExpression(boolean selected) {
-        set(getSchema().getUseExpression(), selected);
+        setProperty(USE_EXPRESSION, selected, false);
     }
 
     @Override

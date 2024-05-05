@@ -50,11 +50,11 @@ public class WireMockExtension implements BeforeEachCallback, BeforeAllCallback,
         return getServer(extensionContext);
     }
 
-    private static ExtensionContext.Store getStore(ExtensionContext context) {
+    private ExtensionContext.Store getStore(ExtensionContext context) {
         return context.getStore(NAMESPACE);
     }
 
-    private static WireMockServer getServer(ExtensionContext context) {
+    private WireMockServer getServer(ExtensionContext context) {
         return getStore(context).get("server", WireMockServer.class);
     }
 

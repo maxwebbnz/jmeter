@@ -17,8 +17,6 @@
 
 package org.apache.jmeter.visualizers.backend;
 
-import java.util.Locale;
-
 import org.apache.jmeter.util.JMeterUtils;
 
 /**
@@ -37,6 +35,6 @@ public enum WindowMode {
      */
     public static WindowMode get() {
         String name = JMeterUtils.getPropDefault("backend_metrics_window_mode", FIXED.name());
-        return WindowMode.valueOf(name.toUpperCase(Locale.ROOT));
+        return WindowMode.valueOf(name.toUpperCase());
     }
 }

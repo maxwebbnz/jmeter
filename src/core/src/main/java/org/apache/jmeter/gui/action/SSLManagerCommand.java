@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Set;
 
 import javax.swing.JFileChooser;
@@ -31,8 +30,6 @@ import javax.swing.filechooser.FileFilter;
 import org.apache.jmeter.gui.GuiPackage;
 import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jmeter.util.SSLManager;
-
-import com.google.auto.service.AutoService;
 
 //
 /**
@@ -54,7 +51,6 @@ import com.google.auto.service.AutoService;
  * already defined via the property.
  *
  */
-@AutoService(Command.class)
 public class SSLManagerCommand extends AbstractAction {
     private static final Set<String> commandSet;
     static {
@@ -71,7 +67,7 @@ public class SSLManagerCommand extends AbstractAction {
     @Override
     public void doAction(ActionEvent e) {
         if (e.getActionCommand().equals(ActionNames.SSL_MANAGER)) {
-            SSLManagerCommand.sslManager();
+            this.sslManager();
         }
     }
 
@@ -87,7 +83,7 @@ public class SSLManagerCommand extends AbstractAction {
      * Called by sslManager button. Raises sslManager dialog.
      * I.e. a FileChooser for PCSI12 (.p12|.P12) or JKS files.
      */
-    private static void sslManager() {
+    private void sslManager() {
         SSLManager.reset();
 
         JFileChooser keyStoreChooser = new JFileChooser(System.getProperty("user.dir")); //$NON-NLS-1$
@@ -131,7 +127,7 @@ public class SSLManagerCommand extends AbstractAction {
          */
         @Override
         public boolean accept(File testFile) {
-            String lowerCaseName = testFile.getName().toLowerCase(Locale.ROOT);
+            String lowerCaseName = testFile.getName().toLowerCase();
             return testFile.isDirectory()
             || lowerCaseName.endsWith(".p12")  //$NON-NLS-1$
             || lowerCaseName.endsWith(".jks")

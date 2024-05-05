@@ -20,7 +20,6 @@ package org.apache.jmeter.functions;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 
 import org.apache.jmeter.engine.util.CompoundVariable;
 import org.apache.jmeter.samplers.SampleResult;
@@ -29,8 +28,6 @@ import org.apache.jmeter.util.JMeterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
-
-import com.google.auto.service.AutoService;
 
 /**
  * <p>
@@ -48,7 +45,6 @@ import com.google.auto.service.AutoService;
  * Returns: - the input string
  * @since 2.2
  */
-@AutoService(Function.class)
 public class LogFunction extends AbstractFunction {
     private static final Logger log = LoggerFactory.getLogger(LogFunction.class);
 
@@ -145,7 +141,7 @@ public class LogFunction extends AbstractFunction {
      */
     static synchronized void logDetails(Logger logger, String stringToLog, String priorityString, Throwable throwable,
             String comment) {
-        String prio = priorityString.trim().toUpperCase(Locale.ROOT);
+        String prio = priorityString.trim().toUpperCase();
 
         if ("OUT".equals(prio)) {//$NON-NLS-1
             printDetails(System.out, stringToLog, throwable, comment);
@@ -179,6 +175,8 @@ public class LogFunction extends AbstractFunction {
                 case TRACE:
                     logger.trace("{} {} {}", threadName, separator, stringToLog, throwable);
                     break;
+                default:
+                    throw new IllegalStateException("Invalid log level");
             }
         }
     }

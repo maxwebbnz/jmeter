@@ -15,10 +15,6 @@
  * limitations under the License.
  */
 
-plugins {
-    id("build-logic.jvm-library")
-}
-
 tasks.named<Jar>(JavaPlugin.JAR_TASK_NAME) {
     manifest {
         attributes["Main-Class"] = "org.apache.jmeter.util.BeanShellClient"

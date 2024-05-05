@@ -17,8 +17,10 @@
 
 package org.apache.jmeter.functions;
 
-import java.util.ArrayList;
+import static org.junit.Assert.assertEquals;
+
 import java.util.Collection;
+import java.util.LinkedList;
 
 import org.apache.jmeter.engine.util.CompoundVariable;
 import org.apache.jmeter.junit.JMeterTestCase;
@@ -28,7 +30,7 @@ import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.threads.JMeterVariables;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
-import org.junit.jupiter.api.Assertions;
+import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -41,7 +43,7 @@ public class TestRandomFromMultipleVars extends JMeterTestCase {
     private JMeterContext jmctx;
 
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         result = new SampleResult();
         jmctx = JMeterContextService.getContext();
         String data = "The quick brown fox";
@@ -50,16 +52,16 @@ public class TestRandomFromMultipleVars extends JMeterTestCase {
         vars = new JMeterVariables();
         jmctx.setVariables(vars);
         jmctx.setPreviousResult(result);
-        params = new ArrayList<>();
+        params = new LinkedList<>();
     }
 
     @Test
-    void testParameterCount() throws Exception {
+    public void testParameterCount() throws Exception {
         checkInvalidParameterCounts(function, 1, 2);
     }
 
     @Test
-    void testExtractionFromMultipleVars() throws Exception {
+    public void testExtractionFromMultipleVars() throws Exception {
         String existingVarName1 = "var1";
         String existingVarName2 = "var2";
         vars.put(existingVarName1+"_matchNr", "1");
@@ -76,7 +78,7 @@ public class TestRandomFromMultipleVars extends JMeterTestCase {
                 CoreMatchers.anyOf(CoreMatchers.is("var1_value"),
                         CoreMatchers.is("var2_value1"),
                         CoreMatchers.is("var2_value2")));
-        Assertions.assertNull(vars.get("outputVar"));
+        Assert.assertNull(vars.get("outputVar"));
     }
 
     @Test
@@ -87,8 +89,8 @@ public class TestRandomFromMultipleVars extends JMeterTestCase {
         params.add(new CompoundVariable("var1"));
         function.setParameters(params);
         String returnValue = function.execute(result, null);
-        Assertions.assertEquals("value1", returnValue);
-        Assertions.assertNull(vars.get("outputVar"));
+        assertEquals("value1", returnValue);
+        Assert.assertNull(vars.get("outputVar"));
     }
 
     @Test
@@ -100,7 +102,7 @@ public class TestRandomFromMultipleVars extends JMeterTestCase {
         params.add(new CompoundVariable("outputVar"));
         function.setParameters(params);
         String returnValue = function.execute(result, null);
-        Assertions.assertEquals("value1", returnValue);
-        Assertions.assertEquals("value1", vars.get("outputVar"));
+        assertEquals("value1", returnValue);
+        assertEquals("value1", vars.get("outputVar"));
     }
 }

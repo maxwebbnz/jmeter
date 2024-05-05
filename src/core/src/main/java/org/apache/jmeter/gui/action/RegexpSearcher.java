@@ -18,6 +18,7 @@
 package org.apache.jmeter.gui.action;
 
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
@@ -27,8 +28,8 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class RegexpSearcher implements Searcher {
 
-    private final boolean caseSensitive;
-    private final String regexp;
+    private boolean caseSensitive;
+    private String regexp;
     /**
      * Constructor
      * @param caseSensitive is search case sensitive
@@ -53,7 +54,10 @@ public class RegexpSearcher implements Searcher {
         }
         return textTokens.stream()
                 .filter(token -> !StringUtils.isEmpty(token))
-                .anyMatch(token -> pattern.matcher(token).find());
+                .map(token -> caseSensitive ?
+                        pattern.matcher(token) :
+                        pattern.matcher(token.toLowerCase()))
+                .anyMatch(Matcher::find);
     }
 
     @Override

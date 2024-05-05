@@ -117,13 +117,11 @@ public class SSLRMIClientSocketFactory
         return factory.createSocket(host, port);
     }
 
-    private static KeyStore loadStore(String location, char[] passphrase, String type)
+    private KeyStore loadStore(String location, char[] passphrase, String type)
             throws IOException {
         try {
             KeyStore store = KeyStore.getInstance(type);
-            try (FileInputStream fis = new FileInputStream(location)) {
-                store.load(fis, passphrase);
-            }
+            store.load(new FileInputStream(location), passphrase);
             return store;
         } catch (NoSuchAlgorithmException | CertificateException
                 | KeyStoreException e) {

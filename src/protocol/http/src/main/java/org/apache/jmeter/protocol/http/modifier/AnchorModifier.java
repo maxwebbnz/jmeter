@@ -104,7 +104,7 @@ public class AnchorModifier extends AbstractTestElement implements PreProcessor,
         }
     }
 
-    private static void modifyArgument(Argument arg, Arguments args) {
+    private void modifyArgument(Argument arg, Arguments args) {
         if (log.isDebugEnabled()) {
             log.debug("Modifying argument: " + arg);
         }
@@ -136,8 +136,8 @@ public class AnchorModifier extends AbstractTestElement implements PreProcessor,
     public void addConfigElement(ConfigElement config) {
     }
 
-    private static void addFormUrls(Document html, HTTPSampleResult result, HTTPSamplerBase config,
-            List<? super HTTPSamplerBase> potentialLinks) {
+    private void addFormUrls(Document html, HTTPSampleResult result, HTTPSamplerBase config,
+            List<HTTPSamplerBase> potentialLinks) {
         NodeList rootList = html.getChildNodes();
         List<HTTPSamplerBase> urls = new ArrayList<>();
         for (int x = 0; x < rootList.getLength(); x++) {
@@ -155,8 +155,8 @@ public class AnchorModifier extends AbstractTestElement implements PreProcessor,
         }
     }
 
-    private static void addAnchorUrls(Document html, HTTPSampleResult result, HTTPSamplerBase config,
-            List<? super HTTPSamplerBase> potentialLinks) {
+    private void addAnchorUrls(Document html, HTTPSampleResult result, HTTPSamplerBase config,
+            List<HTTPSamplerBase> potentialLinks) {
         String base = "";
         NodeList baseList = html.getElementsByTagName("base"); // $NON-NLS-1$
         if (baseList.getLength() > 0) {
@@ -190,8 +190,8 @@ public class AnchorModifier extends AbstractTestElement implements PreProcessor,
         }
     }
 
-    private static void addFramesetUrls(Document html, HTTPSampleResult result,
-            HTTPSamplerBase config, List<? super HTTPSamplerBase> potentialLinks) {
+    private void addFramesetUrls(Document html, HTTPSampleResult result,
+       HTTPSamplerBase config, List<HTTPSamplerBase> potentialLinks) {
        String base = "";
        NodeList baseList = html.getElementsByTagName("base"); // $NON-NLS-1$
        if (baseList.getLength() > 0) {

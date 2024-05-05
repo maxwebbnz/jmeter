@@ -88,11 +88,7 @@ public class TestElementConverter extends AbstractCollectionConverter {
         }
         // Update the test class name if necessary (Bug 52466)
         String inputName = type.getName();
-        String guiClass = reader.getAttribute(ConversionHelp.ATT_TE_GUICLASS);
-        if (guiClass == null) {
-            throw new IllegalArgumentException(ConversionHelp.ATT_TE_GUICLASS + " attribute is not found");
-        }
-        String guiClassName = SaveService.aliasToClass(guiClass);
+        String guiClassName = SaveService.aliasToClass(reader.getAttribute(ConversionHelp.ATT_TE_GUICLASS));
         String targetName = NameUpdater.getCurrentTestName(inputName, guiClassName);
         if (!targetName.equals(inputName)) { // remap the class name
             type = mapper().realClass(targetName);

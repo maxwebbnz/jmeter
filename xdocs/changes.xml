@@ -18,15 +18,10 @@
 
 <!DOCTYPE document
 [
-<!ENTITY hellip   "&#x02026;">
-<!ENTITY le       "&#x02264;">
-<!ENTITY nbsp     "&#x000A0;">
-<!ENTITY ndash    "&#x02013;">
-<!ENTITY oacute   "&#x000F3;">
-<!ENTITY rarr     "&#x02192;">
-<!ENTITY rArr     "&#x021D2;">
-<!ENTITY THORN    "&#x000DE;">
-<!ENTITY vellip   "&#x022EE;">
+<!ENTITY hellip   "&#x02026;" >
+<!ENTITY rarr     "&#x02192;" >
+<!ENTITY vellip   "&#x022EE;" >
+<!ENTITY nbsp     "&#x00A0;" >
 ]>
 <document>
 <properties>
@@ -45,26 +40,126 @@ h3 { color: #960000; }
 Earlier changes are detailed in the <a href="changes_history.html">History of Previous Changes</a>.
 </note>
 
-<br></br>
-<note>
-JMeter 6.x requires Java 17 or later for execution (Java 21 is recommended).
-</note>
 
-<!--  =================== 6.0.0 =================== -->
+<!--  =================== 5.4.3 =================== -->
 
-<h1>Version 6.0.0 </h1>
+<h1>Version 5.4.3</h1>
 <p>
 Summary
 </p>
+<p>This version is a fix release against the vulnerability CVE-2021-45105: Apache Log4j2 versions 2.0-alpha1 through 2.16.0 (excluding 2.12.3) did not protect from uncontrolled recursion from self-referential lookups. This allows an attacker with control over Thread Context Map data to cause a denial of service when a crafted string is interpreted.
+</p>
 <ul>
+<li><a href="#New and Noteworthy">New and Noteworthy</a></li>
+<li><a href="#Incompatible changes">Incompatible changes</a></li>
 <li><a href="#Bug fixes">Bug fixes</a></li>
+<li><a href="#Improvements">Improvements</a></li>
+<li><a href="#Non-functional changes">Non-functional changes</a></li>
+<li><a href="#Known problems and workarounds">Known problems and workarounds</a></li>
+<li><a href="#Thanks">Thanks</a></li>
+
 </ul>
 
-  <ch_section>Changes</ch_section>
-  <h3>General</h3>
-  <ul>
-    <li><pr>6220</pr> Require Java 17 or later for running JMeter</li>
-  </ul>
+<ch_section>New and Noteworthy</ch_section>
+<!--
+<ch_title>Core improvements</ch_title>
+<ch_title>Test Plan</ch_title>
+<ch_title>Scripting / Debugging enhancements</ch_title>
+<ch_title>Functions</ch_title>
+-->
+<ch_title>UX improvements</ch_title>
+
+<!-- =================== Incompatible changes =================== -->
+
+<ch_section>Incompatible changes</ch_section>
+<!-- =================== Improvements =================== -->
+
+<ch_section>Improvements</ch_section>
+
+<h3>HTTP Samplers and Test Script Recorder</h3>
+<ul>
+</ul>
+
+<h3>Other samplers</h3>
+<ul>
+</ul>
+
+<h3>Controllers</h3>
+<ul>
+</ul>
+
+<h3>Listeners</h3>
+<ul>
+</ul>
+
+<h3>Timers, Assertions, Config, Pre- &amp; Post-Processors</h3>
+<ul>
+</ul>
+
+<h3>Functions</h3>
+<ul>
+</ul>
+
+<h3>I18N</h3>
+<ul>
+</ul>
+
+<h3>Report / Dashboard</h3>
+<ul>
+</ul>
+
+<h3>General</h3>
+<ul>
+</ul>
+
+<ch_section>Non-functional changes</ch_section>
+<ul>
+    <li>Updated Apache Log4j2 to 2.17.0 (from 2.16.0).</li>
+</ul>
+
+ <!-- =================== Bug fixes =================== -->
+
+<ch_section>Bug fixes</ch_section>
+
+<h3>HTTP Samplers and Test Script Recorder</h3>
+<ul>
+</ul>
+
+<h3>Other Samplers</h3>
+<ul>
+</ul>
+
+<h3>Controllers</h3>
+<ul>
+</ul>
+
+<h3>Listeners</h3>
+<ul>
+</ul>
+
+<h3>Timers, Assertions, Config, Pre- &amp; Post-Processors</h3>
+<ul>
+</ul>
+
+<h3>Functions</h3>
+<ul>
+</ul>
+
+<h3>I18N</h3>
+<ul>
+</ul>
+
+<h3>Report / Dashboard</h3>
+<ul>
+</ul>
+
+<h3>Documentation</h3>
+<ul>
+</ul>
+
+<h3>General</h3>
+<ul>
+</ul>
 
  <!--  =================== Thanks =================== -->
 
@@ -117,6 +212,25 @@ See  <bugzilla>56357</bugzilla> for details.
 </li>
 
 <li>
+Under Mac OSX Aggregate Graph will show wrong values due to mirroring effect on numbers.
+This is due to a known Java bug, see Bug <a href="https://bugs.openjdk.java.net/browse/JDK-8065373" >JDK-8065373</a>
+The fix is to use JDK8_u45 or later.
+</li>
+
+<li>
+View Results Tree may fail to display some HTML code under HTML renderer, see <bugzilla>54586</bugzilla>.
+This is due to a known Java bug which fails to parse "<code>px</code>" units in row/col attributes.
+See Bug <a href="https://bugs.openjdk.java.net/browse/JDK-8031109" >JDK-8031109</a>
+The fix is to use JDK9 b65 or later.
+</li>
+
+<li>
+JTable selection with keyboard (<keycombo><keysym>SHIFT</keysym><keysym>up/down</keysym></keycombo>) is totally unusable with Java 7 on Mac OSX.
+This is due to a known Java bug <a href="https://bugs.openjdk.java.net/browse/JDK-8025126" >JDK-8025126</a>
+The fix is to use JDK 8 b132 or later.
+</li>
+
+<li>
 Since Java 11 the JavaScript implementation <a href="https://openjdk.java.net/jeps/335">Nashorn has been deprecated</a>.
 Java will emit the following deprecation warnings, if you are using JavaScript based on Nashorn.
 <source>
@@ -133,21 +247,21 @@ export JVM_ARGS="-Dnashorn.args=--no-deprecation-warning"
 With Java 15 the JavaScript implementation <a href="https://openjdk.java.net/jeps/372">Nashorn has been removed</a>. To add back a JSR-223 compatible JavaScript engine you have two options:
   <dl>
     <dt>Use Mozilla Rhino</dt>
-    <dd>Copy <a href="https://github.com/mozilla/rhino/releases/download/Rhino1_7_14_Release/rhino-engine-1.7.14.jar">rhino-engine-1.7.14.jar</a> into <code>$JMETER_HOME/lib/ext</code>.</dd>
+    <dd>Copy <a href="https://github.com/mozilla/rhino/releases/download/Rhino1_7_13_Release/rhino-engine-1.7.13.jar">rhino-engine-1.7.13.jar</a> into <code>$JMETER_HOME/lib/ext</code>.</dd>
     <dt>Use OpenJDK Nashorn</dt>
     <dd>
-      The OpenJDK Nashorn implementation comes as a module. To use it, you will have to download it and add it to the module path. A hacky way to download the version 15.0 (or later) and its dependencies and set the module path is outlined below:
+      The OpenJDK Nashorn implementation comes as a module. To use it, you will have to download it and add it to the module path. A hacky way to download the version 15.0 and its dependencies and set the module path is outlined below:
       <source>
 mkdir lib/modules
 pushd lib/modules
-wget https://repo1.maven.org/maven2/org/openjdk/nashorn/nashorn-core/15.4/nashorn-core-15.4.jar
-wget https://repo1.maven.org/maven2/org/ow2/asm/asm/9.6/asm-9.6.jar
-wget https://repo1.maven.org/maven2/org/ow2/asm/asm-commons/9.6/asm-commons-9.6.jar
-wget https://repo1.maven.org/maven2/org/ow2/asm/asm-util/9.6/asm-util-9.6.jar
-wget https://repo1.maven.org/maven2/org/ow2/asm/asm-tree/9.6/asm-tree-9.6.jar
-wget https://repo1.maven.org/maven2/org/ow2/asm/asm-analysis/9.6/asm-analysis-9.6.jar
+wget https://repo1.maven.org/maven2/org/openjdk/nashorn/nashorn-core/15.0/nashorn-core-15.0.jar
+wget https://repo1.maven.org/maven2/org/ow2/asm/asm/9.0/asm-9.0.jar
+wget https://repo1.maven.org/maven2/org/ow2/asm/asm-commons/9.0/asm-commons-9.0.jar
+wget https://repo1.maven.org/maven2/org/ow2/asm/asm-util/9.0/asm-util-9.0.jar
+wget https://repo1.maven.org/maven2/org/ow2/asm/asm-tree/9.0/asm-tree-9.0.jar
+wget https://repo1.maven.org/maven2/org/ow2/asm/asm-analysis/9.0/asm-analysis-9.0.jar
 popd
-export JVM_ARGS="--module-path $PWD/lib/modules"
+export JVM_ARGS="--modulepath $PWD/lib/modules"
 ./bin/jmeter
       </source>
     </dd>

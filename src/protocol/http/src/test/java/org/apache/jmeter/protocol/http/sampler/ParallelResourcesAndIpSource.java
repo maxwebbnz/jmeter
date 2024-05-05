@@ -19,7 +19,6 @@ package org.apache.jmeter.protocol.http.sampler;
 
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -115,13 +114,6 @@ public class ParallelResourcesAndIpSource {
                     // with the given source IP
                     continue;
                 }
-                try {
-                    if (!InetAddress.getByName(targetHost).isReachable(100)) {
-                        continue;
-                    }
-                } catch (IOException e) {
-                    continue;
-                }
 
                 localIps.forEach(localIp -> {
                     if (finalLocal4 != null) {
@@ -160,10 +152,7 @@ public class ParallelResourcesAndIpSource {
         http.setPath("/index.html");
         http.setFollowRedirects(true);
         http.setUseKeepAlive(true);
-        http.setProperty(
-                new FunctionProperty(
-                        HTTPSamplerBaseSchema.INSTANCE.getIpSource().getName(),
-                        new CompoundVariable("${IP_ADDR}")));
+        http.setProperty(new FunctionProperty(HTTPSampler.IP_SOURCE, new CompoundVariable("${IP_ADDR}")));
         http.setImageParser(true);
         http.setConcurrentDwn(true);
         http.setConcurrentPool("6");

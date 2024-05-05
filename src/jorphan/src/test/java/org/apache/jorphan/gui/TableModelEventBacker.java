@@ -18,12 +18,12 @@
 package org.apache.jorphan.gui;
 
 import static java.lang.String.format;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.function.ObjIntConsumer;
 import java.util.function.ToIntFunction;
@@ -39,7 +39,7 @@ public class TableModelEventBacker implements TableModelListener {
     /**
      * Makes assertions for a single {@link TableModelEvent}.
      */
-    public static class EventAssertion {
+    public class EventAssertion {
         private List<ObjIntConsumer<TableModelEvent>> assertions = new ArrayList<>();
 
         /**
@@ -60,7 +60,7 @@ public class TableModelEventBacker implements TableModelListener {
          * @return <code>this</code>
          */
         public EventAssertion addInt(String name, int expected, ToIntFunction<TableModelEvent> f) {
-            return add((e,i) -> assertEquals(expected, f.applyAsInt(e), () -> format("%s[%d]", name, i)));
+            return add((e,i) -> assertEquals(format("%s[%d]", name, i), expected, f.applyAsInt(e)));
         }
 
         /**
@@ -69,7 +69,7 @@ public class TableModelEventBacker implements TableModelListener {
          * @return <code>this</code>
          */
         public EventAssertion source(Object expected) {
-            return add((e,i) -> assertSame(expected, e.getSource(), () -> format("source[%d]",i)));
+            return add((e,i) -> assertSame(format("source[%d]",i), expected, e.getSource()));
         }
 
         /**
@@ -118,16 +118,14 @@ public class TableModelEventBacker implements TableModelListener {
         }
     }
 
-    private Deque<TableModelEvent> events = new ArrayDeque<>();
+    private Deque<TableModelEvent> events = new LinkedList<>();
 
     /**
      * Stores event.
      */
     @Override
     public void tableChanged(TableModelEvent e) {
-        if (e != null) {
-            events.add(e);
-        }
+        events.add(e);
     }
 
     public Deque<TableModelEvent> getEvents() {
@@ -149,12 +147,12 @@ public class TableModelEventBacker implements TableModelListener {
      */
     public void assertEvents(EventAssertion... assertions) {
         try {
+            assertEquals("event count", assertions.length, events.size());
+
             int i = 0;
             for (TableModelEvent event : events) {
                 assertions[i].assertEvent(event, i++);
             }
-
-            assertEquals(assertions.length, events.size(), "event count");
         } finally {
             events.clear();
         }

@@ -47,6 +47,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.save.CSVSaveService;
 import org.apache.jmeter.testelement.AbstractTestElement;
+import org.apache.jmeter.testelement.TestStateListener;
 import org.apache.jmeter.threads.JMeterVariables;
 import org.apache.jmeter.util.JMeterUtils;
 import org.slf4j.Logger;
@@ -56,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * A base class for all JDBC test elements handling the basics of a SQL request.
  *
  */
-public abstract class AbstractJDBCTestElement extends AbstractTestElement {
+public abstract class AbstractJDBCTestElement extends AbstractTestElement implements TestStateListener{
     private static final long serialVersionUID = 235L;
 
     private static final Logger log = LoggerFactory.getLogger(AbstractJDBCTestElement.class);
@@ -167,7 +168,6 @@ public abstract class AbstractJDBCTestElement extends AbstractTestElement {
         if (SELECT.equals(currentQueryType)) {
             try (Statement stmt = conn.createStatement()) {
                 setQueryTimeout(stmt, getIntegerQueryTimeout());
-                configureMaxRows(stmt);
                 ResultSet rs = null;
                 try {
                     rs = stmt.executeQuery(getQuery());
@@ -199,7 +199,6 @@ public abstract class AbstractJDBCTestElement extends AbstractTestElement {
         } else if (PREPARED_SELECT.equals(currentQueryType)) {
             try (PreparedStatement pstmt = getPreparedStatement(conn)) {
                 setArguments(pstmt);
-                configureMaxRows(pstmt);
                 ResultSet rs = null;
                 try {
                     rs = pstmt.executeQuery();
@@ -238,15 +237,7 @@ public abstract class AbstractJDBCTestElement extends AbstractTestElement {
         }
     }
 
-    private void configureMaxRows(Statement stmt) throws SQLException {
-        int maxRows = getIntegerResultSetMaxRows();
-        if (maxRows >= 0) {
-           stmt.setMaxRows(maxRows);
-        }
-    }
-
     private String resultSetsToString(PreparedStatement pstmt, boolean result, int[] out) throws SQLException, UnsupportedEncodingException {
-        configureMaxRows(pstmt);
         StringBuilder sb = new StringBuilder();
         int updateCount = 0;
         boolean currentResult = result;
@@ -324,7 +315,7 @@ public abstract class AbstractJDBCTestElement extends AbstractTestElement {
         }
     }
 
-    private static void putIntoVar(final JMeterVariables jmvars, final String name,
+    private void putIntoVar(final JMeterVariables jmvars, final String name,
             final Clob clob) throws SQLException {
         try {
             if (clob.length() > MAX_RETAIN_SIZE) {
@@ -427,7 +418,7 @@ public abstract class AbstractJDBCTestElement extends AbstractTestElement {
         return outputs;
     }
 
-    private static void setArgument(PreparedStatement pstmt, String argument, int targetSqlType, int index) throws SQLException {
+    private void setArgument(PreparedStatement pstmt, String argument, int targetSqlType, int index) throws SQLException {
         switch (targetSqlType) {
         case Types.INTEGER:
             pstmt.setInt(index, Integer.parseInt(argument));
@@ -591,8 +582,8 @@ public abstract class AbstractJDBCTestElement extends AbstractTestElement {
         return sb.toString();
     }
 
-    private static int processRow(ResultSet rs, ResultSetMetaData meta, StringBuilder sb, int numColumns,
-            JMeterVariables jmvars, String[] varNames, List<? super Map<String, Object>> results, int currentIterationIndex)
+    private int processRow(ResultSet rs, ResultSetMetaData meta, StringBuilder sb, int numColumns,
+            JMeterVariables jmvars, String[] varNames, List<Map<String, Object>> results, int currentIterationIndex)
             throws SQLException, UnsupportedEncodingException {
         Map<String, Object> row = null;
         currentIterationIndex++;
@@ -828,4 +819,40 @@ public abstract class AbstractJDBCTestElement extends AbstractTestElement {
     public void setResultVariable(String resultVariable) {
         this.resultVariable = resultVariable;
     }
+
+
+    /**
+     * {@inheritDoc}
+     * @see org.apache.jmeter.testelement.TestStateListener#testStarted()
+     */
+    @Override
+    public void testStarted() {
+        testStarted("");
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see org.apache.jmeter.testelement.TestStateListener#testStarted(java.lang.String)
+     */
+    @Override
+    public void testStarted(String host) {
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see org.apache.jmeter.testelement.TestStateListener#testEnded()
+     */
+    @Override
+    public void testEnded() {
+        testEnded("");
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see org.apache.jmeter.testelement.TestStateListener#testEnded(java.lang.String)
+     */
+    @Override
+    public void testEnded(String host) {
+    }
+
 }

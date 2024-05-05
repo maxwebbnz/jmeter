@@ -26,7 +26,7 @@ import java.util.Set;
  * @since 3.3
  */
 class UnmodifiableJMeterVariables extends JMeterVariables {
-    private final JMeterVariables variables;
+    private JMeterVariables variables;
 
     /**
      * Wrap the {@code variables} to make them unmodifiable.

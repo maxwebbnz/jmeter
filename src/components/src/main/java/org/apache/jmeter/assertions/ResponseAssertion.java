@@ -21,7 +21,6 @@ import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -94,9 +93,6 @@ public class ResponseAssertion extends AbstractScopedAssertion implements Serial
             = JMeterUtils.getPropDefault("assertion.equals_diff_delta_start", "[[[");
     private static final String DIFF_DELTA_END
             = JMeterUtils.getPropDefault("assertion.equals_diff_delta_end", "]]]");
-
-    private static final boolean USE_JAVA_REGEX = !JMeterUtils.getPropDefault(
-            "jmeter.regex.engine", "oro").equalsIgnoreCase("oro");
 
     public ResponseAssertion() {
         setProperty(new CollectionProperty(TEST_STRINGS, new ArrayList<String>()));
@@ -309,6 +305,7 @@ public class ResponseAssertion extends AbstractScopedAssertion implements Serial
         boolean contains = isContainsType(); // do it once outside loop
         boolean equals = isEqualsType();
         boolean substring = isSubstringType();
+        boolean matches = isMatchType();
 
         log.debug("Test Type Info: contains={}, notTest={}, orTest={}", contains, notTest, orTest);
 
@@ -329,27 +326,19 @@ public class ResponseAssertion extends AbstractScopedAssertion implements Serial
             List<String> allCheckMessage = new ArrayList<>();
             for (JMeterProperty jMeterProperty : getTestStrings()) {
                 String stringPattern = jMeterProperty.getStringValue();
+                Pattern pattern = null;
+                if (contains || matches) {
+                    pattern = JMeterUtils.getPatternCache().getPattern(stringPattern, Perl5Compiler.READ_ONLY_MASK);
+                }
                 boolean found;
                 if (contains) {
-                    if (USE_JAVA_REGEX) {
-                        found = containsWithJavaRegex(toCheck, stringPattern);
-                    } else {
-                        Pattern pattern = JMeterUtils.getPatternCache()
-                                .getPattern(stringPattern, Perl5Compiler.READ_ONLY_MASK);
-                        found = localMatcher.contains(toCheck, pattern);
-                    }
+                    found = localMatcher.contains(toCheck, pattern);
                 } else if (equals) {
                     found = toCheck.equals(stringPattern);
                 } else if (substring) {
                     found = toCheck.contains(stringPattern);
-                } else { // this is the old `matches` part which means `isMatchType()` is true
-                    if (USE_JAVA_REGEX) {
-                        found = matchesWithJavaRegex(toCheck, stringPattern);
-                    } else {
-                        Pattern pattern = JMeterUtils.getPatternCache()
-                                .getPattern(stringPattern, Perl5Compiler.READ_ONLY_MASK);
-                        found = localMatcher.matches(toCheck, pattern);
-                    }
+                } else {
+                    found = localMatcher.matches(toCheck, pattern);
                 }
                 boolean pass = notTest ? !found : found;
                 if (orTest) {
@@ -386,20 +375,12 @@ public class ResponseAssertion extends AbstractScopedAssertion implements Serial
                     result.setFailureMessage(customMsg);
                 }
             }
-        } catch (MalformedCachePatternException | PatternSyntaxException e) {
+        } catch (MalformedCachePatternException e) {
             result.setError(true);
             result.setFailure(false);
             result.setFailureMessage("Bad test configuration " + e);
         }
         return result;
-    }
-
-    private static boolean matchesWithJavaRegex(String toCheck, String stringPattern) {
-        return JMeterUtils.compilePattern(stringPattern).matcher(toCheck).matches();
-    }
-
-    private static boolean containsWithJavaRegex(String toCheck, String stringPattern) {
-        return JMeterUtils.compilePattern(stringPattern).matcher(toCheck).find();
     }
 
     private String getStringToCheck(SampleResult response) {
@@ -552,7 +533,7 @@ public class ResponseAssertion extends AbstractScopedAssertion implements Serial
         String compDeltaSeq;
         String endingEqSeq = trunc(true, received.substring(lastRecDiff + 1, recLength));
         String                  recDeltaSeq;
-        if (endingEqSeq.isEmpty()) {
+        if (endingEqSeq.length() == 0) {
             recDeltaSeq = trunc(true, received.substring(firstDiff, recLength));
             compDeltaSeq = trunc(true, comparison.substring(firstDiff, compLength));
         } else {

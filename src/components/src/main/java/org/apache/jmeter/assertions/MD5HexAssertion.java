@@ -27,7 +27,6 @@ import org.apache.jmeter.testelement.AbstractTestElement;
 import org.apache.jmeter.testelement.property.StringProperty;
 import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jorphan.util.JOrphanUtils;
-import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,8 +90,7 @@ public class MD5HexAssertion extends AbstractTestElement implements Serializable
         return getPropertyAsString(MD5HexAssertion.MD5HEX_KEY);
     }
 
-    @VisibleForTesting
-    static String md5Hex(byte[] bytes) {
+    private static String md5Hex(byte[] bytes) {
         byte[] md5Result = {};
 
         try {

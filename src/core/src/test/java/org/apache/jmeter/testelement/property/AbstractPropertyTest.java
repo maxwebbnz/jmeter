@@ -69,12 +69,12 @@ public class AbstractPropertyTest {
     public void testNormalizeListWithEmptyList() {
         Collection<JMeterProperty> emptyCollection = Collections.emptyList();
         Collection<JMeterProperty> newCollection = dummyProperty.normalizeList(emptyCollection);
-        assertThat(newCollection, CoreMatchers.equalTo(emptyCollection));
+        assertThat(newCollection, CoreMatchers.nullValue());
     }
 
     @Test
     public void testNormalizeListWithEmptyArrayList() {
-        Collection<JMeterProperty> emptyCollection = new ArrayList<>();
+        Collection<JMeterProperty> emptyCollection = new ArrayList<JMeterProperty>();
         Collection<JMeterProperty> newCollection = dummyProperty.normalizeList(emptyCollection);
         assertThat(newCollection, CoreMatchers.not(CoreMatchers.sameInstance(emptyCollection)));
         assertThat(newCollection, CoreMatchers.equalTo(emptyCollection));
@@ -82,7 +82,7 @@ public class AbstractPropertyTest {
 
     @Test
     public void testNormalizeListWithFilledArrayList() {
-        List<JMeterProperty> filledCollection = new ArrayList<>();
+        List<JMeterProperty> filledCollection = new ArrayList<JMeterProperty>();
         filledCollection.add(new StringProperty("key", "value"));
         Collection<JMeterProperty> newCollection = dummyProperty.normalizeList(filledCollection);
         assertThat(newCollection, CoreMatchers.not(CoreMatchers.sameInstance(filledCollection)));

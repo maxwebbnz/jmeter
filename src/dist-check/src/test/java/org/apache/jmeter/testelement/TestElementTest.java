@@ -17,47 +17,63 @@
 
 package org.apache.jmeter.testelement;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.Properties;
 
 import org.apache.jmeter.junit.JMeterTest;
-import org.apache.jmeter.junit.JMeterTestCase;
+import org.apache.jmeter.junit.JMeterTestCaseJUnit;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.property.JMeterProperty;
 import org.apache.jmeter.testelement.property.PropertyIterator;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.runner.Describable;
+import org.junit.runner.Description;
 
-public class TestElementTest extends JMeterTestCase {
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+public class TestElementTest extends JMeterTestCaseJUnit implements Describable {
+
+    private TestElement testItem;
+
+    public TestElementTest(String testName, TestElement te) {
+        super(testName);// Save the method name
+        testItem = te;
+    }
+
+    @Override
+    public Description getDescription() {
+        return Description.createTestDescription(getClass(), getName() + " " + testItem.getClass());
+    }
+
     /*
      * Test TestElements - create the suite
      */
-    public static Collection<Object> testElements() throws Throwable {
-        return JMeterTest.getObjects(TestElement.class);
+    public static Test suite() throws Exception {
+        TestSuite suite = new TestSuite("TestElements");
+        for (Object o : JMeterTest.getObjects(TestElement.class)) {
+            TestElement item = (TestElement) o;
+            suite.addTest(new TestElementTest("runTestElement", item));
+        }
+        return suite;
     }
 
-    @ParameterizedTest
-    @MethodSource("testElements")
-    public void runTestElement(TestElement testItem) throws Exception {
+    /*
+     * Test TestElements - implement the test case
+     */
+    public void runTestElement() throws Exception {
         checkElementCloning(testItem);
         String name = testItem.getClass().getName();
-        assertInstanceOf(Serializable.class, testItem, () -> name + " must implement Serializable");
+        assertTrue(name + " must implement Serializable", testItem instanceof Serializable);
         if (name.startsWith("org.apache.jmeter.examples.")){
             return;
         }
         if (name.equals("org.apache.jmeter.control.TransactionSampler")){
             return; // Not a real sampler
         }
-
+        if (name.startsWith("thirdparty")){
+            return; // Not a core sampler?? should be ok
+        }
         checkElementAlias(testItem);
     }
 
@@ -68,19 +84,20 @@ public class TestElementTest extends JMeterTestCase {
         while (iter2.hasNext()) {
             JMeterProperty item2 = iter2.next();
             assertEquals(item2.getStringValue(), clonedItem.getProperty(item2.getName()).getStringValue());
-            assertNotSame(item2, clonedItem.getProperty(item2.getName()));
+            assertTrue(item2 != clonedItem.getProperty(item2.getName()));
         }
     }
 
     private static void cloneTesting(TestElement item, TestElement clonedItem) {
-        assertNotSame(item, clonedItem, "Cloned element must be a different instance");
-        assertSame(item.getClass(), clonedItem.getClass(), "Cloned element should have the same class");
+        assertTrue(item != clonedItem);
+        assertEquals("CLONE-SAME-CLASS: testing " + item.getClass().getName(), item.getClass().getName(), clonedItem
+                .getClass().getName());
     }
 
     private void checkElementAlias(Object item) throws IOException {
         //FIXME do it only once
         Properties nameMap = SaveService.loadProperties();
-        assertNotNull(nameMap, "SaveService nameMap (saveservice.properties) should not be null");
+        assertNotNull("SaveService nameMap (saveservice.properties) should not be null",nameMap);
 
         String name = item.getClass().getName();
         boolean contains = nameMap.values().contains(name);

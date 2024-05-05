@@ -135,7 +135,7 @@ public class JMeterTreeModel extends DefaultTreeModel {
     }
 
     @SuppressWarnings("deprecation")
-    private static boolean isWorkbench(TestElement item) {
+    private boolean isWorkbench(TestElement item) {
         return item instanceof org.apache.jmeter.testelement.WorkBench;
     }
 
@@ -185,7 +185,7 @@ public class JMeterTreeModel extends DefaultTreeModel {
     }
 
     @SuppressWarnings("JdkObsolete")
-    private static void traverseAndFind(Class<?> type, JMeterTreeNode node, List<? super JMeterTreeNode> nodeList) {
+    private void traverseAndFind(Class<?> type, JMeterTreeNode node, List<JMeterTreeNode> nodeList) {
         if (type.isInstance(node.getUserObject())) {
             nodeList.add(node);
         }
@@ -197,7 +197,7 @@ public class JMeterTreeModel extends DefaultTreeModel {
     }
 
     @SuppressWarnings("JdkObsolete")
-    private static JMeterTreeNode traverseAndFind(TestElement userObject, JMeterTreeNode node) {
+    private JMeterTreeNode traverseAndFind(TestElement userObject, JMeterTreeNode node) {
         if (userObject == node.getUserObject()) {
             return node;
         }
@@ -297,7 +297,7 @@ public class JMeterTreeModel extends DefaultTreeModel {
                     HashTree tree = new HashTree();
                     tree.add(node);
                     tree.add(node, subtree);
-                    ((TestElement) node).setEnabled(false);
+                    ((TestElement) node).setProperty(TestElement.ENABLED, false);
                     addSubTree(tree, current);
                 }
             }
@@ -306,9 +306,9 @@ public class JMeterTreeModel extends DefaultTreeModel {
         if (!workbenchTree.isEmpty()) {
             HashTree testFragmentTree = new HashTree();
             TestFragmentController testFragmentController = new TestFragmentController();
-            testFragmentController.setName("WorkBench Test Fragment");
+            testFragmentController.setProperty(TestElement.NAME, "WorkBench Test Fragment");
             testFragmentController.setProperty(TestElement.GUI_CLASS, TestFragmentControllerGui.class.getName());
-            testFragmentController.setEnabled(false);
+            testFragmentController.setProperty(TestElement.ENABLED, false);
             testFragmentTree.add(testFragmentController);
             testFragmentTree.add(testFragmentController, workbenchTree);
             addSubTree(testFragmentTree, current);
@@ -324,7 +324,7 @@ public class JMeterTreeModel extends DefaultTreeModel {
      * </ul>
      * @param node
      */
-    private static boolean isNonTestElement(Object node) {
+    private boolean isNonTestElement(Object node) {
         JMeterTreeNode treeNode = new JMeterTreeNode((TestElement) node, null);
         Collection<String> categories = treeNode.getMenuCategories();
         if (categories != null) {

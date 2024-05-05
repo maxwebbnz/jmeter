@@ -208,7 +208,6 @@ public class SecuritySettingsPanel extends JPanel{
      * @param evt
      *            ActionEvent to be handled
      */
-    @SuppressWarnings("MethodCanBeStatic")
     private void cbEnforceStartTLSActionPerformed(ActionEvent evt) { // NOSONAR This method is used through lambda
         // NOOP
     }

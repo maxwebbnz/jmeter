@@ -32,10 +32,8 @@ import org.apache.jmeter.samplers.Entry;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.testbeans.TestBean;
 import org.apache.jmeter.testelement.TestElement;
-import org.apache.jmeter.testelement.schema.PropertiesAccessor;
 import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.util.JMeterUtils;
-import org.apache.jorphan.util.AlphaNumericKeyComparator;
 
 /**
  * The Debug Sampler can be used to "sample" JMeter variables, JMeter properties and System Properties.
@@ -52,16 +50,6 @@ public class DebugSampler extends AbstractSampler implements TestBean {
     private boolean displayJMeterVariables;
     private boolean displayJMeterProperties;
     private boolean displaySystemProperties;
-
-    @Override
-    public DebugSamplerSchema getSchema() {
-        return DebugSamplerSchema.INSTANCE;
-    }
-
-    @Override
-    public PropertiesAccessor<? extends DebugSampler, ? extends DebugSamplerSchema> getProps() {
-        return new PropertiesAccessor<>(this, getSchema());
-    }
 
     @Override
     public SampleResult sample(Entry e) {
@@ -99,10 +87,14 @@ public class DebugSampler extends AbstractSampler implements TestBean {
         return res;
     }
 
-    private static void formatSet(StringBuilder sb, @SuppressWarnings("rawtypes") Set s) {
+    private void formatSet(StringBuilder sb, @SuppressWarnings("rawtypes") Set s) {
         @SuppressWarnings("unchecked")
         List<Map.Entry<Object, Object>> al = new ArrayList<>(s);
-        al.sort(AlphaNumericKeyComparator.INSTANCE);
+        al.sort((Map.Entry<Object, Object> o1, Map.Entry<Object, Object> o2) -> {
+                String m1 = (String)o1.getKey();
+                String m2 = (String)o2.getKey();
+                return m1.compareTo(m2);
+        });
         al.forEach(me -> sb.append(me.getKey()).append("=").append(me.getValue()).append("\n"));
     }
 

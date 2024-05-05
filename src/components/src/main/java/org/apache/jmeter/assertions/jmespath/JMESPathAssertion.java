@@ -18,7 +18,6 @@
 package org.apache.jmeter.assertions.jmespath;
 
 import java.io.Serializable;
-import java.util.Objects;
 
 import org.apache.jmeter.assertions.Assertion;
 import org.apache.jmeter.assertions.AssertionResult;
@@ -32,10 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.StreamReadFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.NullNode;
 
 import io.burt.jmespath.Expression;
@@ -58,13 +55,7 @@ public class JMESPathAssertion extends AbstractTestElement implements Serializab
     private static final String EXPECT_NULL = "EXPECT_NULL";
     private static final String INVERT = "INVERT";
     private static final String ISREGEX = "ISREGEX";
-    static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder()
-            // See https://github.com/FasterXML/jackson-core/issues/991
-            .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION)
-            .build();
-
-    private static final boolean USE_JAVA_REGEX = !JMeterUtils.getPropDefault(
-            "jmeter.regex.engine", "oro").equalsIgnoreCase("oro");
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     /**
      * Used to do a JMESPath query and compute result if the expectedValue matches
@@ -127,7 +118,7 @@ public class JMESPathAssertion extends AbstractTestElement implements Serializab
         return message.toString();
     }
 
-    private static void addNegation(boolean invert, StringBuilder message) {
+    private void addNegation(boolean invert, StringBuilder message) {
         if (invert) {
             message.append(" not");
         }
@@ -185,22 +176,10 @@ public class JMESPathAssertion extends AbstractTestElement implements Serializab
     private boolean isEquals(ObjectMapper mapper, JsonNode jsonNode) throws JsonProcessingException {
         String str = objectToString(mapper, jsonNode);
         if (isUseRegex()) {
-            if (USE_JAVA_REGEX) {
-                return JMeterUtils.compilePattern(getExpectedValue()).matcher(str).matches();
-            } else {
-                Pattern pattern = JMeterUtils.getPatternCache().getPattern(getExpectedValue());
-                return JMeterUtils.getMatcher().matches(str, pattern);
-            }
+            Pattern pattern = JMeterUtils.getPatternCache().getPattern(getExpectedValue());
+            return JMeterUtils.getMatcher().matches(str, pattern);
         } else {
-            String expectedValueString = getExpectedValue();
-            // first try to match as a string value, as
-            // we did in the old days
-            if (str.equals(expectedValueString)) {
-                return true;
-            }
-            // now try harder and compare it as an JSON object
-            JsonNode expected = OBJECT_MAPPER.readValue(expectedValueString, JsonNode.class);
-            return Objects.equals(expected, jsonNode);
+            return str.equals(getExpectedValue());
         }
     }
 

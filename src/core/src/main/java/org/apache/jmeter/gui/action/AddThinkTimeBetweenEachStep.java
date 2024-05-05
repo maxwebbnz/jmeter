@@ -28,18 +28,15 @@ import org.apache.jmeter.gui.GuiPackage;
 import org.apache.jmeter.gui.action.thinktime.ThinkTimeCreator;
 import org.apache.jmeter.gui.tree.JMeterTreeNode;
 import org.apache.jmeter.samplers.Sampler;
-import org.apache.jmeter.threads.AbstractThreadGroup;
+import org.apache.jmeter.threads.ThreadGroup;
 import org.apache.jmeter.util.JMeterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.auto.service.AutoService;
 
 /**
  * Add ThinkTime (TestAction + UniformRandomTimer)
  * @since 3.2
  */
-@AutoService(Command.class)
 public class AddThinkTimeBetweenEachStep extends AbstractAction {
     private static final Logger log = LoggerFactory.getLogger(AddThinkTimeBetweenEachStep.class);
 
@@ -65,7 +62,7 @@ public class AddThinkTimeBetweenEachStep extends AbstractAction {
         JMeterTreeNode currentNode = guiPackage.getTreeListener().getCurrentNode();
         if (!
                 (currentNode.getUserObject() instanceof Controller ||
-                        currentNode.getUserObject() instanceof AbstractThreadGroup)
+                        currentNode.getUserObject() instanceof ThreadGroup)
                 ) {
             Toolkit.getDefaultToolkit().beep();
             return;
@@ -85,8 +82,8 @@ public class AddThinkTimeBetweenEachStep extends AbstractAction {
      * @param parentNode Parent node of elements on which we add think times
      * @throws IllegalUserActionException
      */
-    private static void addThinkTimeToChildren(GuiPackage guiPackage,
-                                               JMeterTreeNode parentNode) throws IllegalUserActionException {
+    private void addThinkTimeToChildren(GuiPackage guiPackage,
+            JMeterTreeNode parentNode) throws IllegalUserActionException {
         guiPackage.updateCurrentNode();
         boolean insertThinkTime;
         try {
@@ -121,7 +118,7 @@ public class AddThinkTimeBetweenEachStep extends AbstractAction {
      * @param childNodes Child nodes
      * @param index insertion index
      */
-    private static void addNodesToTreeHierachically(GuiPackage guiPackage,
+    private void addNodesToTreeHierachically(GuiPackage guiPackage,
             JMeterTreeNode parentNode,
             JMeterTreeNode[] childNodes,
             int index) {
@@ -137,7 +134,7 @@ public class AddThinkTimeBetweenEachStep extends AbstractAction {
      * @throws ReflectiveOperationException when class instantiation for {@value #DEFAULT_IMPLEMENTATION} fails
      * @throws IllegalUserActionException when {@link ThinkTimeCreator#createThinkTime(GuiPackage, JMeterTreeNode)} throws this
      */
-    private static JMeterTreeNode[] createThinkTime(GuiPackage guiPackage, JMeterTreeNode parentNode)
+    private JMeterTreeNode[] createThinkTime(GuiPackage guiPackage, JMeterTreeNode parentNode)
             throws ReflectiveOperationException, IllegalUserActionException  {
         Class<?> clazz = Class.forName(DEFAULT_IMPLEMENTATION);
         ThinkTimeCreator thinkTimeCreator = (ThinkTimeCreator) clazz.getDeclaredConstructor().newInstance();

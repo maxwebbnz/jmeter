@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class ListResultData implements ResultData, Iterable<ResultData> {
 
-    private final List<ResultData> items = new ArrayList<>();
+    private List<ResultData> items = new ArrayList<>();
 
     /*
      * (non-Javadoc)

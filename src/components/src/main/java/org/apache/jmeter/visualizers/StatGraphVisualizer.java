@@ -146,7 +146,7 @@ public class StatGraphVisualizer extends AbstractVisualizer implements Clearable
 
     private JScrollPane myScrollPane;
 
-    private final transient ObjectTableModel model;
+    private transient ObjectTableModel model;
 
     /**
      * Lock used to protect tableRows update + model update
@@ -161,99 +161,99 @@ public class StatGraphVisualizer extends AbstractVisualizer implements Clearable
 
     private JSplitPane spane = null;
 
-    private final JTabbedPane tabbedGraph = new JTabbedPane(SwingConstants.TOP);
+    private JTabbedPane tabbedGraph = new JTabbedPane(SwingConstants.TOP);
 
-    private final JButton displayButton =
+    private JButton displayButton =
         new JButton(JMeterUtils.getResString("aggregate_graph_display"));                //$NON-NLS-1$
 
-    private final JButton saveGraph =
+    private JButton saveGraph =
         new JButton(JMeterUtils.getResString("aggregate_graph_save"));                    //$NON-NLS-1$
 
-    private final JButton saveTable =
+    private JButton saveTable =
         new JButton(JMeterUtils.getResString("aggregate_graph_save_table"));            //$NON-NLS-1$
 
-    private final JButton chooseForeColor =
+    private JButton chooseForeColor =
         new JButton(JMeterUtils.getResString("aggregate_graph_choose_foreground_color"));            //$NON-NLS-1$
 
-    private final JButton syncWithName =
+    private JButton syncWithName =
         new JButton(JMeterUtils.getResString("aggregate_graph_sync_with_name"));            //$NON-NLS-1$
 
-    private final JCheckBox saveHeaders = // should header be saved with the data?
+    private JCheckBox saveHeaders = // should header be saved with the data?
         new JCheckBox(JMeterUtils.getResString("aggregate_graph_save_table_header"));    //$NON-NLS-1$
 
-    private final JLabeledTextField graphTitle =
+    private JLabeledTextField graphTitle =
         new JLabeledTextField(JMeterUtils.getResString("aggregate_graph_user_title"));    //$NON-NLS-1$
 
-    private final JLabeledTextField maxLengthXAxisLabel =
+    private JLabeledTextField maxLengthXAxisLabel =
         new JLabeledTextField(JMeterUtils.getResString("aggregate_graph_max_length_xaxis_label"), 8);//$NON-NLS-1$
 
-    private final JLabeledTextField maxValueYAxisLabel =
+    private JLabeledTextField maxValueYAxisLabel =
         new JLabeledTextField(JMeterUtils.getResString("aggregate_graph_yaxis_max_value"), 8);//$NON-NLS-1$
 
     /**
      * checkbox for use dynamic graph size
      */
-    private final JCheckBox dynamicGraphSize = new JCheckBox(JMeterUtils.getResString("aggregate_graph_dynamic_size")); // $NON-NLS-1$
+    private JCheckBox dynamicGraphSize = new JCheckBox(JMeterUtils.getResString("aggregate_graph_dynamic_size")); // $NON-NLS-1$
 
-    private final JLabeledTextField graphWidth =
+    private JLabeledTextField graphWidth =
         new JLabeledTextField(JMeterUtils.getResString("aggregate_graph_width"), 6);        //$NON-NLS-1$
-    private final JLabeledTextField graphHeight =
+    private JLabeledTextField graphHeight =
         new JLabeledTextField(JMeterUtils.getResString("aggregate_graph_height"), 6);        //$NON-NLS-1$
 
-    private final String yAxisLabel = JMeterUtils.getResString("aggregate_graph_response_time");//$NON-NLS-1$
+    private String yAxisLabel = JMeterUtils.getResString("aggregate_graph_response_time");//$NON-NLS-1$
 
-    private final String yAxisTitle = JMeterUtils.getResString("aggregate_graph_ms");        //$NON-NLS-1$
+    private String yAxisTitle = JMeterUtils.getResString("aggregate_graph_ms");        //$NON-NLS-1$
 
     private boolean saveGraphToFile = false;
 
-    private static final int defaultWidth = 400;
+    private int defaultWidth = 400;
 
-    private static final int defaultHeight = 300;
+    private int defaultHeight = 300;
 
-    private final JComboBox<String> columnsList = new JComboBox<>(getLabels(GRAPH_COLUMNS, getGraphColumnsMsgParameters()));
+    private JComboBox<String> columnsList = new JComboBox<>(getLabels(GRAPH_COLUMNS, getGraphColumnsMsgParameters()));
 
-    private final List<BarGraph> eltList = new ArrayList<>();
+    private List<BarGraph> eltList = new ArrayList<>();
 
-    private final JCheckBox columnSelection = new JCheckBox(JMeterUtils.getResString("aggregate_graph_column_selection"), false); //$NON-NLS-1$
+    private JCheckBox columnSelection = new JCheckBox(JMeterUtils.getResString("aggregate_graph_column_selection"), false); //$NON-NLS-1$
 
-    private final JTextField columnMatchLabel = new JTextField();
+    private JTextField columnMatchLabel = new JTextField();
 
-    private final JButton applyFilterBtn = new JButton(JMeterUtils.getResString("graph_apply_filter")); // $NON-NLS-1$
+    private JButton applyFilterBtn = new JButton(JMeterUtils.getResString("graph_apply_filter")); // $NON-NLS-1$
 
-    private final JCheckBox caseChkBox = new JCheckBox(JMeterUtils.getResString("search_text_chkbox_case"), false); // $NON-NLS-1$
+    private JCheckBox caseChkBox = new JCheckBox(JMeterUtils.getResString("search_text_chkbox_case"), false); // $NON-NLS-1$
 
-    private final JCheckBox regexpChkBox = new JCheckBox(JMeterUtils.getResString("search_text_chkbox_regexp"), true); // $NON-NLS-1$
+    private JCheckBox regexpChkBox = new JCheckBox(JMeterUtils.getResString("search_text_chkbox_regexp"), true); // $NON-NLS-1$
 
-    private final JComboBox<String> titleFontNameList = new JComboBox<>(keys(StatGraphProperties.getFontNameMap()));
+    private JComboBox<String> titleFontNameList = new JComboBox<>(keys(StatGraphProperties.getFontNameMap()));
 
-    private final JComboBox<String> titleFontSizeList = new JComboBox<>(StatGraphProperties.getFontSize());
+    private JComboBox<String> titleFontSizeList = new JComboBox<>(StatGraphProperties.getFontSize());
 
-    private final JComboBox<String> titleFontStyleList = new JComboBox<>(keys(StatGraphProperties.getFontStyleMap()));
+    private JComboBox<String> titleFontStyleList = new JComboBox<>(keys(StatGraphProperties.getFontStyleMap()));
 
-    private final JComboBox<String> valueFontNameList = new JComboBox<>(keys(StatGraphProperties.getFontNameMap()));
+    private JComboBox<String> valueFontNameList = new JComboBox<>(keys(StatGraphProperties.getFontNameMap()));
 
-    private final JComboBox<String> valueFontSizeList = new JComboBox<>(StatGraphProperties.getFontSize());
+    private JComboBox<String> valueFontSizeList = new JComboBox<>(StatGraphProperties.getFontSize());
 
-    private final JComboBox<String> valueFontStyleList = new JComboBox<>(keys(StatGraphProperties.getFontStyleMap()));
+    private JComboBox<String> valueFontStyleList = new JComboBox<>(keys(StatGraphProperties.getFontStyleMap()));
 
-    private final JComboBox<String> fontNameList = new JComboBox<>(keys(StatGraphProperties.getFontNameMap()));
+    private JComboBox<String> fontNameList = new JComboBox<>(keys(StatGraphProperties.getFontNameMap()));
 
-    private final JComboBox<String> fontSizeList = new JComboBox<>(StatGraphProperties.getFontSize());
+    private JComboBox<String> fontSizeList = new JComboBox<>(StatGraphProperties.getFontSize());
 
-    private final JComboBox<String> fontStyleList = new JComboBox<>(keys(StatGraphProperties.getFontStyleMap()));
+    private JComboBox<String> fontStyleList = new JComboBox<>(keys(StatGraphProperties.getFontStyleMap()));
 
-    private final JComboBox<String> legendPlacementList = new JComboBox<>(keys(StatGraphProperties.getPlacementNameMap()));
-
-    // Default checked
-    private final JCheckBox drawOutlinesBar = new JCheckBox(JMeterUtils.getResString("aggregate_graph_draw_outlines"), true); // $NON-NLS-1$
+    private JComboBox<String> legendPlacementList = new JComboBox<>(keys(StatGraphProperties.getPlacementNameMap()));
 
     // Default checked
-    private final JCheckBox numberShowGrouping = new JCheckBox(JMeterUtils.getResString("aggregate_graph_number_grouping"), true); // $NON-NLS-1$
+    private JCheckBox drawOutlinesBar = new JCheckBox(JMeterUtils.getResString("aggregate_graph_draw_outlines"), true); // $NON-NLS-1$
 
     // Default checked
-    private final JCheckBox valueLabelsVertical = new JCheckBox(JMeterUtils.getResString("aggregate_graph_value_labels_vertical"), true); // $NON-NLS-1$
+    private JCheckBox numberShowGrouping = new JCheckBox(JMeterUtils.getResString("aggregate_graph_number_grouping"), true); // $NON-NLS-1$
 
-    private final static Color colorBarGraph = Color.YELLOW;
+    // Default checked
+    private JCheckBox valueLabelsVertical = new JCheckBox(JMeterUtils.getResString("aggregate_graph_value_labels_vertical"), true); // $NON-NLS-1$
+
+    private Color colorBarGraph = Color.YELLOW;
 
     private Color colorForeGraph = Color.BLACK;
 
@@ -261,7 +261,7 @@ public class StatGraphVisualizer extends AbstractVisualizer implements Clearable
 
     private Pattern pattern = null;
 
-    private final Deque<SamplingStatCalculator> newRows = new ConcurrentLinkedDeque<>();
+    private Deque<SamplingStatCalculator> newRows = new ConcurrentLinkedDeque<>();
 
     public StatGraphVisualizer() {
         super();
@@ -336,7 +336,7 @@ public class StatGraphVisualizer extends AbstractVisualizer implements Clearable
         };
     }
 
-    private static String[] keys(Map<String, ?> map) {
+    private String[] keys(Map<String, ?> map) {
         return map.keySet().toArray(ArrayUtils.EMPTY_STRING_ARRAY);
     }
 

@@ -92,7 +92,6 @@ public class BeanShellListener extends BeanShellTestElement
     }
 
     @Override
-    @SuppressWarnings("RedundantOverride")
     public Object clone() {
         return super.clone();
     }

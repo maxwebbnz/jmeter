@@ -23,12 +23,10 @@ import java.util.Map;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerBase;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.testelement.TestElement;
-import org.apache.jorphan.reflect.JMeterService;
 
 /**
  * Factory of sampler
  */
-@JMeterService
 public interface SamplerCreator {
 
     /**

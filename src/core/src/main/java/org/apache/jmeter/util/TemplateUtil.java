@@ -36,7 +36,7 @@ import freemarker.template.TemplateExceptionHandler;
  */
 public final class TemplateUtil {
 
-    private static final Configuration templateConfiguration = init();
+    private static Configuration templateConfiguration = init();
 
     private TemplateUtil() {
         super();

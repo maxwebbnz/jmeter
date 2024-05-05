@@ -44,9 +44,9 @@ import org.slf4j.LoggerFactory;
  */
 public class TimeoutEnabledQueueRequestor {
     private static final Logger logger = LoggerFactory.getLogger(TimeoutEnabledQueueRequestor.class);
-    private final TemporaryQueue tempQueue;
-    private final MessageProducer sender;
-    private final MessageConsumer receiver;
+    private TemporaryQueue tempQueue;
+    private MessageProducer sender;
+    private MessageConsumer receiver;
 
     /**
      * Constructor for the <code>TimeoutEnabledQueueRequestor</code> class.

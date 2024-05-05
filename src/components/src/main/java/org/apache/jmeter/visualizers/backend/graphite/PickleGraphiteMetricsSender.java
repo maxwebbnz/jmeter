@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.pool2.impl.GenericKeyedObjectPool;
-import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +55,7 @@ class PickleGraphiteMetricsSender extends AbstractGraphiteMetricsSender {
     private List<MetricTuple> metrics = new ArrayList<>();
 
     private SocketConnectionInfos socketConnectionInfos;
-    private GenericKeyedObjectPool<? super SocketConnectionInfos, SocketOutputStream> socketOutputStreamPool;
+    private GenericKeyedObjectPool<SocketConnectionInfos, SocketOutputStream> socketOutputStreamPool;
     private String prefix;
 
     PickleGraphiteMetricsSender() {
@@ -80,16 +79,11 @@ class PickleGraphiteMetricsSender extends AbstractGraphiteMetricsSender {
 
     /** Setup used for testing, or if explicit customisation is required. */
     public void setup(SocketConnectionInfos socketConnectionInfos,
-                      GenericKeyedObjectPool<? super SocketConnectionInfos, SocketOutputStream> socketOutputStreamPool,
+                      GenericKeyedObjectPool<SocketConnectionInfos, SocketOutputStream> socketOutputStreamPool,
                       String prefix) {
         this.socketConnectionInfos = socketConnectionInfos;
         this.socketOutputStreamPool = socketOutputStreamPool;
         this.prefix = prefix;
-    }
-
-    @VisibleForTesting
-    List<MetricTuple> getMetrics() {
-        return metrics;
     }
 
     /*
@@ -101,7 +95,12 @@ class PickleGraphiteMetricsSender extends AbstractGraphiteMetricsSender {
      */
     @Override
     public void addMetric(long timestamp, String contextName, String metricName, String metricValue) {
-        String name = prefix + contextName + "." + metricName;
+        String name = new StringBuilder(50)
+                .append(prefix)
+                .append(contextName)
+                .append(".")
+                .append(metricName)
+                .toString();
         synchronized (lock) {
             metrics.add(new MetricTuple(name, timestamp, metricValue));
         }
@@ -166,8 +165,7 @@ class PickleGraphiteMetricsSender extends AbstractGraphiteMetricsSender {
     }
 
     /** See: https://graphite.readthedocs.io/en/1.0.0/feeding-carbon.html */
-    @VisibleForTesting
-    static String convertMetricsToPickleFormat(List<MetricTuple> metrics) {
+    private static String convertMetricsToPickleFormat(List<MetricTuple> metrics) {
         StringBuilder pickled = new StringBuilder(metrics.size() * 75);
         pickled.append(MARK).append(LIST);
 

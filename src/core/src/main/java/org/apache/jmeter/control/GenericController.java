@@ -21,16 +21,16 @@ import java.io.Serializable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
-import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.apache.jmeter.engine.event.LoopIterationEvent;
 import org.apache.jmeter.engine.event.LoopIterationListener;
 import org.apache.jmeter.samplers.Sampler;
 import org.apache.jmeter.testelement.AbstractTestElement;
 import org.apache.jmeter.testelement.TestElement;
-import org.apache.jmeter.testelement.schema.PropertiesAccessor;
 import org.apache.jmeter.threads.TestCompilerHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +58,7 @@ public class GenericController extends AbstractTestElement implements Controller
     private transient Deque<LoopIterationListener> iterationListeners = new ArrayDeque<>();
 
     // Only create the map if it is required
-    private transient IdentityHashMap<TestElement, Object> children = new IdentityHashMap<>();
+    private transient ConcurrentMap<TestElement, Object> children = new ConcurrentHashMap<>();
 
     private static final Object DUMMY = new Object();
 
@@ -89,16 +89,6 @@ public class GenericController extends AbstractTestElement implements Controller
      * Creates a Generic Controller
      */
     public GenericController() {
-    }
-
-    @Override
-    public GenericControllerSchema getSchema() {
-        return GenericControllerSchema.INSTANCE;
-    }
-
-    @Override
-    public PropertiesAccessor<? extends GenericController, ? extends GenericControllerSchema> getProps() {
-        return new PropertiesAccessor<>(this, getSchema());
     }
 
     @Override
@@ -363,13 +353,10 @@ public class GenericController extends AbstractTestElement implements Controller
      * {@inheritDoc}
      */
     @Override
-    @SuppressWarnings("SynchronizeOnNonFinalField")
     public final boolean addTestElementOnce(TestElement child){
-        synchronized (children) {
-            if (children.putIfAbsent(child, DUMMY) == null) {
-                addTestElement(child);
-                return true;
-            }
+        if (children.putIfAbsent(child, DUMMY) == null) {
+            addTestElement(child);
+            return true;
         }
         return false;
     }
@@ -427,7 +414,7 @@ public class GenericController extends AbstractTestElement implements Controller
 
     protected Object readResolve(){
         iterationListeners = new ArrayDeque<>();
-        children = new IdentityHashMap<>();
+        children = new ConcurrentHashMap<>();
         subControllersAndSamplers = new ArrayList<>();
 
         return this;

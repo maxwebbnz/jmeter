@@ -17,8 +17,8 @@
 
 package org.apache.jmeter.testelement;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.config.ConfigTestElement;
@@ -38,13 +38,13 @@ public class PackageTest {
         LoginConfig loginConfig = new LoginConfig();
         loginConfig.setUsername("user1");
         loginConfig.setPassword("pass1");
-        assertInstanceOf(NullProperty.class, config.getProperty("login"));
+        assertTrue(config.getProperty("login") instanceof NullProperty);
         // This test should work whether or not all Nulls are equal
         assertEquals(new NullProperty("login"), config.getProperty("login"));
         config.addProperty(new TestElementProperty("login", loginConfig));
         assertEquals(loginConfig.toString(), config.getPropertyAsString("login"));
         config.recoverRunningVersion();
-        assertInstanceOf(NullProperty.class, config.getProperty("login"));
+        assertTrue(config.getProperty("login") instanceof NullProperty);
         assertEquals(new NullProperty("login"), config.getProperty("login"));
     }
 

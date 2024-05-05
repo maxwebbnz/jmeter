@@ -19,7 +19,6 @@ package org.apache.jmeter.gui;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.Locale;
 
 /**
  * A file filter which allows files to be filtered based on a list of allowed
@@ -72,7 +71,7 @@ public class JMeterFileFilter extends javax.swing.filechooser.FileFilter impleme
      */
     @Override
     public boolean accept(File f) {
-        return (allowDirs && f.isDirectory()) || accept(f.getName().toLowerCase(Locale.ROOT));
+        return (allowDirs && f.isDirectory()) || accept(f.getName().toLowerCase());
         // TODO - why lower case? OK to use the default Locale?
     }
 

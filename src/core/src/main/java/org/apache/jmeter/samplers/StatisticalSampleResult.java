@@ -134,11 +134,4 @@ public class StatisticalSampleResult extends SampleResult implements
         }
         return sb.toString();
     }
-
-    @Override
-    protected void appendDebugParameters(StringBuilder sb) {
-        super.appendDebugParameters(sb);
-        sb.append(", errorCount=").append(errorCount);
-        sb.append(", elapsed=").append(elapsed);
-    }
 }

@@ -427,7 +427,7 @@ public class Functor {
         return sb.toString();
     }
 
-    private static void typesToString(StringBuilder sb, Class<?>[] _types) {
+    private void typesToString(StringBuilder sb,Class<?>[] _types) {
         sb.append("(");
         if (_types != null){
             for(int i=0; i < _types.length; i++){
@@ -440,13 +440,13 @@ public class Functor {
         sb.append(")");
     }
 
-    private static String typesToString(Class<?>[] argTypes) {
+    private String typesToString(Class<?>[] argTypes) {
         StringBuilder sb = new StringBuilder();
         typesToString(sb,argTypes);
         return sb.toString();
     }
 
-    private static Class<?> getPrimitive(Class<?> t) {
+    private Class<?> getPrimitive(Class<?> t) {
         if (t == null) {
             return null;
         }
@@ -472,7 +472,7 @@ public class Functor {
         return c;
     }
 
-    private static Class<?>[] getNewArray(int i, Class<?> replacement, Class<?>[] orig) {
+    private Class<?>[] getNewArray(int i, Class<?> replacement, Class<?>[] orig) {
         Class<?>[] newArray = new Class[orig.length];
         for (int j = 0; j < newArray.length; j++) {
             if (j == i) {

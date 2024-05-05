@@ -71,7 +71,6 @@ public class BeanShellTimer extends BeanShellTestElement implements Cloneable, T
     }
 
     @Override
-    @SuppressWarnings("RedundantOverride")
     public Object clone() {
         return super.clone();
     }

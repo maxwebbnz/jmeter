@@ -18,7 +18,6 @@
 package org.apache.jmeter.visualizers.backend;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.apache.jmeter.report.processor.DescriptiveStatisticsFactory;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.util.JMeterUtils;
@@ -28,12 +27,10 @@ import org.apache.jmeter.util.JMeterUtils;
  * @since 2.13
  */
 public class UserMetric {
-
     private static final int SLIDING_WINDOW_SIZE = JMeterUtils.getPropDefault("backend_metrics_window", 100); //$NON-NLS-1$
 
     // Limit to sliding window of SLIDING_WINDOW_SIZE values
-    private final DescriptiveStatistics usersStats = DescriptiveStatisticsFactory.createDescriptiveStatistics(SLIDING_WINDOW_SIZE);
-
+    private DescriptiveStatistics usersStats = new DescriptiveStatistics(SLIDING_WINDOW_SIZE);
     /**
      *
      */

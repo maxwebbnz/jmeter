@@ -17,16 +17,15 @@
 
 package org.apache.jmeter.functions;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 
 import org.apache.jmeter.engine.util.CompoundVariable;
 import org.apache.jmeter.junit.JMeterTestCase;
-import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.threads.JMeterContext;
 import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.threads.JMeterVariables;
@@ -35,30 +34,27 @@ import org.junit.jupiter.api.Test;
 
 public class SplitFunctionTest extends JMeterTestCase {
 
+    private JMeterContext jmctx = null;
     private JMeterVariables vars = null;
 
     @BeforeEach
     public void setUp() {
-        JMeterContext jmeterContext = JMeterContextService.getContext();
-        jmeterContext.setVariables(new JMeterVariables());
-        vars = jmeterContext.getVariables();
+        jmctx = JMeterContextService.getContext();
+        jmctx.setVariables(new JMeterVariables());
+        vars = jmctx.getVariables();
     }
 
     @Test
-    public void shouldThrowExceptionWhenParameterCountIsInvalid() {
-        InvalidVariableException invalidVariableException = assertThrows(InvalidVariableException.class, () ->
-                splitParams("a,b,c", null, null),
-            ""
-        );
-        assertEquals(
-            "__split called with wrong number of parameters. Actual: 1. Expected: >= 2 and <= 3",
-            invalidVariableException.getMessage()
-        );
-    }
+    public void splitTest1() throws Exception {
+        String src = "";
 
-    @Test
-    public void shouldSplitWithoutAnyArguments() throws Exception {
-        String src = "a,b,c";
+        try {
+            splitParams("a,b,c", null, null);
+            fail("Expected InvalidVariableException (wrong number of parameters)");
+        } catch (InvalidVariableException e) {
+            // OK
+        }
+        src = "a,b,c";
         SplitFunction split;
         split = splitParams(src, "VAR1", null);
         assertEquals(src, split.execute());
@@ -138,28 +134,10 @@ public class SplitFunctionTest extends JMeterTestCase {
         assertNull(vars.get("VAR5_5"));
     }
 
-    @Test
-    public void shouldSplitWithPreviousResultOnly() throws Exception {
-        String src = "a,,c,";
-        vars.put("VAR", src);
-        SplitFunction split = splitParams("${VAR}", "VAR5", null);
-
-        SampleResult previousResult = new SampleResult();
-        previousResult.setResponseData("Some data", null);
-
-        assertEquals(src, split.execute(previousResult, null));
-        assertEquals("4", vars.get("VAR5_n"));
-        assertEquals("a", vars.get("VAR5_1"));
-        assertEquals("?", vars.get("VAR5_2"));
-        assertEquals("c", vars.get("VAR5_3"));
-        assertEquals("?", vars.get("VAR5_4"));
-        assertNull(vars.get("VAR5_5"));
-    }
-
     // Create the SplitFile function and set its parameters.
     private static SplitFunction splitParams(String p1, String p2, String p3) throws Exception {
         SplitFunction split = new SplitFunction();
-        Collection<CompoundVariable> parms = new ArrayList<>();
+        Collection<CompoundVariable> parms = new LinkedList<>();
         parms.add(new CompoundVariable(p1));
         if (p2 != null) {
             parms.add(new CompoundVariable(p2));

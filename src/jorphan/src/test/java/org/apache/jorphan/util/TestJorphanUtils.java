@@ -18,16 +18,15 @@
 package org.apache.jorphan.util;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.nio.charset.StandardCharsets;
 
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
+import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -254,7 +253,7 @@ public class TestJorphanUtils {
 
     @Test
     public void testGetByteArraySlice() throws Exception {
-        assertArrayEquals(new byte[]{1, 2},
+        Assert.assertArrayEquals(new byte[]{1, 2},
                 JOrphanUtils.getByteArraySlice(new byte[]{0, 1, 2, 3}, 1, 2));
     }
 
@@ -281,16 +280,16 @@ public class TestJorphanUtils {
     }
 
     private void assertEqualsArray(byte[] expected, byte[] actual) {
-        assertEquals(expected.length, actual.length, "arrays must be same length");
+        assertEquals("arrays must be same length", expected.length, actual.length);
         for (int i = 0; i < expected.length; i++) {
-            assertEquals(expected[i], actual[i], "values must be the same for index: " + i);
+            assertEquals("values must be the same for index: " + i, expected[i], actual[i]);
         }
     }
 
     @Test
     public void testNullifyIfEmptyTrimmed() {
-        assertNull(JOrphanUtils.nullifyIfEmptyTrimmed(null));
-        assertNull(JOrphanUtils.nullifyIfEmptyTrimmed("\u0001"));
+        Assert.assertNull(JOrphanUtils.nullifyIfEmptyTrimmed(null));
+        Assert.assertNull(JOrphanUtils.nullifyIfEmptyTrimmed("\u0001"));
         assertEquals("1234", JOrphanUtils.nullifyIfEmptyTrimmed("1234"));
     }
 
@@ -335,37 +334,37 @@ public class TestJorphanUtils {
     @Test
     public void testReplaceAllWithRegexWithSearchValueContainedInReplaceValue() {
         // Bug 61054
-        assertArrayEquals(new Object[]{"abcd", 1},
+        Assert.assertArrayEquals(new Object[]{"abcd", 1},
                 JOrphanUtils.replaceAllWithRegex("abc", "abc", "abcd", true));
     }
 
     @Test
     public void testReplaceAllWithRegex() {
-        assertArrayEquals(new Object[]{"toto", 0},
+        Assert.assertArrayEquals(new Object[]{"toto", 0},
                 JOrphanUtils.replaceAllWithRegex("toto", "ti", "ta", true));
-        assertArrayEquals(new Object[]{"toto", 0},
+        Assert.assertArrayEquals(new Object[]{"toto", 0},
                 JOrphanUtils.replaceAllWithRegex("toto", "TO", "TI", true));
-        assertArrayEquals(new Object[]{"TITI", 2},
+        Assert.assertArrayEquals(new Object[]{"TITI", 2},
                 JOrphanUtils.replaceAllWithRegex("toto", "TO", "TI", false));
-        assertArrayEquals(new Object[]{"TITI", 2},
+        Assert.assertArrayEquals(new Object[]{"TITI", 2},
                 JOrphanUtils.replaceAllWithRegex("toto", "to", "TI", true));
-        assertArrayEquals(new Object[]{"TITIti", 2},
+        Assert.assertArrayEquals(new Object[]{"TITIti", 2},
                 JOrphanUtils.replaceAllWithRegex("tototi", "to", "TI", true));
-        assertArrayEquals(new Object[]{"TOTIti", 1},
+        Assert.assertArrayEquals(new Object[]{"TOTIti", 1},
                 JOrphanUtils.replaceAllWithRegex("TOtoti", "to", "TI", true));
-        assertArrayEquals(new Object[]{"TOTI", 1},
+        Assert.assertArrayEquals(new Object[]{"TOTI", 1},
                 JOrphanUtils.replaceAllWithRegex("TOtoti", "to.*", "TI", true));
-        assertArrayEquals(new Object[]{"TOTI", 1},
+        Assert.assertArrayEquals(new Object[]{"TOTI", 1},
                 JOrphanUtils.replaceAllWithRegex("TOtoti", "to.*ti", "TI", true));
-        assertArrayEquals(new Object[]{"TOTITITITIaTITITIti", 7},
+        Assert.assertArrayEquals(new Object[]{"TOTITITITIaTITITIti", 7},
                 JOrphanUtils.replaceAllWithRegex("TO1232a123ti", "[0-9]", "TI", true));
-        assertArrayEquals(new Object[]{"TOTIaTIti", 2},
+        Assert.assertArrayEquals(new Object[]{"TOTIaTIti", 2},
                 JOrphanUtils.replaceAllWithRegex("TO1232a123ti", "[0-9]+", "TI", true));
 
-        assertArrayEquals(new Object[]{"TO${var}2a${var}ti", 2},
+        Assert.assertArrayEquals(new Object[]{"TO${var}2a${var}ti", 2},
                 JOrphanUtils.replaceAllWithRegex("TO1232a123ti", "123", "${var}", true));
 
-        assertArrayEquals(new Object[]{"TO${var}2a${var}ti${var2}", 2},
+        Assert.assertArrayEquals(new Object[]{"TO${var}2a${var}ti${var2}", 2},
                 JOrphanUtils.replaceAllWithRegex("TO1232a123ti${var2}", "123", "${var}", true));
     }
 

@@ -92,8 +92,8 @@ public class HttpMirrorServer extends Thread implements Stoppable, NonTestElemen
     private volatile Exception except;
 
     private final int daemonPort;
-    private final int maxThreadPoolSize;
-    private final int maxQueueSize;
+    private int maxThreadPoolSize;
+    private int maxQueueSize;
 
     /**
      * Create a new Daemon with the specified port and target.

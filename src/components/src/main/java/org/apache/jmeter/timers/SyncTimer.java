@@ -86,7 +86,6 @@ public class SyncTimer extends AbstractTestElement implements Timer, Serializabl
          *             entering or while waiting
          * @see java.util.concurrent.CyclicBarrier#await()
          */
-        @SuppressWarnings("UnusedMethod")
         public int await() throws InterruptedException, BrokenBarrierException{
             return barrier.await();
         }

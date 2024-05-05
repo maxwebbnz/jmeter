@@ -15,24 +15,16 @@
  * limitations under the License.
  */
 
-plugins {
-    id("java-test-fixtures")
-    id("build-logic.build-params")
-    id("build-logic.jvm-published-library")
-}
-
 dependencies {
-    api(projects.src.core)
-    testImplementation(testFixtures(projects.src.core))
+    api(project(":src:core"))
+    testImplementation(project(":src:core", "testClasses"))
 
     api("org.apache-extras.beanshell:bsh") {
-        because(
-            """
+        because("""
             BeanShell is not required for JMeter, however it is commonly used in the jmx scripts.
             New scripts should refrain from using BeanShell though and migrate to Groovy or other
             faster engines
-            """.trimIndent()
-        )
+        """.trimIndent())
     }
 
     api("javax.mail:mail") {
@@ -53,16 +45,8 @@ dependencies {
     implementation("org.apache.commons:commons-pool2")
     implementation("commons-codec:commons-codec")
     implementation("org.ow2.asm:asm")
-    implementation("org.jodd:jodd-log") {
-        exclude("ch.qos.logback")
-        exclude("commons-logging")
-        exclude("org.apache.logging.log4j")
-    }
-    implementation("org.jodd:jodd-lagarto") {
-        exclude("ch.qos.logback")
-        exclude("commons-logging")
-        exclude("org.apache.logging.log4j")
-    }
+    implementation("org.jodd:jodd-log")
+    implementation("org.jodd:jodd-lagarto")
     implementation("com.jayway.jsonpath:json-path")
     implementation("org.apache.httpcomponents:httpasyncclient")
     implementation("org.apache.httpcomponents:httpcore-nio")
@@ -87,12 +71,28 @@ dependencies {
     testRuntimeOnly("org.bouncycastle:bcpkix-jdk15on")
     testRuntimeOnly("org.bouncycastle:bcprov-jdk15on")
     testImplementation("nl.jqno.equalsverifier:equalsverifier")
-    testImplementation(testFixtures(projects.src.testkitWiremock))
-    testFixturesImplementation(testFixtures(projects.src.core))
-    testImplementation("io.mockk:mockk")
+    testImplementation(testFixtures(project(":src:testkit-wiremock")))
 }
 
-if (!buildParameters.enableJavaFx) {
+fun String?.toBool(nullAs: Boolean, blankAs: Boolean, default: Boolean) =
+    when {
+        this == null -> nullAs
+        isBlank() -> blankAs
+        default -> !equals("false", ignoreCase = true)
+        else -> equals("true", ignoreCase = true)
+    }
+
+fun classExists(name: String) =
+    try {
+        Class.forName(name)
+        true
+    } catch (e: Throwable) {
+        false
+    }
+
+if (!(project.findProperty("enableJavaFx") as? String)
+        .toBool(nullAs = classExists("javafx.application.Platform"), blankAs = true, default = false)
+) {
     // JavaFX is not present in Maven Central, so exclude the file unless explicitly asked by
     // -PenableJavaFx
     logger.lifecycle("RenderInBrowser is excluded from compilation. If you want to compile it, add -PenableJavaFx")

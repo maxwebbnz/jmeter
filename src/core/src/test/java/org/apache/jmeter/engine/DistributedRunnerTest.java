@@ -17,14 +17,14 @@
 
 package org.apache.jmeter.engine;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.Assert.fail;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
@@ -32,15 +32,11 @@ import java.util.Properties;
 import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jorphan.collections.HashTree;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Execution(ExecutionMode.SAME_THREAD) // System.setOut must not be run concurrently with other tests
 public class DistributedRunnerTest {
 
-    @SuppressWarnings("CatchAndPrintStackTrace")
     public static void createJmeterEnv() {
         File propsFile;
         try {
@@ -54,7 +50,7 @@ public class DistributedRunnerTest {
     }
 
     @Test
-    public void testSuccess() {
+    public void testSuccess() throws Exception {
         createJmeterEnv();
         JMeterUtils.setProperty(DistributedRunner.RETRIES_NUMBER, "1");
         JMeterUtils.setProperty(DistributedRunner.CONTINUE_ON_FAIL, "false");
@@ -70,7 +66,7 @@ public class DistributedRunnerTest {
     }
 
     @Test
-    public void testFailure1() {
+    public void testFailure1() throws Exception {
         createJmeterEnv();
         JMeterUtils.setProperty(DistributedRunner.RETRIES_NUMBER, "2");
         JMeterUtils.setProperty(DistributedRunner.RETRIES_DELAY, "1");
@@ -88,21 +84,16 @@ public class DistributedRunnerTest {
         PrintStream origSystemOut = System.out;
         ByteArrayOutputStream catchingOut = new ByteArrayOutputStream();
         System.setOut(new PrintStream(catchingOut));
-        RuntimeException ex = assertThrows(
-                RuntimeException.class,
-                () -> runner.init(hosts, new HashTree()),
-                "Expecting IllegalArgumentException since the testplan is invalid"
-        );
-        if (!ex.getMessage().startsWith("Following remote engines could not be configured:")) {
-            throw new AssertionError(
-                    "Message should start with 'Following remote engines could not be configured:', actual message was " +
-                            ex.getMessage(), ex);
+        try {
+            runner.init(hosts, new HashTree());
+            fail();
+        } catch (RuntimeException ignored) {
         }
         System.setOut(origSystemOut);
     }
 
     @Test
-    public void testFailure2() {
+    public void testFailure2() throws Exception {
         createJmeterEnv();
         JMeterUtils.setProperty(DistributedRunner.RETRIES_NUMBER, "1");
         JMeterUtils.setProperty(DistributedRunner.RETRIES_DELAY, "1");
@@ -113,7 +104,7 @@ public class DistributedRunnerTest {
     }
 
     @Test
-    public void testFailure3() {
+    public void testFailure3() throws Exception {
         createJmeterEnv();
         JMeterUtils.setProperty(DistributedRunner.RETRIES_NUMBER, "1");
         JMeterUtils.setProperty(DistributedRunner.RETRIES_DELAY, "1");
@@ -128,7 +119,7 @@ public class DistributedRunnerTest {
     }
 
     private static class DistributedRunnerEmul extends DistributedRunner {
-        public List<EmulatorEngine> engines = new ArrayList<>();
+        public List<EmulatorEngine> engines = new LinkedList<>();
 
         @Override
         protected JMeterEngine createEngine(String address) {
@@ -155,7 +146,7 @@ public class DistributedRunnerTest {
         }
 
         @Override
-        public void runTest() {
+        public void runTest() throws JMeterEngineException {
             log.debug("Running {}", host);
         }
 

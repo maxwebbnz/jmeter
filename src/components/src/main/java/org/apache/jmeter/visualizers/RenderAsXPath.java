@@ -59,13 +59,10 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import com.google.auto.service.AutoService;
-
 
 /**
  * Implement ResultsRender for XPath tester
  */
-@AutoService(ResultRenderer.class)
 public class RenderAsXPath implements ResultRenderer, ActionListener {
 
     private static final Logger log = LoggerFactory.getLogger(RenderAsXPath.class);
@@ -160,7 +157,7 @@ public class RenderAsXPath implements ResultRenderer, ActionListener {
      * @return Document
      *
      */
-    private static Document parseResponse(String unicodeData, XPathExtractor extractor)
+    private Document parseResponse(String unicodeData, XPathExtractor extractor)
       throws IOException, ParserConfigurationException,SAXException,TidyException
     {
       //TODO: validate contentType for reasonable types?
@@ -183,7 +180,6 @@ public class RenderAsXPath implements ResultRenderer, ActionListener {
     @Override
     public void renderResult(SampleResult sampleResult) {
         String response = ViewResultsFullVisualizer.getResponseAsString(sampleResult);
-        response = ViewResultsFullVisualizer.wrapLongLines(response);
         try {
             xmlDataField.setText(response == null ? "" : response);
             xmlDataField.setCaretPosition(0);

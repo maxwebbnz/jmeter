@@ -18,7 +18,6 @@
 package org.apache.jmeter.threads;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,6 +25,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.hamcrest.CoreMatchers;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -109,7 +109,7 @@ public class TestUnmodifiableJMeterVariables {
     }
 
     private void assertThrowsUnsupportedOperation(Executable executable) {
-        assertThrows(
+        Assertions.assertThrows(
                 UnsupportedOperationException.class,
                 executable
         );

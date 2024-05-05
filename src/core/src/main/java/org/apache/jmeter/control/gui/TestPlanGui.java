@@ -18,9 +18,9 @@
 package org.apache.jmeter.control.gui;
 
 import java.awt.BorderLayout;
-import java.util.Arrays;
 import java.util.Collection;
 
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -29,7 +29,6 @@ import javax.swing.JPopupMenu;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.config.gui.ArgumentsPanel;
 import org.apache.jmeter.gui.AbstractJMeterGuiComponent;
-import org.apache.jmeter.gui.JBooleanPropertyEditor;
 import org.apache.jmeter.gui.TestElementMetadata;
 import org.apache.jmeter.gui.action.ActionNames;
 import org.apache.jmeter.gui.util.FileListPanel;
@@ -37,7 +36,6 @@ import org.apache.jmeter.gui.util.MenuFactory;
 import org.apache.jmeter.gui.util.VerticalPanel;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.testelement.TestPlan;
-import org.apache.jmeter.testelement.TestPlanSchema;
 import org.apache.jmeter.testelement.property.JMeterProperty;
 import org.apache.jmeter.util.JMeterUtils;
 
@@ -51,23 +49,14 @@ public class TestPlanGui extends AbstractJMeterGuiComponent {
     private static final long serialVersionUID = 240L;
 
     /**
-     * A checkbox allowing the user to specify whether JMeter should do
+     * A checkbox allowing the user to specify whether or not JMeter should do
      * functional testing.
      */
-    private final JBooleanPropertyEditor functionalMode =
-            new JBooleanPropertyEditor(
-                    TestPlanSchema.INSTANCE.getFunctionalMode(),
-                    JMeterUtils.getResString("functional_mode"));
+    private final JCheckBox functionalMode;
 
-    private final JBooleanPropertyEditor serializedMode =
-            new JBooleanPropertyEditor(
-                    TestPlanSchema.INSTANCE.getSerializeThreadgroups(),
-                    JMeterUtils.getResString("testplan.serialized"));
+    private final JCheckBox serializedMode;
 
-    private final JBooleanPropertyEditor tearDownOnShutdown =
-            new JBooleanPropertyEditor(
-                    TestPlanSchema.INSTANCE.getTearDownOnShutdown(),
-                    JMeterUtils.getResString("teardown_on_shutdown"));
+    private final JCheckBox tearDownOnShutdown;
 
     /** A panel allowing the user to define variables. */
     private final ArgumentsPanel argsPanel;
@@ -80,14 +69,10 @@ public class TestPlanGui extends AbstractJMeterGuiComponent {
     public TestPlanGui() {
         browseJar = new FileListPanel(JMeterUtils.getResString("test_plan_classpath_browse"), ".jar"); // $NON-NLS-1$ $NON-NLS-2$
         argsPanel = new ArgumentsPanel(JMeterUtils.getResString("user_defined_variables")); // $NON-NLS-1$
+        serializedMode = new JCheckBox(JMeterUtils.getResString("testplan.serialized")); // $NON-NLS-1$
+        functionalMode = new JCheckBox(JMeterUtils.getResString("functional_mode")); // $NON-NLS-1$
+        tearDownOnShutdown = new JCheckBox(JMeterUtils.getResString("teardown_on_shutdown"), true); // $NON-NLS-1$
         init();
-        bindingGroup.addAll(
-                Arrays.asList(
-                        functionalMode,
-                        serializedMode,
-                        tearDownOnShutdown
-                )
-        );
     }
 
     /**
@@ -125,33 +110,25 @@ public class TestPlanGui extends AbstractJMeterGuiComponent {
         return pop;
     }
 
+    /* Implements JMeterGUIComponent.createTestElement() */
     @Override
-    public TestElement makeTestElement() {
-        return new TestPlan();
-    }
-
-    @Override
-    public void assignDefaultValues(TestElement element) {
-        super.assignDefaultValues(element);
-        TestPlan tp = (TestPlan) element;
-        tp.setUserDefinedVariables((Arguments) argsPanel.createTestElement());
+    public TestElement createTestElement() {
+        TestPlan tp = new TestPlan();
+        modifyTestElement(tp);
+        return tp;
     }
 
     /* Implements JMeterGUIComponent.modifyTestElement(TestElement) */
     @Override
     public void modifyTestElement(TestElement plan) {
-        super.modifyTestElement(plan);
+        super.configureTestElement(plan);
         if (plan instanceof TestPlan) {
             TestPlan tp = (TestPlan) plan;
-            // TODO: set expression to TestPlan somehow
+            tp.setFunctionalMode(functionalMode.isSelected());
+            tp.setTearDownOnShutdown(tearDownOnShutdown.isSelected());
+            tp.setSerialized(serializedMode.isSelected());
             tp.setUserDefinedVariables((Arguments) argsPanel.createTestElement());
-            String[] files = browseJar.getFiles();
-            if (files.length == 0) {
-                // Remove property if it is empty
-                tp.setTestPlanClasspath(null);
-            } else {
-                tp.setTestPlanClasspathArray(files);
-            }
+            tp.setTestPlanClasspathArray(browseJar.getFiles());
         }
     }
 
@@ -187,6 +164,9 @@ public class TestPlanGui extends AbstractJMeterGuiComponent {
         super.configure(el);
         if (el instanceof TestPlan) {
             TestPlan tp = (TestPlan) el;
+            functionalMode.setSelected(tp.isFunctionalMode());
+            serializedMode.setSelected(tp.isSerialized());
+            tearDownOnShutdown.setSelected(tp.isTearDownOnShutdown());
             final JMeterProperty udv = tp.getUserDefinedVariablesAsProperty();
             if (udv != null) {
                 argsPanel.configure((Arguments) udv.getObjectValue());
@@ -220,6 +200,9 @@ public class TestPlanGui extends AbstractJMeterGuiComponent {
     @Override
     public void clearGui() {
         super.clearGui();
+        functionalMode.setSelected(false);
+        serializedMode.setSelected(false);
+        tearDownOnShutdown.setSelected(true);
         argsPanel.clear();
         browseJar.clearFiles();
     }

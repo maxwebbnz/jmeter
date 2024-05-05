@@ -370,20 +370,20 @@ public class AssertionGui extends AbstractAssertionGui {
         return panel;
     }
 
-    private static void addField(JPanel panel, JToggleButton button, GridBagConstraints gbc) {
+    private void addField(JPanel panel, JToggleButton button, GridBagConstraints gbc) {
         panel.add(button, gbc.clone());
         gbc.gridx++;
         gbc.fill=GridBagConstraints.HORIZONTAL;
     }
 
     // Next line
-    private static void resetContraints(GridBagConstraints gbc) {
+    private void resetContraints(GridBagConstraints gbc) {
         gbc.gridx = 0;
         gbc.gridy++;
         gbc.fill=GridBagConstraints.NONE;
     }
 
-    private static void initConstraints(GridBagConstraints gbc) {
+    private void initConstraints(GridBagConstraints gbc) {
         gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.fill = GridBagConstraints.NONE;
         gbc.gridheight = 1;

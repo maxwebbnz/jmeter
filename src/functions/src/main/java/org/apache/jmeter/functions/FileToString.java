@@ -32,8 +32,6 @@ import org.apache.jmeter.util.JMeterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.auto.service.AutoService;
-
 /**
  * FileToString Function to read a complete file into a String.
  * <p>
@@ -52,7 +50,6 @@ import com.google.auto.service.AutoService;
  * </ul>
  * @since 2.4
  */
-@AutoService(Function.class)
 public class FileToString extends AbstractFunction {
     private static final Logger log = LoggerFactory.getLogger(FileToString.class);
 

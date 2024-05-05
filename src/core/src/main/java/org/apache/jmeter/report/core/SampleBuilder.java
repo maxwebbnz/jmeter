@@ -50,9 +50,9 @@ public class SampleBuilder {
 
     private final SampleMetadata metadata;
 
-    private final String[] data;
+    private String[] data;
 
-    private final NumberFormat floatFormatter;
+    private NumberFormat floatFormatter;
 
     private int k = 0;
 

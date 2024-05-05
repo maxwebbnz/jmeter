@@ -18,13 +18,9 @@
 package org.apache.jmeter.protocol.jms.sampler;
 
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.jms.BytesMessage;
@@ -355,7 +351,7 @@ public class JMSSampler extends AbstractSampler implements ThreadListener {
     }
 
     @SuppressWarnings("JdkObsolete")
-    private static void extractContent(StringBuilder buffer, StringBuilder propBuffer, Message msg) {
+    private void extractContent(StringBuilder buffer, StringBuilder propBuffer, Message msg) {
         if (msg != null) {
             try {
                 if (msg instanceof TextMessage) {
@@ -597,7 +593,7 @@ public class JMSSampler extends AbstractSampler implements ThreadListener {
 
     public int getCommunicationstyle() {
         JMeterProperty prop = getProperty(JMS_COMMUNICATION_STYLE);
-        return prop.getIntValue();
+        return Integer.parseInt(prop.getStringValue());
     }
 
     public String getCommunicationstyleString() {
@@ -733,7 +729,7 @@ public class JMSSampler extends AbstractSampler implements ThreadListener {
     }
 
     @SuppressWarnings("JdkObsolete")
-    private static void printEnvironment(Context context) throws NamingException {
+    private void printEnvironment(Context context) throws NamingException {
         try {
             Hashtable<?, ?> env = context.getEnvironment();
             if (env != null) {
@@ -751,17 +747,10 @@ public class JMSSampler extends AbstractSampler implements ThreadListener {
         }
     }
 
-    private static String formatLikeDate(Instant instant) {
-        return DateTimeFormatter
-                .ofLocalizedDateTime(FormatStyle.LONG)
-                .withLocale(Locale.ROOT)
-                .withZone(ZoneId.systemDefault())
-                .format(instant);
-    }
-
+    @SuppressWarnings("JdkObsolete")
     private void logThreadStart() {
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Thread started {}", formatLikeDate(Instant.now()));
+            LOGGER.debug("Thread started {}", new Date());
             LOGGER.debug("JMSSampler: [{}], hashCode=[{}]", Thread.currentThread().getName(), hashCode());
             LOGGER.debug("QCF: [{}], sendQueue=[{}]", getQueueConnectionFactory(), getSendQueue());
             LOGGER.debug("Timeout = [{}]", getTimeout());
@@ -805,9 +794,10 @@ public class JMSSampler extends AbstractSampler implements ThreadListener {
      * {@inheritDoc}
      */
     @Override
+    @SuppressWarnings("JdkObsolete")
     public void threadFinished() {
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Thread ended {}", formatLikeDate(Instant.now()));
+            LOGGER.debug("Thread ended {}", new Date());
         }
 
         if (context != null) {

@@ -36,7 +36,6 @@ public interface RemoteJMeterEngine extends Remote {
 
     void rreset() throws RemoteException;
 
-    @SuppressWarnings("NonApiType")
     void rsetProperties(HashMap<String,String> p) throws RemoteException;
 
     void rexit() throws RemoteException;

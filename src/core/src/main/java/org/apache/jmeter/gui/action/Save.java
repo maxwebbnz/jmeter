@@ -49,14 +49,12 @@ import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.services.FileServer;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.testelement.TestPlan;
-import org.apache.jmeter.threads.AbstractThreadGroup;
+import org.apache.jmeter.threads.ThreadGroup;
 import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.auto.service.AutoService;
 
 /**
  * Save the current test plan; implements:
@@ -64,7 +62,6 @@ import com.google.auto.service.AutoService;
  * Save TestPlan As
  * Save (Selection) As
  */
-@AutoService(Command.class)
 public class Save extends AbstractAction {
     private static final Logger log = LoggerFactory.getLogger(Save.class);
 
@@ -183,7 +180,7 @@ public class Save extends AbstractAction {
      * @param nodes Array of {@link JMeterTreeNode}
      * @return {@link HashTree} new test plan
      */
-    private static HashTree createTestFragmentNode(JMeterTreeNode[] nodes) {
+    private HashTree createTestFragmentNode(JMeterTreeNode[] nodes) {
         TestElement element = GuiPackage.getInstance().createTestElement(TestFragmentControllerGui.class.getName());
         HashTree hashTree = new ListedHashTree();
         HashTree tfTree = hashTree.add(new JMeterTreeNode(element, null));
@@ -200,7 +197,7 @@ public class Save extends AbstractAction {
     /**
      * @return String new file name or null if user want to cancel
      */
-    private static String computeFileName() {
+    private String computeFileName() {
         JFileChooser chooser = FileDialoger.promptToSaveFile(GuiPackage.getInstance().getTreeListener()
                 .getCurrentNode().getName()
                 + JMX_FILE_EXTENSION);
@@ -337,7 +334,7 @@ public class Save extends AbstractAction {
      *         properties and that should be deleted after the save operation
      *         has performed successfully
      */
-    private static List<File> createBackupFile(File fileToBackup) {
+    private List<File> createBackupFile(File fileToBackup) {
         if (!BACKUP_ENABLED || !fileToBackup.exists()) {
             return EMPTY_FILE_LIST;
         }
@@ -400,7 +397,7 @@ public class Save extends AbstractAction {
      * @param backupFiles
      *            {@link List} of {@link File}
      */
-    private static int getHighestVersionNumber(Pattern backupPattern, List<? extends File> backupFiles) {
+    private int getHighestVersionNumber(Pattern backupPattern, List<File> backupFiles) {
         return backupFiles.stream().map(backupFile -> backupPattern.matcher(backupFile.getName()))
                 .filter(matcher -> matcher.find() && matcher.groupCount() > 0)
                 .mapToInt(matcher -> Integer.parseInt(matcher.group(1))).max().orElse(0);
@@ -414,7 +411,7 @@ public class Save extends AbstractAction {
      * @return list of files to be deleted based upon properties described
      *         {@link #createBackupFile(File)}
      */
-    private static List<File> backupFilesToDelete(List<? extends File> backupFiles) {
+    private List<File> backupFilesToDelete(List<File> backupFiles) {
         List<File> filesToDelete = new ArrayList<>();
         if (BACKUP_MAX_HOURS > 0) {
             filesToDelete.addAll(expiredBackupFiles(backupFiles));
@@ -434,7 +431,7 @@ public class Save extends AbstractAction {
      * @param backupFiles {@link List} of {@link File} to filter
      * @return {@link List} of {@link File} that are expired
      */
-    private static List<File> expiredBackupFiles(List<? extends File> backupFiles) {
+    private List<File> expiredBackupFiles(List<File> backupFiles) {
         if (BACKUP_MAX_HOURS > 0) {
             final long expiryMillis = System.currentTimeMillis() - (1L * BACKUP_MAX_HOURS * MS_PER_HOUR);
             return backupFiles.stream().filter(file -> file.lastModified() < expiryMillis).collect(Collectors.toList());
@@ -451,7 +448,7 @@ public class Save extends AbstractAction {
      */
     private static boolean checkAcceptableForTestFragment(JMeterTreeNode[] nodes) {
         return Arrays.stream(nodes).map(DefaultMutableTreeNode::getUserObject)
-                .noneMatch(o -> o instanceof AbstractThreadGroup || o instanceof TestPlan);
+                .noneMatch(o -> o instanceof ThreadGroup || o instanceof TestPlan);
     }
 
     // package protected to allow access from test code
@@ -466,7 +463,7 @@ public class Save extends AbstractAction {
 
     private static class PrivatePatternFileFilter implements IOFileFilter {
 
-        private final Pattern pattern;
+        private Pattern pattern;
 
         public PrivatePatternFileFilter(Pattern pattern) {
             if(pattern == null) {

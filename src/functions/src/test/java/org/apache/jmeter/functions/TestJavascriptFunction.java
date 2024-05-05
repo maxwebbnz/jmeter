@@ -17,9 +17,10 @@
 
 package org.apache.jmeter.functions;
 
+import static org.junit.Assert.assertEquals;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 
 import org.apache.jmeter.engine.util.CompoundVariable;
 import org.apache.jmeter.junit.JMeterTestCase;
@@ -29,7 +30,6 @@ import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.threads.JMeterVariables;
 import org.apache.jmeter.util.JMeterUtils;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -42,12 +42,12 @@ public class TestJavascriptFunction extends JMeterTestCase {
     private JMeterContext jmctx;
 
     @AfterEach
-    void tearDown() {
+    public void tearDown() {
         JMeterUtils.getJMeterProperties().remove("javascript.use_rhino");
     }
 
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         function = new JavaScript();
         result = new SampleResult();
         jmctx = JMeterContextService.getContext();
@@ -56,49 +56,49 @@ public class TestJavascriptFunction extends JMeterTestCase {
         vars = new JMeterVariables();
         jmctx.setVariables(vars);
         jmctx.setPreviousResult(result);
-        params = new ArrayList<>();
+        params = new LinkedList<>();
     }
 
     @Test
-    void testParameterCount() throws Exception {
+    public void testParameterCount() throws Exception {
         checkInvalidParameterCounts(function, 1, 2);
     }
 
     @Test
-    void testSum() throws Exception {
+    public void testSum() throws Exception {
         params.add(new CompoundVariable("1+2+3"));
         function.setParameters(params);
         String ret = function.execute(result, null);
-        Assertions.assertEquals("6", ret);
+        assertEquals("6", ret);
     }
 
     @Test
-    void testSumVar() throws Exception {
+    public void testSumVar() throws Exception {
         params.add(new CompoundVariable("1+2+3"));
         params.add(new CompoundVariable("TOTAL"));
         function.setParameters(params);
         String ret = function.execute(result, null);
-        Assertions.assertEquals("6", ret);
-        Assertions.assertEquals("6", vars.get("TOTAL"));
+        assertEquals("6", ret);
+        assertEquals("6", vars.get("TOTAL"));
     }
 
     @Test
-    void testReplace1() throws Exception {
+    public void testReplace1() throws Exception {
         params.add(new CompoundVariable(
                 "sampleResult.getResponseDataAsString().replaceAll('T','t')"));
         function.setParameters(params);
         String ret = function.execute(result, null);
-        Assertions.assertEquals("the quick brown fox", ret);
+        assertEquals("the quick brown fox", ret);
     }
 
     @Test
-    void testReplace2() throws Exception {
+    public void testReplace2() throws Exception {
         vars.put("URL", "/query.cgi?s1=1&amp;s2=2&amp;s3=3");
         params.add(new CompoundVariable("vars.get('URL').replaceAll('&amp;','&')"));
         params.add(new CompoundVariable("URL"));
         function.setParameters(params);
         String ret = function.execute(result, null);
-        Assertions.assertEquals("/query.cgi?s1=1&s2=2&s3=3", ret);
-        Assertions.assertEquals(ret, vars.getObject("URL"));
+        assertEquals("/query.cgi?s1=1&s2=2&s3=3", ret);
+        assertEquals(ret,vars.getObject("URL"));
     }
 }

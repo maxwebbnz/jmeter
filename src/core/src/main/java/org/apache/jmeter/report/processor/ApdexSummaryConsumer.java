@@ -141,7 +141,7 @@ public class ApdexSummaryConsumer extends
 
     }
 
-    private static double getApdex(ApdexSummaryData data) {
+    private double getApdex(ApdexSummaryData data) {
         return (data.getSatisfiedCount() + (double) data.getToleratedCount() / 2)
                 / data.getTotalCount();
     }

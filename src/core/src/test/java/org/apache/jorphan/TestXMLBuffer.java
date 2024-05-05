@@ -17,8 +17,8 @@
 
 package org.apache.jorphan;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import org.apache.jmeter.junit.JMeterTestCase;
 import org.apache.jorphan.util.XMLBuffer;
@@ -50,8 +50,10 @@ public class TestXMLBuffer extends JMeterTestCase {
     public void test4() throws Exception{
         XMLBuffer xb = new XMLBuffer();
         xb.openTag("abc");
-        assertThrows(IllegalArgumentException.class, () -> {
+        try {
             xb.closeTag("abcd");
-        });
+            fail("Should have caused IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+        }
     }
 }

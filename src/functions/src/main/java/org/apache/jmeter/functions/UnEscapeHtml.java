@@ -28,8 +28,6 @@ import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.samplers.Sampler;
 import org.apache.jmeter.util.JMeterUtils;
 
-import com.google.auto.service.AutoService;
-
 /**
  * Function to unescape a string containing entity escapes
  * to a string containing the actual Unicode characters corresponding to the escapes.
@@ -44,7 +42,6 @@ import com.google.auto.service.AutoService;
  * @see StringEscapeUtils#unescapeHtml4(String)
  * @since 2.3.3
  */
-@AutoService(Function.class)
 public class UnEscapeHtml extends AbstractFunction {
 
     private static final List<String> desc = new ArrayList<>();

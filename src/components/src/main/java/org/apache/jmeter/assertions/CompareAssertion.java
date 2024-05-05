@@ -48,9 +48,6 @@ public class CompareAssertion extends AbstractTestElement implements Assertion, 
 
     private Collection<SubstitutionElement> stringsToSkip;
 
-    private static final boolean USE_JAVA_REGEX = !JMeterUtils.getPropDefault(
-            "jmeter.regex.engine", "oro").equalsIgnoreCase("oro");
-
     public CompareAssertion() {
         super();
     }
@@ -126,7 +123,7 @@ public class CompareAssertion extends AbstractTestElement implements Assertion, 
         }
     }
 
-    private static void markContentFailure(CompareAssertionResult result, String prevContent, SampleResult prevResult,
+    private void markContentFailure(CompareAssertionResult result, String prevContent, SampleResult prevResult,
             SampleResult currentResult, String currentContent) {
         result.setFailure(true);
         StringBuilder sb = new StringBuilder();
@@ -140,7 +137,7 @@ public class CompareAssertion extends AbstractTestElement implements Assertion, 
         result.setFailureMessage(JMeterUtils.getResString("comparison_differ_content")); //$NON-NLS-1$
     }
 
-    private static void appendResultDetails(StringBuilder buf, SampleResult result) {
+    private void appendResultDetails(StringBuilder buf, SampleResult result) {
         final String samplerData = result.getSamplerData();
         if (samplerData != null) {
             buf.append(samplerData.trim());
@@ -158,25 +155,17 @@ public class CompareAssertion extends AbstractTestElement implements Assertion, 
             return content;
         }
 
-        if (USE_JAVA_REGEX) {
-            String result = content;
-            for (SubstitutionElement element: stringsToSkip) {
-                result = result.replaceAll(element.getRegex(), element.getSubstitute());
-            }
-            return result;
-        } else {
-            String result = content;
-            for (SubstitutionElement regex : stringsToSkip) {
-                emptySub.setSubstitution(regex.getSubstitute());
-                result = Util.substitute(
-                        JMeterUtils.getMatcher(),
-                        JMeterUtils.getPatternCache().getPattern(regex.getRegex()),
-                        emptySub,
-                        result,
-                        Util.SUBSTITUTE_ALL);
-            }
-            return result;
+        String result = content;
+        for (SubstitutionElement regex : stringsToSkip) {
+            emptySub.setSubstitution(regex.getSubstitute());
+            result = Util.substitute(
+                    JMeterUtils.getMatcher(),
+                    JMeterUtils.getPatternCache().getPattern(regex.getRegex()),
+                    emptySub,
+                    result,
+                    Util.SUBSTITUTE_ALL);
         }
+        return result;
     }
 
     @Override

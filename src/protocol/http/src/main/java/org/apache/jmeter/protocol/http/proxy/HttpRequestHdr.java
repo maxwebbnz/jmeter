@@ -24,7 +24,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -81,11 +80,11 @@ public class HttpRequestHdr {
 
     private String firstLine; // saved copy of first line for error reports
 
-    private final String prefix;
+    private String prefix;
 
-    private final int httpSampleNameMode;
+    private int httpSampleNameMode;
 
-    private final String httpSampleNameFormat;
+    private String httpSampleNameFormat;
 
     private boolean detectGraphQLRequest;
 
@@ -165,7 +164,7 @@ public class HttpRequestHdr {
                     inHeaders = false;
                     firstLine = false; // cannot be first line either
                 }
-                final String reqLine = line.toString(StandardCharsets.UTF_8.name());
+                final String reqLine = line.toString();
                 if (firstLine) {
                     parseFirstLine(reqLine);
                     firstLine = false;
@@ -190,7 +189,7 @@ public class HttpRequestHdr {
         if (log.isDebugEnabled()){
             log.debug("rawPostData in default JRE encoding: {}, Request: '{}'",
                     new String(rawPostData, Charset.defaultCharset()),
-                    clientRequest.toString(StandardCharsets.ISO_8859_1.name()).replaceAll("\r\n", CRLF));
+                    clientRequest.toString().replaceAll("\r\n", CRLF));
         }
         return clientRequest.toByteArray();
     }
@@ -298,7 +297,7 @@ public class HttpRequestHdr {
         return null;
     }
 
-    private static boolean isMultipart(String contentType) {
+    private boolean isMultipart(String contentType) {
         return contentType != null && contentType.startsWith(HTTPConstants.MULTIPART_FORM_DATA);
     }
 
@@ -416,7 +415,7 @@ public class HttpRequestHdr {
      *            String that is partially tokenized.
      * @return The remainder
      */
-    private static String getToken(StringTokenizer tk) {
+    private String getToken(StringTokenizer tk) {
         if (tk.hasMoreTokens()) {
             return tk.nextToken();
         }

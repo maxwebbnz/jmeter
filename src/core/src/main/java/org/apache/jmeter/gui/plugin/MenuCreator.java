@@ -21,12 +21,9 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.MenuElement;
 
-import org.apache.jorphan.reflect.JMeterService;
-
 /**
  * @since 2.10
  */
-@JMeterService
 public interface MenuCreator {
     enum MENU_LOCATION {
         FILE,

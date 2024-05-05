@@ -41,12 +41,9 @@ import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jorphan.gui.GuiUtils;
 import org.apache.jorphan.gui.JLabeledTextField;
 
-import com.google.auto.service.AutoService;
-
 /**
  * Implement ResultsRender for Boundary Extractor tester
  */
-@AutoService(ResultRenderer.class)
 public class RenderAsBoundaryExtractor implements ResultRenderer, ActionListener {
 
     private static final String BOUNDARY_EXTRACTOR_TESTER_COMMAND = "boundary_extractor_tester"; // $NON-NLS-1$
@@ -215,7 +212,6 @@ public class RenderAsBoundaryExtractor implements ResultRenderer, ActionListener
     public void renderResult(SampleResult sampleResult) {
         clearData();
         String response = ViewResultsFullVisualizer.getResponseAsString(sampleResult);
-        response = ViewResultsFullVisualizer.wrapLongLines(response);
         boundaryExtractorDataField.setText(response);
         boundaryExtractorDataField.setCaretPosition(0);
     }

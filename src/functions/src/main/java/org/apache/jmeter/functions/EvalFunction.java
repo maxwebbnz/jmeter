@@ -26,8 +26,6 @@ import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.samplers.Sampler;
 import org.apache.jmeter.util.JMeterUtils;
 
-import com.google.auto.service.AutoService;
-
 /**
  * Function to evaluate a string which may contain variable or function references.
  *
@@ -36,7 +34,6 @@ import com.google.auto.service.AutoService;
  * Returns: the evaluated value
  * @since 2.3.1
  */
-@AutoService(Function.class)
 public class EvalFunction extends AbstractFunction {
 
     private static final List<String> desc = new ArrayList<>();

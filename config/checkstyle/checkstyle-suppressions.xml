@@ -23,11 +23,11 @@
 <suppressions>
     <suppress checks="NewlineAtEndOfFile" files=".*.properties"/>
     <suppress checks="FileLength" files="HTTPSamplerBase.java"/>
+    <suppress checks="LineLength" files="SteppingThreadGroup.java"/>
+    <suppress checks="LineLength" files="AbstractSimpleThreadGroup.java"/>
     <!-- Slightly more lenient for tests -->
     <suppress checks="(EmptyCatchBlock|AvoidEscapedUnicodeCharacters)"
               files="test[\\/].*"/>
     <suppress checks="NewlineAtEndOfFile" files="test[\\/].*.xml"/>
     <suppress checks="NewlineAtEndOfFile" files="test[\\/].*.txt"/>
-    <suppress checks="IllegalThrows" files="test[\\/].*.java"/>
-    <suppress checks="UnnecessaryParentheses" files=".*.java"/>
 </suppressions>

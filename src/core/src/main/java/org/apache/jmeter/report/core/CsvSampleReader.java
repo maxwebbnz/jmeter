@@ -61,19 +61,19 @@ public class CsvSampleReader implements Closeable{
                             SampleSaveConfiguration.DEFAULT_DELIMITER))
                     .charAt(0);
 
-    private final File file;
+    private File file;
     private InputStream fis;
     private Reader isr;
     private BufferedReader reader;
-    private final char separator;
+    private char separator;
     private long row;
-    private final SampleMetadata metadata;
-    private final int columnCount;
+    private SampleMetadata metadata;
+    private int columnCount;
     private Sample lastSampleRead;
     /**
      * Number of sample_variables if csv file has no header
      */
-    private final int numberOfSampleVariablesInCsv;
+    private int numberOfSampleVariablesInCsv;
 
     /**
      * Instantiates a new csv sample reader.
@@ -150,14 +150,18 @@ public class CsvSampleReader implements Closeable{
                     && CSVSaveService.getSampleSaveConfiguration(
                             line, file.getAbsolutePath()) == null) {
                 // Build metadata from default save config
-                String warnMessage = "File '" + file.getAbsolutePath() + "' does not contain the field names header, "
+                if (log.isWarnEnabled()) {
+                    log.warn(
+                            "File '{}' does not contain the field names header, "
+                                    + "ensure the jmeter.save.saveservice.* properties are the same "
+                                    + "as when the CSV file was created or the file may be read incorrectly "
+                                    + "when generating report",
+                            file.getAbsolutePath());
+                }
+                System.out.println("File '"+file.getAbsolutePath()+"' does not contain the field names header, "
                         + "ensure the jmeter.save.saveservice.* properties are the same "
                         + "as when the CSV file was created or the file may be read incorrectly "
-                        + "when generating report";
-                if (log.isWarnEnabled()) {
-                    log.warn(warnMessage);
-                }
-                System.out.println(warnMessage);
+                        + "when generating report");
                 result = new SampleMetadata(
                         SampleSaveConfiguration.staticConfig());
 

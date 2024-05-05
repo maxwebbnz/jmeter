@@ -29,8 +29,6 @@ import org.apache.jmeter.util.JMeterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.auto.service.AutoService;
-
 /**
  * Function to evaluate a string which may contain variable or function references.
  *
@@ -39,7 +37,6 @@ import com.google.auto.service.AutoService;
  * Returns: the evaluated value
  * @since 2.3.1
  */
-@AutoService(Function.class)
 public class EvalVarFunction extends AbstractFunction {
 
     private static final Logger log = LoggerFactory.getLogger(EvalVarFunction.class);

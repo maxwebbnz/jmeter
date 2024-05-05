@@ -40,12 +40,10 @@ import org.apache.jorphan.gui.JFactory;
 import com.github.weisj.darklaf.LafManager;
 import com.github.weisj.darklaf.theme.DarculaTheme;
 import com.github.weisj.darklaf.theme.Theme;
-import com.google.auto.service.AutoService;
 
 /**
  * Implements the Look and Feel menu item.
  */
-@AutoService(Command.class)
 public class LookAndFeelCommand extends AbstractAction {
     private static final String JMETER_LAF = "jmeter.laf"; // $NON-NLS-1$
 
@@ -202,7 +200,7 @@ public class LookAndFeelCommand extends AbstractAction {
     }
 
     public static boolean isDarklafTheme() {
-        return "Darklaf".equalsIgnoreCase(UIManager.getLookAndFeel().getID()); // $NON-NLS-1$
+        return "Darklaf".equals(UIManager.getLookAndFeel().getID()); // $NON-NLS-1$
     }
 
     public static boolean isDark() {

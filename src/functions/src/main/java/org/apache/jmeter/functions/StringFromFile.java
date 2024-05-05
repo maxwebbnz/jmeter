@@ -37,8 +37,6 @@ import org.apache.jorphan.util.JMeterStopThreadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.auto.service.AutoService;
-
 /**
  * <p>StringFromFile Function to read a String from a text file.</p>
  *
@@ -72,7 +70,6 @@ import com.google.auto.service.AutoService;
  * Because function instances are shared, it does not make sense to use the thread number as part of the file name.
  * @since 1.9
  */
-@AutoService(Function.class)
 public class StringFromFile extends AbstractFunction implements TestStateListener {
     private static final Logger log = LoggerFactory.getLogger(StringFromFile.class);
 
@@ -125,7 +122,7 @@ public class StringFromFile extends AbstractFunction implements TestStateListene
 
     public StringFromFile() {
         if (log.isDebugEnabled()) {
-            log.debug("++++++++ Construct {}", this);
+            log.debug("++++++++ Construct {}" + this);
         }
     }
 
@@ -150,8 +147,9 @@ public class StringFromFile extends AbstractFunction implements TestStateListene
         String tn = Thread.currentThread().getName();
         fileName = ((CompoundVariable) values[0]).execute();
 
+        String start = "";
         if (values.length >= PARAM_START) {
-            String start = ((CompoundVariable) values[PARAM_START - 1]).execute();
+            start = ((CompoundVariable) values[PARAM_START - 1]).execute();
             try {
                 // Low chances to be non numeric, we parse
                 myStart = Integer.parseInt(start);
