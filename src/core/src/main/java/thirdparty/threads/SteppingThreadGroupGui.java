@@ -184,9 +184,12 @@ public class SteppingThreadGroupGui
         decUserCount = new JTextField(5);
         panel.add(decUserCount);
         panel.add(new JLabel("threads every", JLabel.CENTER));
+
         decUserPeriod = new JTextField(5);
         panel.add(decUserPeriod);
         panel.add(new JLabel("seconds.", JLabel.LEFT));
+
+        panel.add(new JLabel("Target Transactions (per thread) per hour", JLabel.LEFT));
 
         registerJTextfieldForGraphRefresh(totalThreads);
         registerJTextfieldForGraphRefresh(initialDelay);
@@ -257,7 +260,6 @@ public class SteppingThreadGroupGui
             tg.setFlightTime(flightTime.getText());
             tg.setRampUp(rampUp.getText());
             tg.setSamplerController((LoopController) loopPanel.createTestElement());
-
             refreshPreview();
         }
     }

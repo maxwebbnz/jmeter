@@ -33,8 +33,10 @@ public class SteppingThreadGroup
     private static final String DEC_USER_COUNT = "Stop users count";
     private static final String FLIGHT_TIME = "flighttime";
     private static final String RAMPUP = "rampUp";
+    private int transcationTarget = 0;
 
-    protected void scheduleThread(JMeterThread thread, long tgStartTime) {
+
+    protected void scheduleThisThread(JMeterThread thread, long tgStartTime) {
 
         int inUserCount = getInUserCountAsInt();
         int outUserCount = getOutUserCountAsInt();
@@ -172,6 +174,10 @@ public class SteppingThreadGroup
         return getPropertyAsInt(RAMPUP);
     }
 
+    public void setTransactionTarget(String value){
+        // For now we can just assume this is an hour count;
+       transcationTarget = Integer.valueOf(value);
+    }
     public int getFlightTimeAsInt() {
         return getPropertyAsInt(FLIGHT_TIME);
     }

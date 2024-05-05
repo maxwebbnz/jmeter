@@ -30,11 +30,10 @@ import org.apache.jmeter.threads.JMeterThread;
 import org.apache.jmeter.threads.ListenerNotifier;
 import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jorphan.collections.ListedHashTree;
-import org.apache.jorphan.util.JMeterStopTestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AbstractSimpleThreadGroup extends AbstractThreadGroup implements Serializable{
+public abstract class AbstractSimpleThreadGroup extends AbstractThreadGroup implements Serializable{
     private static final Logger log = LoggerFactory.getLogger(AbstractSimpleThreadGroup.class);
 
     private static final long WAIT_TO_DIE = JMeterUtils.getPropDefault("jmeterengine.threadstop.wait", 5 * 1000); // 5 seconds
@@ -59,7 +58,6 @@ public class AbstractSimpleThreadGroup extends AbstractThreadGroup implements Se
     private ListedHashTree threadGroupTree;
 
     public AbstractSimpleThreadGroup(){
-        super();
     }
 
     public boolean isSameUser(){
@@ -163,32 +161,22 @@ public class AbstractSimpleThreadGroup extends AbstractThreadGroup implements Se
         return getPropertyAsLong(DELAY);
     }
 
-     private void scheduleThread(JMeterThread thread, long now) {
+    private long tgStartTime = -1;
+    private static final long TOLERANCE = 1000;
 
-        if (!getScheduler()) { // if the Scheduler is not enabled
-            return;
-        }
+    protected abstract void scheduleThisThread(JMeterThread thread, long now);
 
-        if (getDelay() >= 0) { // Duration is in seconds
-            thread.setStartTime(getDelay() * 1000 + now);
-        } else {
-            throw new JMeterStopTestException("Invalid delay " + getDelay() + " set in Thread Group:" + getName());
+    public void scheduleThisThread(JMeterThread thread) {
+        if (System.currentTimeMillis() - tgStartTime > TOLERANCE) {
+            tgStartTime = System.currentTimeMillis();
         }
-
-        // set the endtime for the Thread
-        if (getDuration() > 0) {// Duration is in seconds
-            thread.setEndTime(getDuration() * 1000 + thread.getStartTime());
-        } else {
-            throw new JMeterStopTestException("Invalid duration " + getDuration() + " set in Thread Group:" + getName());
-        }
-        // Enables the scheduler
-        thread.setScheduled(true);
+        scheduleThisThread(thread, tgStartTime);
     }
 
      private JMeterThread startNewThread(ListenerNotifier notifier, ListedHashTree threadGroupTree, StandardJMeterEngine engine,
         int threadNum, final JMeterContext context, long now, int delay, Boolean isSameUserOnNextIteration) {
         JMeterThread jmThread = makeThread(notifier, threadGroupTree, engine, threadNum, context, isSameUserOnNextIteration);
-        scheduleThread(jmThread, now); // set start and end time
+        scheduleThisThread(jmThread, now); // set start and end time
         jmThread.setInitialDelay(delay);
         Thread newThread = new Thread(jmThread, jmThread.getThreadName());
         registerStartedThread(jmThread, newThread);
